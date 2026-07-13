@@ -68,3 +68,5 @@ const login = async (email: string, password: string) => {
 //logout
 
 //refresh token?
+
+export default { login };
