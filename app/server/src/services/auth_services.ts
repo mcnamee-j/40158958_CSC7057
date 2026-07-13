@@ -2,6 +2,7 @@ import pool from "../config/db.js";
 import jwt from "jsonwebtoken";
 import type { User } from "../types/types.js";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 //login
 const login = async (email: string, password: string) => {
@@ -42,7 +43,24 @@ const login = async (email: string, password: string) => {
     ACCESS_SECRET,
     { expiresIn: "15m" },
   );
+
   // expiry/refresh token - saved in db
+  const refreshToken = crypto.randomUUID();
+
+  const token_hash = crypto
+    .createHash("sha256")
+    .update(refreshToken)
+    .digest("hex");
+
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 1);
+
+  //saves the refresh token to database
+  await pool.query(
+    `INSERT INTO refresh_tokens (user_id, token_hash, expires_at)
+     VALUES ($1, $2, $3)`,
+    [user.id, token_hash, expiresAt],
+  );
 
   // update login time
   await pool.query(
@@ -55,6 +73,7 @@ const login = async (email: string, password: string) => {
   //returns token and user info
   return {
     accessToken,
+    refreshToken,
     user: {
       id: user.id,
       firstName: user.first_name,
@@ -66,7 +85,19 @@ const login = async (email: string, password: string) => {
 };
 
 //logout
+const logout = async (refreshToken: string) => {
+  const token_hash = crypto
+    .createHash("sha256")
+    .update(refreshToken)
+    .digest("hex");
 
+  await pool.query(
+    `UPDATE refresh_tokens 
+    SET revoked = true 
+    WHERE token_hash = $1`,
+    [token_hash],
+  );
+};
 //refresh token?
 
 export default { login };
