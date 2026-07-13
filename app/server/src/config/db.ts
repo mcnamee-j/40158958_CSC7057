@@ -11,12 +11,4 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
 });
 
-pool.on("connect", () => {
-  console.log("Connected to PostgreSQL");
-});
-
-pool.on("error", (e) => {
-  console.log("PostgreSQL connection error", e);
-});
-
 export default pool;
