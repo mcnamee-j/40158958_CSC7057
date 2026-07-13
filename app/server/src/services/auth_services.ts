@@ -136,4 +136,4 @@ const refresh = async (refreshToken: string) => {
   return { accessToken };
 };
 
-export default { login };
+export default { login, logout, refresh };
