@@ -98,6 +98,42 @@ const logout = async (refreshToken: string) => {
     [token_hash],
   );
 };
-//refresh token?
+
+//refresh token
+const refresh = async (refreshToken: string) => {
+  const token_hash = crypto
+    .createHash("sha256")
+    .update(refreshToken)
+    .digest("hex");
+
+  const result = await pool.query(
+    `SELECT refresh_tokens.*, users.role, users.organisation_id, users.active
+     FROM refresh_tokens
+     JOIN users
+     ON refresh_tokens.user_id = users.id
+     WHERE refresh_tokens.token_hash = $1
+     AND refresh_tokens.revoked = false
+     AND refresh_tokens.expires_at > NOW()`,
+    [token_hash],
+  );
+
+  const token = result.rows[0];
+
+  if (!token || !token.active) {
+    throw new Error("Invalid refresh token");
+  }
+
+  const accessToken = jwt.sign(
+    {
+      userId: token.user_id,
+      role: token.role,
+      organisationId: token.organisation_id,
+    },
+    process.env.JWT_SECRET!,
+    { expiresIn: "15m" },
+  );
+
+  return { accessToken };
+};
 
 export default { login };
