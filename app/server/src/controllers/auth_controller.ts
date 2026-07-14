@@ -1,8 +1,8 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import authServices from "../services/auth_services.js";
 
 //login
-const login = async (req: Request, res: Response) => {
+const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
 
@@ -15,15 +15,16 @@ const login = async (req: Request, res: Response) => {
 
     res.status(200).json(response);
   } catch (e: any) {
-    if (e.message === "Invalid credentials") {
+    if (e.message === "Invalid Credentials") {
       res.status(401).json({ error: "Invalid credentials" });
       return;
     }
+    next(e); //passes any unexpected errors to the error handler in middleware
   }
 };
 
 //logout
-const logout = async (req: Request, res: Response) => {
+const logout = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { refresh_token } = req.body;
     if (!refresh_token) {
@@ -32,24 +33,27 @@ const logout = async (req: Request, res: Response) => {
     }
     await authServices.logout(refresh_token);
     res.status(200).json({ message: "Logged out successfully" });
-  } catch (e) {}
+  } catch (e) {
+    next(e);
+  }
 };
 
 //refresh
-const refresh = async (req: Request, res: Response) => {
+const refresh = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { refreshToken } = req.body;
-    if (!refreshToken) {
+    const { refresh_token } = req.body;
+    if (!refresh_token) {
       res.status(400).json({ error: "Refresh token required" });
       return;
     }
-    const result = await authServices.refresh(refreshToken);
+    const result = await authServices.refresh(refresh_token);
     res.status(200).json(result);
   } catch (e: any) {
     if (e.message === "Invalid refresh token") {
       res.status(401).json({ error: "Invalid or expired refresh token" });
       return;
     }
+    next(e);
   }
 };
 

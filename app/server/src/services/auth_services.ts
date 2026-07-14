@@ -4,6 +4,12 @@ import type { User } from "../types/types.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 
+//access token on validation
+const ACCESS_SECRET = process.env.ACCESS_SECRET;
+if (!ACCESS_SECRET) {
+  throw new Error("Internal Server error - ACCESS_SECRET");
+}
+
 //login
 const login = async (email: string, password: string) => {
   //find user
@@ -26,17 +32,16 @@ const login = async (email: string, password: string) => {
   const validCredentials = await bcrypt.compare(password, user.hashed_password);
   // invalid path
   if (!validCredentials) {
-    await pool.query(
-      `INSERT INTO audit_log (user_id, action, performed_at)
+    try {
+      await pool.query(
+        `INSERT INTO audit_log (user_id, action, performed_at)
         VALUES ($1, 'failed_login', NOW())`,
-      [user.id],
-    );
+        [user.id],
+      );
+    } catch (auditError) {
+      console.error("Audit log failed", auditError);
+    }
     throw new Error("Invalid Credentials");
-  }
-  //access token on validation
-  const ACCESS_SECRET = process.env.ACCESS_SECRET;
-  if (!ACCESS_SECRET) {
-    throw new Error("Internal Server error - ACCESS_SECRET");
   }
 
   const accessToken = jwt.sign(
@@ -134,7 +139,7 @@ const refresh = async (refreshToken: string) => {
       role: token.role,
       organisationId: token.organisation_id,
     },
-    process.env.JWT_SECRET!,
+    ACCESS_SECRET,
     { expiresIn: "15m" },
   );
 
