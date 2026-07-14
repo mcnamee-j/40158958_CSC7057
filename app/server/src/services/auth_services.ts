@@ -26,6 +26,11 @@ const login = async (email: string, password: string) => {
   const validCredentials = await bcrypt.compare(password, user.hashed_password);
   // invalid path
   if (!validCredentials) {
+    await pool.query(
+      `INSERT INTO audit_log (user_id, action, performed_at)
+        VALUES ($1, 'failed_login', NOW())`,
+      [user.id],
+    );
     throw new Error("Invalid Credentials");
   }
   //access token on validation

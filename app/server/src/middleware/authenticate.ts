@@ -6,7 +6,7 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
   const header = req.headers.authorization;
 
   if (!header) {
-    res.status(401).json({ error: "No toke provided" });
+    res.status(401).json({ error: "No token provided" });
     return;
   }
 
