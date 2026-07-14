@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, develop] #runs everytime there is a push to main or develop branches
+    branches: [main, develop, "sprint*"] #runs everytime there is a push to main or develop branches
   pull_request:
     branches: [main, develop] #same as above except for pull reqs
 
