@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop] #runs everytime there is a push to main or develop branches
+  pull_request:
+    branches: [main, develop] #same as above except for pull reqs
+
+jobs:
+  build:
+    runs-on: ubuntu-latest #will give same results as Mac and Windows - free to use
+
+    strategy:
+      matrix:
+        node-version: [26]
+
+    steps:
+      - name: Download repo
+        uses: actions/checkout@v4
+
+      - name: Sets up node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{matrix.node-version}}
+          cache: npm #remebers modules so it doesnt have to redownload on every call
+
+      - name: Install dependencies (server)
+        working-directory: app/server
+        run: npm ci #installs versions in package-lock.json file
+
+      - name: Type check (server)
+        working-directory: app/server
+        run: npx tsc --noEmit #checks all ts files (--noEmit avoids creation of js files)
+
+      - name: Build (server)
+        working-directory: app/server
+        run: npm run build #runs package.json
+
+      - name: Install dependencies (client)
+        working-directory: app/client
+        run: npm ci
+
+      - name: Build (client)
+        working-directory: app/client
+        run: npm run build
