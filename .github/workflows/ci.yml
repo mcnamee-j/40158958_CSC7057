@@ -23,6 +23,9 @@ jobs:
         with:
           node-version: ${{matrix.node-version}}
           cache: npm #remebers modules so it doesnt have to redownload on every call
+          cache-dependency-path: |
+            app/server/package-lock.json
+            app/client/package-lock.json
 
       - name: Install dependencies (server)
         working-directory: app/server
@@ -36,10 +39,12 @@ jobs:
         working-directory: app/server
         run: npm run build #runs package.json
 
-      - name: Install dependencies (client)
-        working-directory: app/client
-        run: npm ci
 
-      - name: Build (client)
-        working-directory: app/client
-        run: npm run build
+      #client side - uncomment when i make it
+      # - name: Install dependencies (client)
+      #   working-directory: app/client
+      #   run: npm ci
+
+      # - name: Build (client)
+      #   working-directory: app/client
+      #   run: npm run build
