@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import type { User } from "../types/types.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-import { sendPasswordResetEmail } from "mail_service.js";
+import { sendPasswordResetEmail } from "./mail_service.js";
 
 //access token on validation
 const ACCESS_SECRET = process.env.ACCESS_SECRET;
@@ -202,11 +202,58 @@ const forgot_password = async (email: string) => {
 };
 
 //reset password -actually change password
-const reset_password = async () => {
+const reset_password = async (token: string, new_password: string) => {
+  //hash the token
+  const token_hash = crypto.createHash("sha256").update(token).digest("hex");
+
   //find the password reset token - check if its valid
+  const response = await pool.query(
+    `SELECT *, users.id
+    FROM password_reset_tokens
+    JOIN users
+    ON password_reset_tokens.user_id = users.id
+    WHERE password_reset_tokens.token_hash = $1
+    AND password_reset_tokens.used = false
+    AND password_reset_tokens.expires_at > NOW()`,
+    [token_hash],
+  );
+
+  const reset_token = response.rows[0];
+  if (!reset_token) {
+    throw new Error("Invalid or expired reset token");
+  }
   //get new password, hash it and store in db
-  //make token invalid
+  const hashed_password = await bcrypt.hash(new_password, 10);
+
+  await pool.query(
+    `UPDATE users
+    SET hashed_password = £1
+    WHERE id = $2`,
+    [hashed_password, reset_token.user_id],
+  );
+
+  //mark reset token used and refresh tokens as revoked
+  await pool.query(
+    `UPDATE password_reset_tokens
+    SET used = true
+    WHERE id = $1`,
+    [reset_token.id],
+  );
+
+  await pool.query(
+    `UPDATE refresh_tokens
+    SET revoked = true
+    WHERE user_id = $1`,
+    [reset_token.user_id],
+  );
+
   //add to audit log
+  await pool.query(
+    `INSERT INTO audot_log
+    (user_id, action, performed_at)
+    VALUES ($1, "password_reset_successful", NOW())`,
+    [reset_token.user_id],
+  );
 };
 
-export default { login, logout, refresh };
+export default { login, logout, refresh, forgot_password, reset_password };

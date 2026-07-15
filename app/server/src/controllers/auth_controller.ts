@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import authServices from "../services/auth_services.js";
+import auth_services from "../services/auth_services.js";
 
 //login
 const login = async (req: Request, res: Response, next: NextFunction) => {
@@ -58,7 +59,57 @@ const refresh = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 //forgot password
+const forgot_password = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      res.status(400).json({ error: "Email is required" });
+      return;
+    }
+
+    await authServices.forgot_password(email);
+
+    res.status(200).json({
+      message: "Reset link sent to email. You shall receive it shortly",
+    });
+  } catch (e: any) {
+    next(e);
+  }
+};
 
 //reset password
+const reset_password = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { token, new_password } = req.body;
 
-export default { login, logout, refresh };
+    if (!token || !new_password) {
+      res
+        .status(400)
+        .json({ error: "Both token and new password are required" });
+      return;
+    }
+
+    if (new_password.length < 8) {
+      res
+        .status(400)
+        .json({ error: "Passwords must be more than 8 characters long" });
+      return;
+    }
+
+    await auth_services.reset_password(token, new_password);
+
+    res.status(200).json({ message: "Password reset successful" });
+  } catch (e: any) {
+    next(e);
+  }
+};
+
+export default { login, logout, refresh, forgot_password, reset_password };
