@@ -13,8 +13,12 @@ const transporter = nodemailer.createTransport({
     : undefined,
 });
 
-export const passwordResetEmail = async (email: string, first_name: string) => {
-  const reset_URL = "";
+export const sendPasswordResetEmail = async (
+  email: string,
+  first_name: string,
+  reset_token: string,
+) => {
+  const reset_URL = `${process.env.APP_URL}/reset_password?token=${reset_token}`; //uses query string paramters to pass to API (frontend) whenever I create it
 
   await transporter.sendMail({
     from: process.env.MAIL_FROM,

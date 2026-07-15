@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import type { User } from "../types/types.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import { sendPasswordResetEmail } from "mail_service.js";
 
 //access token on validation
 const ACCESS_SECRET = process.env.ACCESS_SECRET;
@@ -147,17 +148,65 @@ const refresh = async (refreshToken: string) => {
 };
 
 //forgot password - sends email - creates new password reset token (requires another DB table)
-//find user
-//create reset token
-//set expiry
-//if sent multiple requests, need to invalidate older ones
-//add token to db
-// send email and record in audit_log
+const forgot_password = async (email: string) => {
+  //find user by email
+  const response = await pool.query(
+    `SELECT *
+      FROM users
+      WHERE email = $1
+      AND active = true`,
+    [email],
+  );
+
+  const user = response.rows[0];
+  if (!user) return; //doesnt give away that email is not in system
+
+  //create reset token using crypto
+  const reset_token = crypto.randomUUID();
+  //hash token using crypto
+  const hashed_token = crypto
+    .createHash("sha256")
+    .update(reset_token)
+    .digest("hex");
+
+  //set expiry - 1 hour
+  const expires_at = new Date();
+  expires_at.setHours(expires_at.getHours() + 1);
+
+  //if sent multiple requests, need to invalidate older ones (set all to true)
+  await pool.query(
+    `UPDATE password_reset_tokens
+      SET used = true
+      WHERE user_id = $1
+      AND used = false`,
+    [user.id],
+  );
+
+  // add token to db
+  await pool.query(
+    `INSERT INTO password_reset_tokens
+      (user_id, token_hash, expires_at)
+      VALUES ($1, $2, $3)`,
+    [user.id, hashed_token, expires_at],
+  );
+
+  // send email and record in audit_log
+  await sendPasswordResetEmail(user.email, user.first_name, reset_token);
+
+  await pool.query(
+    `INSERT INTO audit_log
+      (user_id, action, performed_at)
+      VALUES ($1, 'password_reset_request', NOW())`,
+    [user.id],
+  );
+};
 
 //reset password -actually change password
-//find the password reset token - check if its valid
-//get new password, hash it and store in db
-//make token invalid
-//add to audit log
+const reset_password = async () => {
+  //find the password reset token - check if its valid
+  //get new password, hash it and store in db
+  //make token invalid
+  //add to audit log
+};
 
 export default { login, logout, refresh };
