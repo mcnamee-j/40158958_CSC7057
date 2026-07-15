@@ -227,7 +227,7 @@ const reset_password = async (token: string, new_password: string) => {
 
   await pool.query(
     `UPDATE users
-    SET hashed_password = £1
+    SET hashed_password = $1
     WHERE id = $2`,
     [hashed_password, reset_token.user_id],
   );
@@ -249,9 +249,9 @@ const reset_password = async (token: string, new_password: string) => {
 
   //add to audit log
   await pool.query(
-    `INSERT INTO audot_log
+    `INSERT INTO audit_log
     (user_id, action, performed_at)
-    VALUES ($1, "password_reset_successful", NOW())`,
+    VALUES ($1, 'password_reset_successful', NOW())`,
     [reset_token.user_id],
   );
 };
