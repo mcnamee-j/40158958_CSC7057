@@ -1,7 +1,7 @@
 import app from "./app.js";
 import pool from "./config/db.js";
 
-const PORT = 3000;
+const PORT = process.env.SERVER_PORT;
 
 pool
   .query(`SELECT 1`)
