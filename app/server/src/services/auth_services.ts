@@ -146,4 +146,18 @@ const refresh = async (refreshToken: string) => {
   return { accessToken };
 };
 
+//forgot password - sends email - creates new password reset token (requires another DB table)
+//find user
+//create reset token
+//set expiry
+//if sent multiple requests, need to invalidate older ones
+//add token to db
+// send email and record in audit_log
+
+//reset password -actually change password
+//find the password reset token - check if its valid
+//get new password, hash it and store in db
+//make token invalid
+//add to audit log
+
 export default { login, logout, refresh };
