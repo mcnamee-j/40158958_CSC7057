@@ -189,3 +189,71 @@ describe("POST /api/auth/reset_password", () => {
     expect(res.status).toBe(400);
   });
 });
+
+//middleware
+describe("middleware tests", () => {
+  it("rejects request with no Authorization header", async () => {
+    const res = await request(app)
+      .post("/api/auth/logout")
+      .send({ refresh_token: "token" });
+
+    expect(res.status).toBe(401);
+    expect(res.body.error).toBe("No token provided");
+  });
+
+  it("rejects request with incorrect Authorization header", async () => {
+    const res = await request(app)
+      .post("/api/auth/logout")
+      .set("Authorization", "incorrect_layout")
+      .send({ refresh_token: "token" });
+
+    expect(res.status).toBe(401);
+  });
+
+  it("rejects request with invalid token", async () => {
+    const res = await request(app)
+      .post("/api/auth/logout")
+      .set("Authorization", "Bearer invalid_token")
+      .send({ refresh_token: "token" });
+
+    expect(res.status).toBe(401);
+    expect(res.body.error).toBe("Invalid token");
+  });
+});
+
+//audit_log
+describe("audit log entry tests", () => {
+  it("creates audit log entry on successful login", async () => {
+    await request(app)
+      .post("/api/auth/login")
+      .send({ email: "sarah@surgery.com", password: "Password123!" });
+
+    const result = await pool.query(
+      `SELECT * 
+        FROM audit_log
+        WHERE action = 'user_login'
+        ORDER BY performed_at DESC
+        LIMIT 1`,
+    );
+
+    expect(result.rows.length).toBeGreaterThan(0);
+    expect(result.rows[0].action).toBe("user_login");
+  });
+
+  it("creates audit log entry on failed login", async () => {
+    await request(app)
+      .post("/api/auth/login")
+      .send({ email: "sarah@surgery.com", password: "wrong_password" });
+
+    const result = await pool.query(
+      `SELECT * 
+        FROM audit_log
+        WHERE action = 'failed_login'
+        ORDER BY performed_at DESC
+        LIMIT 1`,
+    );
+
+    expect(result.rows.length).toBeGreaterThan(0);
+    expect(result.rows[0].action).toBe("failed_login");
+  });
+});
