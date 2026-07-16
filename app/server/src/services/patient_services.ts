@@ -68,3 +68,5 @@ const find_or_create_patient = async (patient?: PatientReferences) => {
 
   return insert_new.rows[0].id;
 };
+
+export default { validate_patient_refs, find_or_create_patient };

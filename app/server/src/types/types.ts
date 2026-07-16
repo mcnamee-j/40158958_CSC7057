@@ -8,22 +8,6 @@ export type UserRole =
   | "pharmacy_staff"
   | "practice_staff";
 
-export type QueryCategory =
-  | "prescription"
-  | "stock"
-  | "patient"
-  | "routine"
-  | "other";
-
-export type QueryPriority = "high" | "medium" | "low";
-
-export type QueryStatus = "new" | "in_progress" | "resolved";
-
-export type NotificationType =
-  | "query_assigned"
-  | "query_update"
-  | "query_reply";
-
 //DB types
 
 export interface Organisation {
@@ -55,44 +39,6 @@ export interface Patient {
   initials: string;
   dob: Date;
   hcn: string;
-}
-
-export interface Query {
-  id: number;
-  ref_number: string;
-  patient_id: number | null;
-  sender_org_id: number;
-  recipient_org_id: number;
-  created_by: number;
-  assigned_to: number | null;
-  category: QueryCategory;
-  priority: QueryPriority;
-  status: QueryStatus;
-  subject: string;
-  resolution_note: string | null;
-  resolved_at: Date | null;
-  created_at: Date;
-  updated_at: Date;
-}
-
-export interface QueryReply {
-  id: number;
-  query_id: number;
-  sender_id: number;
-  body: string;
-  is_internal: boolean;
-  read_at: Date | null;
-  sent_at: Date;
-}
-
-export interface Notification {
-  id: number;
-  user_id: number;
-  query_id: number | null;
-  type: NotificationType;
-  message: string;
-  is_read: boolean;
-  created_at: Date;
 }
 
 export interface AuditLog {

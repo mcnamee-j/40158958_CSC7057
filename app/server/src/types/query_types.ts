@@ -55,3 +55,18 @@ export interface QueryReply {
   read_at: Date | null;
   sent_at: Date;
 }
+
+export type NotificationType =
+  | "query_assigned"
+  | "query_updated"
+  | "query_reply";
+
+export interface Notification {
+  id: number;
+  user_id: number;
+  query_id: number | null;
+  type: NotificationType;
+  message: string;
+  is_read: boolean;
+  created_at: Date;
+}
