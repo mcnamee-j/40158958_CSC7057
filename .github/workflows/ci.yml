@@ -14,6 +14,38 @@ jobs:
       matrix:
         node-version: [26]
 
+    #test database setup using postgres v.15
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: loop_test
+        ports:
+          - 5432:5432
+        options: >- #ensures db is ready before trying any connections
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    #env variables
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_NAME: loop_test
+      DB_USER: test_user
+      DB_PASSWORD: test_password
+      ACCESS_SECRET: test_access_secret
+      MAIL_HOST: localhost
+      MAIL_PORT: 1025
+      MAIL_USER: ""
+      MAIL_PASS: ""
+      MAIL_FROM: noreply@loop.com
+      APP_URL: http://localhost:4000
+      NODE_ENV: test
+
     steps:
       - name: Download repo
         uses: actions/checkout@v4
@@ -31,9 +63,32 @@ jobs:
         working-directory: app/server
         run: npm ci #installs versions in package-lock.json file
 
+        #keep eye on this if ever update sql files
+      - name: Run test db schema
+        working-directory: app/server
+        run: |
+          PGPASSWORD=test_password psql \
+            -h localhost \
+            -U test_user \
+            -d loop_test \
+            -f src/config/40158958_project_1.sql
+
+      - name: Run seed data
+        working-directory: app/server
+        run: |
+          PGPASSWORD=test_password psql \
+            -h localhost \
+            -U test_user \
+            -d loop_test \
+            -f src/config/db.sql
+
       - name: Type check (server)
         working-directory: app/server
         run: npx tsc --noEmit #checks all ts files (--noEmit avoids creation of js files)
+
+      - name: Run tests - Vitest (server)
+        working-directory: app/server
+        run: npm test
 
       - name: Build (server)
         working-directory: app/server
