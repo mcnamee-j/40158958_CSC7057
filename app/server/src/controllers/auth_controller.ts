@@ -108,6 +108,10 @@ const reset_password = async (
 
     res.status(200).json({ message: "Password reset successful" });
   } catch (e: any) {
+    if (e.message === "Invalid or expired reset token") {
+      res.status(400).json({ error: "Invalid or expired reset token" });
+      return;
+    }
     next(e);
   }
 };

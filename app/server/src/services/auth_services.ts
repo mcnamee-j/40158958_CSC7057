@@ -45,7 +45,7 @@ const login = async (email: string, password: string) => {
     throw new Error("Invalid Credentials");
   }
 
-  const accessToken = jwt.sign(
+  const access_token = jwt.sign(
     {
       userId: user.id,
       role: user.role,
@@ -56,11 +56,11 @@ const login = async (email: string, password: string) => {
   );
 
   // expiry/refresh token - saved in db
-  const refreshToken = crypto.randomUUID();
+  const refresh_token = crypto.randomUUID();
 
   const token_hash = crypto
     .createHash("sha256")
-    .update(refreshToken)
+    .update(refresh_token)
     .digest("hex");
 
   const expiresAt = new Date();
@@ -83,8 +83,8 @@ const login = async (email: string, password: string) => {
 
   //returns token and user info
   return {
-    accessToken,
-    refreshToken,
+    access_token,
+    refresh_token,
     user: {
       id: user.id,
       firstName: user.first_name,
@@ -96,10 +96,10 @@ const login = async (email: string, password: string) => {
 };
 
 //logout
-const logout = async (refreshToken: string) => {
+const logout = async (refresh_token: string) => {
   const token_hash = crypto
     .createHash("sha256")
-    .update(refreshToken)
+    .update(refresh_token)
     .digest("hex");
 
   await pool.query(
@@ -111,10 +111,10 @@ const logout = async (refreshToken: string) => {
 };
 
 //refresh token
-const refresh = async (refreshToken: string) => {
+const refresh = async (refresh_token: string) => {
   const token_hash = crypto
     .createHash("sha256")
-    .update(refreshToken)
+    .update(refresh_token)
     .digest("hex");
 
   const result = await pool.query(
@@ -134,7 +134,7 @@ const refresh = async (refreshToken: string) => {
     throw new Error("Invalid refresh token");
   }
 
-  const accessToken = jwt.sign(
+  const access_token = jwt.sign(
     {
       userId: token.user_id,
       role: token.role,
@@ -144,7 +144,7 @@ const refresh = async (refreshToken: string) => {
     { expiresIn: "15m" },
   );
 
-  return { accessToken };
+  return { access_token };
 };
 
 //forgot password - sends email - creates new password reset token (requires another DB table)
