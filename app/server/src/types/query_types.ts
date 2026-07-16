@@ -8,11 +8,10 @@ export type QueryStatus =
 export type QueryPriority = "low" | "medium" | "high";
 
 export type QueryCategory =
-  | "medicine_shortage"
-  | "prescription_clarification"
-  | "dosage_query"
-  | "interaction_check"
-  | "administrative"
+  | "stock"
+  | "prescription"
+  | "patient"
+  | "routine"
   | "other";
 
 export interface PatientReferences {
