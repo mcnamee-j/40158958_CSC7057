@@ -81,6 +81,14 @@ const login = async (email: string, password: string) => {
     [user.id],
   );
 
+  //update audit log
+  await pool.query(
+    `INSERT INTO audit_log 
+    (user_id, action, performed_at)
+    VALUES ($1, 'user_login', NOW())`,
+    [user.id],
+  );
+
   //returns token and user info
   return {
     access_token,
