@@ -18,6 +18,13 @@ export const sendPasswordResetEmail = async (
   first_name: string,
   reset_token: string,
 ) => {
+  // Skip sending email in test environment
+  if (process.env.NODE_ENV === "test") {
+    console.log(`[TEST] Password reset email would be sent to ${email}`);
+    console.log(`[TEST] Reset token: ${reset_token}`);
+    return;
+  }
+
   const reset_URL = `${process.env.APP_URL}/reset_password?token=${reset_token}`; //uses query string paramters to pass to API (frontend) whenever I create it
 
   await transporter.sendMail({
