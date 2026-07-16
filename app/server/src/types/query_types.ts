@@ -21,7 +21,7 @@ export interface PatientReferences {
 }
 
 export interface CreateQueryInput {
-  recipient_org_id: string;
+  recipient_org_id: number;
   category: QueryCategory;
   priority?: QueryPriority; // defaults to 'medium'
   patient?: PatientReferences;
@@ -30,12 +30,12 @@ export interface CreateQueryInput {
 }
 
 export interface Query {
-  id: string;
+  id: number;
   reference_number: string;
-  patient_id: string | null;
-  sender_org_id: string;
-  recipient_org_id: string;
-  created_by: string;
+  patient_id: number | null;
+  sender_org_id: number;
+  recipient_org_id: number;
+  created_by: number;
   category: QueryCategory;
   priority: QueryPriority;
   status: QueryStatus;
@@ -47,9 +47,9 @@ export interface Query {
 }
 
 export interface QueryReply {
-  id: string;
-  query_id: string;
-  sender_id: string;
+  id: number;
+  query_id: number;
+  sender_id: number;
   body: string;
   is_internal: boolean;
   read_at: Date | null;
