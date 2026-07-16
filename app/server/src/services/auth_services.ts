@@ -1,0 +1,267 @@
+import pool from "../config/db.js";
+import jwt from "jsonwebtoken";
+import type { User } from "../types/types.js";
+import bcrypt from "bcrypt";
+import crypto from "crypto";
+import { sendPasswordResetEmail } from "./mail_service.js";
+
+//access token on validation
+const ACCESS_SECRET = process.env.ACCESS_SECRET;
+if (!ACCESS_SECRET) {
+  throw new Error("Internal Server error - ACCESS_SECRET");
+}
+
+//login
+const login = async (email: string, password: string) => {
+  //find user
+  const userSearch = await pool.query(
+    `SELECT * 
+    FROM users 
+    WHERE email = $1`,
+    [email],
+  );
+
+  //store user
+  const user: User = userSearch.rows[0];
+
+  // invalid user
+  if (!user || !user.active) {
+    throw new Error("Invalid Credentials");
+  }
+  // check entered password vs stored password (use bcrypt.compare) then access token is created
+  //valid path
+  const validCredentials = await bcrypt.compare(password, user.hashed_password);
+  // invalid path
+  if (!validCredentials) {
+    try {
+      await pool.query(
+        `INSERT INTO audit_log (user_id, action, performed_at)
+        VALUES ($1, 'failed_login', NOW())`,
+        [user.id],
+      );
+    } catch (auditError) {
+      console.error("Audit log failed", auditError);
+    }
+    throw new Error("Invalid Credentials");
+  }
+
+  const access_token = jwt.sign(
+    {
+      userId: user.id,
+      role: user.role,
+      organisationId: user.organisation_id,
+    },
+    ACCESS_SECRET,
+    { expiresIn: "15m" },
+  );
+
+  // expiry/refresh token - saved in db
+  const refresh_token = crypto.randomUUID();
+
+  const token_hash = crypto
+    .createHash("sha256")
+    .update(refresh_token)
+    .digest("hex");
+
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 1);
+
+  //saves the refresh token to database
+  await pool.query(
+    `INSERT INTO refresh_tokens (user_id, token_hash, expires_at)
+     VALUES ($1, $2, $3)`,
+    [user.id, token_hash, expiresAt],
+  );
+
+  // update login time
+  await pool.query(
+    `UPDATE users
+    SET last_login = NOW()
+    WHERE id = $1`,
+    [user.id],
+  );
+
+  //update audit log
+  await pool.query(
+    `INSERT INTO audit_log 
+    (user_id, action, performed_at)
+    VALUES ($1, 'user_login', NOW())`,
+    [user.id],
+  );
+
+  //returns token and user info
+  return {
+    access_token,
+    refresh_token,
+    user: {
+      id: user.id,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      role: user.role,
+      organisation: user.organisation_id,
+    },
+  };
+};
+
+//logout
+const logout = async (refresh_token: string) => {
+  const token_hash = crypto
+    .createHash("sha256")
+    .update(refresh_token)
+    .digest("hex");
+
+  await pool.query(
+    `UPDATE refresh_tokens 
+    SET revoked = true 
+    WHERE token_hash = $1`,
+    [token_hash],
+  );
+};
+
+//refresh token
+const refresh = async (refresh_token: string) => {
+  const token_hash = crypto
+    .createHash("sha256")
+    .update(refresh_token)
+    .digest("hex");
+
+  const result = await pool.query(
+    `SELECT refresh_tokens.*, users.role, users.organisation_id, users.active
+     FROM refresh_tokens
+     JOIN users
+     ON refresh_tokens.user_id = users.id
+     WHERE refresh_tokens.token_hash = $1
+     AND refresh_tokens.revoked = false
+     AND refresh_tokens.expires_at > NOW()`,
+    [token_hash],
+  );
+
+  const token = result.rows[0];
+
+  if (!token || !token.active) {
+    throw new Error("Invalid refresh token");
+  }
+
+  const access_token = jwt.sign(
+    {
+      userId: token.user_id,
+      role: token.role,
+      organisationId: token.organisation_id,
+    },
+    ACCESS_SECRET,
+    { expiresIn: "15m" },
+  );
+
+  return { access_token };
+};
+
+//forgot password - sends email - creates new password reset token (requires another DB table)
+const forgot_password = async (email: string) => {
+  //find user by email
+  const response = await pool.query(
+    `SELECT *
+      FROM users
+      WHERE email = $1
+      AND active = true`,
+    [email],
+  );
+
+  const user = response.rows[0];
+  if (!user) return; //doesnt give away that email is not in system
+
+  //create reset token using crypto
+  const reset_token = crypto.randomUUID();
+  //hash token using crypto
+  const hashed_token = crypto
+    .createHash("sha256")
+    .update(reset_token)
+    .digest("hex");
+
+  //set expiry - 1 hour
+  const expires_at = new Date();
+  expires_at.setHours(expires_at.getHours() + 1);
+
+  //if sent multiple requests, need to invalidate older ones (set all to true)
+  await pool.query(
+    `UPDATE password_reset_tokens
+      SET used = true
+      WHERE user_id = $1
+      AND used = false`,
+    [user.id],
+  );
+
+  // add token to db
+  await pool.query(
+    `INSERT INTO password_reset_tokens
+      (user_id, token_hash, expires_at)
+      VALUES ($1, $2, $3)`,
+    [user.id, hashed_token, expires_at],
+  );
+
+  // send email and record in audit_log
+  await sendPasswordResetEmail(user.email, user.first_name, reset_token);
+
+  await pool.query(
+    `INSERT INTO audit_log
+      (user_id, action, performed_at)
+      VALUES ($1, 'password_reset_request', NOW())`,
+    [user.id],
+  );
+};
+
+//reset password -actually change password
+const reset_password = async (token: string, new_password: string) => {
+  //hash the token
+  const token_hash = crypto.createHash("sha256").update(token).digest("hex");
+
+  //find the password reset token - check if its valid
+  const response = await pool.query(
+    `SELECT *, users.id
+    FROM password_reset_tokens
+    JOIN users
+    ON password_reset_tokens.user_id = users.id
+    WHERE password_reset_tokens.token_hash = $1
+    AND password_reset_tokens.used = false
+    AND password_reset_tokens.expires_at > NOW()`,
+    [token_hash],
+  );
+
+  const reset_token = response.rows[0];
+  if (!reset_token) {
+    throw new Error("Invalid or expired reset token");
+  }
+  //get new password, hash it and store in db
+  const hashed_password = await bcrypt.hash(new_password, 10);
+
+  await pool.query(
+    `UPDATE users
+    SET hashed_password = $1
+    WHERE id = $2`,
+    [hashed_password, reset_token.user_id],
+  );
+
+  //mark reset token used and refresh tokens as revoked
+  await pool.query(
+    `UPDATE password_reset_tokens
+    SET used = true
+    WHERE id = $1`,
+    [reset_token.id],
+  );
+
+  await pool.query(
+    `UPDATE refresh_tokens
+    SET revoked = true
+    WHERE user_id = $1`,
+    [reset_token.user_id],
+  );
+
+  //add to audit log
+  await pool.query(
+    `INSERT INTO audit_log
+    (user_id, action, performed_at)
+    VALUES ($1, 'password_reset_successful', NOW())`,
+    [reset_token.user_id],
+  );
+};
+
+export default { login, logout, refresh, forgot_password, reset_password };
