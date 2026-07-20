@@ -52,4 +52,30 @@ const create_query = async (
   }
 };
 
-export default { create_query };
+// get orgs list of queries - w/ filters
+const list_queries = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const user = (req as any).user;
+
+    const { status, priority, category, search, page, limit } = req.query;
+
+    const result = await query_services.get_org_queries(user, {
+      status: status as string | undefined,
+      priority: priority as string | undefined,
+      category: category as string | undefined,
+      search: search as string | undefined,
+      page: page ? parseInt(page as string, 10) : undefined,
+      limit: limit ? parseInt(limit as string, 10) : undefined,
+    });
+
+    res.status(200).json(result);
+  } catch (e) {
+    next(e);
+  }
+};
+
+export default { create_query, list_queries };

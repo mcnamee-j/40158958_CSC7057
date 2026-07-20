@@ -5,7 +5,7 @@ import authorise from "../middleware/authorise.js";
 
 const router = express.Router();
 
-const CAN_CREATE_QUERY = [
+const ALLOWED_QUERY_ROLES = [
   "pharmacy_staff",
   "pharmacy_manager",
   "practice_staff",
@@ -15,8 +15,14 @@ const CAN_CREATE_QUERY = [
 router.post(
   "/",
   authenticate,
-  authorise(CAN_CREATE_QUERY),
+  authorise(ALLOWED_QUERY_ROLES),
   query_controller.create_query,
+);
+router.get(
+  "/",
+  authenticate,
+  authorise(ALLOWED_QUERY_ROLES),
+  query_controller.list_queries,
 );
 
 export default router;

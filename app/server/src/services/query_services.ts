@@ -90,4 +90,76 @@ const create_query = async (
   return query;
 };
 
-export default { create_query };
+//get user organisation queries - include filters @ sql level
+const get_org_queries = async (
+  user: AuthenticatedUser,
+  filters: {
+    status?: string | undefined;
+    priority?: string | undefined;
+    category?: string | undefined;
+    search?: string | undefined;
+    page?: number | undefined; //if i implement pagination of filtered results
+    limit?: number | undefined;
+  },
+) => {
+  //build sql statement uisng if statements and .push
+  const conditions: string[] = [`(sender_org_id = $1 OR recipient_orgId = $1)`];
+  const params: (string | number)[] = [user.organisationId];
+
+  if (filters.status) {
+    params.push(filters.status);
+    conditions.push(`status = $${[params.length]}`);
+  }
+
+  if (filters.priority) {
+    params.push(filters.priority);
+    conditions.push(`priority = $${[params.length]}`);
+  }
+
+  if (filters.category) {
+    params.push(filters.category);
+    conditions.push(`category = $${[params.length]}`);
+  }
+
+  if (filters.search) {
+    params.push(`%${filters.search}%`);
+    conditions.push(
+      `(subject ILIKE $${[params.length]} OR ref_number ILIKE $${[params.length]}`, //ILIKE is case insensitive
+    );
+  }
+
+  //join all conditions together
+  const where = conditions.join(" AND ");
+
+  //pagination? - if lots of queries
+  const page = filters.page && filters.page > 0 ? filters.page : 1; //if no page is passed by user it defaults to 1
+  const limit = filters.limit && filters.limit > 0 ? filters.limit : 20; //default limit to 20 queries per page
+  const page_offset = (page - 1) * limit; //determines how many rows are skipped per page of queries
+
+  // total count after filters applied
+  const results_count = await pool.query(
+    `SELECT COUNT(*)
+    FROM queries
+    WHERE ${where}`,
+    params,
+  );
+  const total = parseInt(results_count.rows[0].count, 10);
+
+  //main query - also gets time elapsed since creation for adding visual flags to frontend (US - 23)
+  params.push(limit, page_offset);
+  const result = await pool.query(
+    `SELECT *,
+    EXTRACT(EPOCH FROM (NOW() - created_at))
+    AS elapsed_seconds
+    FROM queries
+    WHERE ${where}
+    ORDER BY created_at DESC
+    LIMIT $${params.length - 1}
+    OFFSET $${params.length}`,
+    params,
+  );
+
+  return { queries: result.rows, total };
+};
+
+export default { create_query, get_org_queries };
