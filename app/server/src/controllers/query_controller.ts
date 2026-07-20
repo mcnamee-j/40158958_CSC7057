@@ -1,7 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
 import query_services from "../services/query_services.js";
-import { error } from "node:console";
-import { types } from "node:util";
 
 //create a new query
 const create_query = async (
@@ -179,10 +177,55 @@ const update_query_status = async (
   }
 };
 
+const assign_query_to_user = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const user = (req as any).user;
+    const query_id = parseInt(req.params.id as string, 10);
+
+    if (!Number.isInteger(query_id)) {
+      res.status(400).json({ error: "Invalid query id" });
+      return;
+    }
+
+    const { assigned_to, escalate } = req.body;
+
+    if (!assigned_to) {
+      res.status(400).json({ error: "assigned_to is required" });
+      return;
+    }
+
+    const query = await query_services.assign_query(
+      user,
+      query_id,
+      assigned_to,
+      escalate === true,
+    );
+
+    res.status(200).json({ query });
+  } catch (e: any) {
+    if (e.message === "Query not found") {
+      res.status(404).json({ error: "Query not found" });
+      return;
+    }
+    if (e.message === "Invalid assignee") {
+      res.status(400).json({
+        error: "Assignee must be an active user in your organisation",
+      });
+      return;
+    }
+    next(e);
+  }
+};
+
 export default {
   create_query,
   list_queries,
   get_query,
   reply_to_query,
   update_query_status,
+  assign_query_to_user,
 };

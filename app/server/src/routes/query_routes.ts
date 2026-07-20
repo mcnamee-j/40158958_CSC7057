@@ -42,5 +42,11 @@ router.post(
   authorise(ALLOWED_QUERY_ROLES),
   query_controller.update_query_status,
 );
+router.patch(
+  "/:id/assign",
+  authenticate,
+  authorise(ALLOWED_QUERY_ROLES),
+  query_controller.assign_query_to_user,
+);
 
 export default router;

@@ -360,10 +360,89 @@ const update_status = async (
   return updated.rows[0];
 };
 
+//assign/reassign/escalate
+const assign_query = async (
+  user: AuthenticatedUser,
+  query_id: number,
+  assigned_to: number,
+  escalate: boolean,
+) => {
+  const query_result = await pool.query(
+    `SELECT *
+    FROM queries
+    WHERE id = $1`,
+    [query_id],
+  );
+
+  const query = query_result.rows[0];
+
+  if (
+    !query ||
+    (query.sender_org_id !== user.organisationId &&
+      query.recipient_org_id !== user.organisationId)
+  ) {
+    throw new Error("Query not found");
+  }
+
+  //now reassign to staff within that org
+  const staff_result = await pool.query(
+    `SELECT *
+    FROM users
+    WHERE id = $1
+    AND organisation_id = $2
+    AND active = true`,
+    [assigned_to, user.organisationId],
+  );
+
+  if (staff_result.rows.length === 0) {
+    throw new Error("Invalid staff assignment");
+  }
+
+  const old_assigned_to = query.assigned_to;
+  const new_status = escalate ? "escalated" : query.status;
+
+  const update = await pool.query(
+    `UPDATE queries
+    SET assigned_to = $1,
+    status = $2,
+    updated_at = NOW()
+    WHERE id = $3
+    RETURNING *`,
+    [assigned_to, new_status, query_id],
+  );
+
+  await audit_services.log_action(
+    user.userId,
+    query_id,
+    "query_assigned",
+    old_assigned_to ? String(old_assigned_to) : null,
+    String(assigned_to),
+  );
+
+  if (escalate) {
+    await audit_services.log_action(
+      user.userId,
+      query_id,
+      "status_changed",
+      query.status,
+      "escalated",
+    );
+  }
+  //individual notification (create notifiaction does full org staff)
+  await pool.query(
+    `INSERT INTO notifications
+    (user_id, query_id, type, message, is_read)
+    VALUES ($1, $2, 'query_assigned, $3, false)`,
+    [assigned_to, query_id, `You have been assigned to ${query.ref_number}`],
+  );
+  return update.rows[0];
+};
+
 export default {
   create_query,
   get_org_queries,
   get_query_by_id,
   add_reply,
   update_status,
+  assign_query,
 };
