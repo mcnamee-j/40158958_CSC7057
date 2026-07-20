@@ -78,4 +78,27 @@ const list_queries = async (
   }
 };
 
-export default { create_query, list_queries };
+const get_query = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = (req as any).user;
+    const query_id = parseInt(req.params.id as string, 10);
+
+    if (!Number.isInteger(query_id)) {
+      res.status(400).json({ error: "Invalid query id" });
+      return;
+    }
+
+    const result = await query_services.get_query_by_id(user, query_id);
+
+    if (!result) {
+      res.status(404).json({ error: "Query not found" });
+      return;
+    }
+
+    res.status(200).json(result);
+  } catch (e) {
+    next(e);
+  }
+};
+
+export default { create_query, list_queries, get_query };

@@ -24,5 +24,11 @@ router.get(
   authorise(ALLOWED_QUERY_ROLES),
   query_controller.list_queries,
 );
+router.get(
+  "/:id",
+  authenticate,
+  authorise(ALLOWED_QUERY_ROLES),
+  query_controller.get_query,
+);
 
 export default router;

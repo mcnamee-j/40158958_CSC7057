@@ -162,4 +162,58 @@ const get_org_queries = async (
   return { queries: result.rows, total };
 };
 
-export default { create_query, get_org_queries };
+const get_query_by_id = async (user: AuthenticatedUser, query_id: number) => {
+  const query_result = await pool.query(
+    `SELECT *, 
+        EXTRACT(EPOCH FROM (NOW() - created_at)) AS elapsed_seconds
+        FROM queries
+        WHERE id = $1`,
+    [query_id],
+  );
+
+  const query = query_result.rows[0];
+
+  //if not found or found but user.org has no involvement
+  if (
+    !query ||
+    (query.sender_org_id !== user.organisationId &&
+      query.recipient_org_id !== user.organisationId)
+  ) {
+    return null;
+  }
+
+  //mark replies from other org as read
+  await pool.query(
+    `UPDATE query_replies
+    SET read_at = NOW()
+    WHERE query_id = $1
+    AND read_at IS NULL
+    AND sender_id 
+    IN ( 
+    SELECT id
+    FROM users
+    WHERE organisation_id != $2
+    )`,
+    [query_id, user.organisationId],
+  );
+
+  //then get thread
+  const replies_result = await pool.query(
+    `SELECT query_replies.*, users.organisation_id AS sender_org_id
+    FROM query_replies
+    JOIN users
+    ON query_replies.sender_id = users.id
+    WHERE query_replies.query_id = $1
+    ORDER BY query_replies.sent_at ASC`,
+    [query_id],
+  );
+
+  //can filter out internal messages here before returning
+  const replies = replies_result.rows.filter(
+    (reply) =>
+      !reply.is_internal || reply.sender_org_id === user.organisationId,
+  );
+  return { query, replies };
+};
+
+export default { create_query, get_org_queries, get_query_by_id };
