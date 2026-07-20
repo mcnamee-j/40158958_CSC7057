@@ -429,11 +429,11 @@ const assign_query = async (
     );
   }
   //individual notification (create notifiaction does full org staff)
-  await pool.query(
-    `INSERT INTO notifications
-    (user_id, query_id, type, message, is_read)
-    VALUES ($1, $2, 'query_assigned, $3, false)`,
-    [assigned_to, query_id, `You have been assigned to ${query.ref_number}`],
+  await notification_services.create_user_notification(
+    assigned_to,
+    query_id,
+    "query_assigned",
+    `You have been assigned to ${query.ref_number}`,
   );
   return update.rows[0];
 };

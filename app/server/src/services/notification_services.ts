@@ -42,4 +42,19 @@ const create_notifcation = async (
   );
 };
 
-export default { create_notifcation };
+//need notification for only one user
+const create_user_notification = async (
+  user_id: number,
+  query_id: number,
+  type: NotificationType,
+  message: string,
+) => {
+  await pool.query(
+    `INSERT INTO notifications
+    (user_id, query_id, type, message, is_read)
+    VALUES ($1, $2, $3, $4, false)`,
+    [user_id, query_id, type, message],
+  );
+};
+
+export default { create_notifcation, create_user_notification };
