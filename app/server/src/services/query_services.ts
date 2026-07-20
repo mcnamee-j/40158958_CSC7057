@@ -216,4 +216,70 @@ const get_query_by_id = async (user: AuthenticatedUser, query_id: number) => {
   return { query, replies };
 };
 
-export default { create_query, get_org_queries, get_query_by_id };
+//ability to reply to a query
+const add_reply = async (
+  user: AuthenticatedUser,
+  query_id: number,
+  body: string,
+  is_internal: boolean,
+) => {
+  const query_result = await pool.query(
+    `SELECT * 
+    FROM queries
+    WHERE id = $1`,
+    [query_id],
+  );
+
+  const query = query_result.rows[0];
+
+  if (
+    !query ||
+    (query.sender_org_id !== user.organisationId &&
+      query.recipient_org_id !== user.organisationId)
+  ) {
+    throw new Error("Query not found");
+  }
+
+  const reply_result = await pool.query(
+    `INSERT INTO query_replies
+    (query_id, sender_id, body, is_internal, sent_at)
+    VALUES ($1, $2, $3, $4, NOW())
+    RETURNING *`,
+    [query_id, user.userId, body, is_internal],
+  );
+
+  //update 'updated_at'
+  await pool.query(
+    `UPDATE queries
+    SET updated_at = NOW()
+    WHERE id = $1`,
+    [query_id],
+  );
+
+  await audit_services.log_action(
+    user.userId,
+    query_id,
+    is_internal ? "internal_note_added" : "reply_added",
+    null,
+    null,
+  );
+
+  //figure out which org gets a notifcation when reply is added (internal notes should not notify other orgs)
+  if (!is_internal) {
+    //if internal skip
+    const other_org_id =
+      query.sender_org_id === user.organisationId
+        ? query.recipient_org_id
+        : query.sender_org_id;
+
+    await notification_services.create_notifcation(
+      other_org_id,
+      query_id,
+      "query_reply",
+      `New reply on ${query.ref_number}`,
+    );
+  }
+  return reply_result.rows[0];
+};
+
+export default { create_query, get_org_queries, get_query_by_id, add_reply };

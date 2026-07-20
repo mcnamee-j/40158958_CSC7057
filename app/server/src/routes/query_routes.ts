@@ -30,5 +30,10 @@ router.get(
   authorise(ALLOWED_QUERY_ROLES),
   query_controller.get_query,
 );
-
+router.post(
+  "/:id/replies",
+  authenticate,
+  authorise(ALLOWED_QUERY_ROLES),
+  query_controller.reply_to_query,
+);
 export default router;

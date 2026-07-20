@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import query_services from "../services/query_services.js";
 import { error } from "node:console";
+import { types } from "node:util";
 
 //create a new query
 const create_query = async (
@@ -101,4 +102,42 @@ const get_query = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export default { create_query, list_queries, get_query };
+const reply_to_query = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const user = (req as any).user;
+    const query_id = parseInt(req.params.id as string, 10);
+
+    if (!Number.isInteger(query_id)) {
+      res.status(400).json({ error: "Invalid query id" });
+      return;
+    }
+
+    const { body, is_internal } = req.body;
+
+    if (!body || typeof body !== "string" || body.trim().length === 0) {
+      res.status(400).json({ error: "Reply body is required" });
+      return;
+    }
+
+    const reply = await query_services.add_reply(
+      user,
+      query_id,
+      body,
+      is_internal === true,
+    );
+
+    res.status(201).json({ reply });
+  } catch (e: any) {
+    if (e.message === "Query not found") {
+      res.status(404).json({ error: "Query not found" });
+      return;
+    }
+    next(e);
+  }
+};
+
+export default { create_query, list_queries, get_query, reply_to_query };
