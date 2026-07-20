@@ -8,6 +8,12 @@ export type UserRole =
   | "pharmacy_staff"
   | "practice_staff";
 
+export interface AuthenticatedUser {
+  userId: number;
+  role: string;
+  organisationId: string;
+}
+
 //DB types
 
 export interface Organisation {
