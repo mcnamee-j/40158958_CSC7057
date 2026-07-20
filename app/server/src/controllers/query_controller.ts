@@ -140,4 +140,49 @@ const reply_to_query = async (
   }
 };
 
-export default { create_query, list_queries, get_query, reply_to_query };
+//update status
+const update_query_status = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const user = (req as any).user;
+    const query_id = parseInt(req.params.id as string, 10);
+
+    if (!Number.isInteger(query_id)) {
+      res.status(400).json({ error: "Invalid query id" });
+      return;
+    }
+
+    const { status, resolution_note } = req.body;
+
+    if (!status) {
+      res.status(400).json({ error: "Status is required" });
+      return;
+    }
+
+    const query = await query_services.update_status(
+      user,
+      query_id,
+      status,
+      resolution_note,
+    );
+
+    res.status(200).json({ query });
+  } catch (e: any) {
+    if (e.message === "Query not found") {
+      res.status(404).json({ error: "Query not found" });
+      return;
+    }
+    next(e);
+  }
+};
+
+export default {
+  create_query,
+  list_queries,
+  get_query,
+  reply_to_query,
+  update_query_status,
+};

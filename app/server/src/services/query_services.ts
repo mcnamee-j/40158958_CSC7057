@@ -1,5 +1,9 @@
 import pool from "../config/db.js";
-import type { CreateQueryInput, Query } from "../types/query_types.js";
+import type {
+  CreateQueryInput,
+  Query,
+  QueryStatus,
+} from "../types/query_types.js";
 import type { AuthenticatedUser } from "../types/types.js";
 import generate_ref_number from "../utils/reference_number_genrator.js";
 import audit_services from "./audit_services.js";
@@ -282,4 +286,84 @@ const add_reply = async (
   return reply_result.rows[0];
 };
 
-export default { create_query, get_org_queries, get_query_by_id, add_reply };
+//update query status
+const update_status = async (
+  user: AuthenticatedUser,
+  query_id: number,
+  new_status: QueryStatus,
+  resolution_note: string | undefined,
+) => {
+  const query_result = await pool.query(
+    `SELECT *
+    FROM queries
+    WHERE id = $1`,
+    [query_id],
+  );
+
+  const query = query_result.rows[0];
+
+  if (
+    !query ||
+    (query.sender_org_id !== user.organisationId &&
+      query.recipient_org_id !== user.organisationId)
+  ) {
+    throw new Error("Query not found");
+  }
+
+  const old_status = query.status;
+  const is_resolving = new_status === "resolved"; //checks if status is resolved, if not it is false
+
+  const updated = await pool.query(
+    `UPDATE queries
+    SET status = $1,
+    resolution_note = $2,
+    resolved_at = ${is_resolving ? "NOW()" : "NULL"},
+    updated_at = NOW()
+    WHERE id = $3
+    RETURNING *`,
+    [
+      new_status,
+      is_resolving ? (resolution_note ?? null) : query.resolution_note,
+      query_id,
+    ],
+  );
+
+  if (is_resolving && resolution_note) {
+    await pool.query(
+      `INSERT INTO query_replies
+        (query_id, sender_id, body, is_internal, sent_at)
+        VALUES ($1, $2, $3, false, NOW())`,
+      [query_id, user.userId, `Resolution summary: ${resolution_note}`],
+    );
+  }
+
+  await audit_services.log_action(
+    user.userId,
+    query_id,
+    "status_changed",
+    old_status,
+    new_status,
+  );
+
+  const other_org_id =
+    query.sender_org_id === user.organisationId
+      ? query.recipient_org_id
+      : query.sender_org_id;
+
+  await notification_services.create_notifcation(
+    other_org_id,
+    query_id,
+    "query_updated",
+    `${query.ref_number} status changed to ${new_status}`,
+  );
+
+  return updated.rows[0];
+};
+
+export default {
+  create_query,
+  get_org_queries,
+  get_query_by_id,
+  add_reply,
+  update_status,
+};
