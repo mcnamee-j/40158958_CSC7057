@@ -537,5 +537,85 @@ describe("PATCH /api/queries/:id/status", () => {
 });
 
 //assign
+describe("PATCH /api/queries/:id/assign", () => {
+  it("returns 200 and assigns to an internal staff member", async () => {
+    const created = await create_test_query();
+
+    const res = await request(app)
+      .patch(`/api/queries/${created.id}/assign`)
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({ assigned_to: mark_id });
+
+    expect(res.status).toBe(200);
+    expect(res.body.query.assigned_to).toBe(mark_id);
+  });
+
+  it("returns 400 when assigning to a user in an external org", async () => {
+    const created = await create_test_query();
+
+    const res = await request(app)
+      .patch(`/api/queries/${created.id}/assign`)
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({ assigned_to: sarah_id });
+
+    expect(res.status).toBe(400);
+  });
+
+  it("sets status to escalated when escalate is passed as true", async () => {
+    const created = await create_test_query();
+
+    const res = await request(app)
+      .patch(`/api/queries/${created.id}/assign`)
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({ assigned_to: mark_id, escalate: true });
+
+    expect(res.status).toBe(200);
+    expect(res.body.query.status).toBe("escalated");
+  });
+
+  it("returns 400 when assigned_to is missing", async () => {
+    const created = await create_test_query();
+
+    const res = await request(app)
+      .patch(`/api/queries/${created.id}/assign`)
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({});
+
+    expect(res.status).toBe(400);
+  });
+
+  it("returns 404 for a non-existent query", async () => {
+    const res = await request(app)
+      .patch("/api/queries/999999/assign")
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({ assigned_to: mark_id });
+
+    expect(res.status).toBe(404);
+  });
+
+  it("returns 400 when assigning to an inactive user", async () => {
+    await pool.query(`UPDATE users SET active = false WHERE id = $1`, [tom_id]); //sets tom to inactive (resets at end)
+
+    const created = await request(app)
+      .post("/api/queries")
+      .set("Authorization", `Bearer ${sarah_token}`)
+      .send({
+        recipient_org_id: PHARMACY_ORG_ID,
+        category: "prescription",
+        subject: "Test query from GP surgery",
+        body: "Test",
+      });
+
+    const res = await request(app)
+      .patch(`/api/queries/${created.body.query.id}/assign`)
+      .set("Authorization", `Bearer ${sarah_token}`)
+      .send({ assigned_to: tom_id });
+
+    expect(res.status).toBe(400);
+
+    //reset tom for other tests
+    await pool.query(`UPDATE users SET active = true WHERE id = $1`, [tom_id]);
+  });
+});
 
 //audit_log
