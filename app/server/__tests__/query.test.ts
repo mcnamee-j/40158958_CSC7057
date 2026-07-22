@@ -379,8 +379,62 @@ describe("GET /api/queries/:id", () => {
     expect(res.status).toBe(404);
   });
 });
-//query replies
 
+//query replies
+describe("POST /api/queries/:id/replies", () => {
+  it("returns 201 for a valid reply", async () => {
+    const created = await create_test_query();
+
+    const res = await request(app)
+      .post(`/api/queries/${created.id}/replies`)
+      .set("Authorization", `Bearer ${sarah_token}`)
+      .send({ body: "Confirmed with doctor - the dose is correct" });
+
+    expect(res.status).toBe(201);
+    expect(res.body.reply.is_internal).toBe(false);
+  });
+
+  it("returns 400 when body is empty", async () => {
+    const created = await create_test_query();
+
+    const res = await request(app)
+      .post(`/api/queries/${created.id}/replies`)
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({ body: "" });
+
+    expect(res.status).toBe(400);
+  });
+
+  it("returns 400 when body is missing", async () => {
+    const created = await create_test_query();
+
+    const res = await request(app)
+      .post(`/api/queries/${created.id}/replies`)
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({});
+
+    expect(res.status).toBe(400);
+  });
+
+  it("returns 404 when the query does not exist", async () => {
+    const res = await request(app)
+      .post("/api/queries/999999/replies")
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({ body: "Test reply" });
+
+    expect(res.status).toBe(404);
+  });
+
+  it("returns 401 when no token is provided", async () => {
+    const created = await create_test_query();
+
+    const res = await request(app)
+      .post(`/api/queries/${created.id}/replies`)
+      .send({ body: "Test reply" });
+
+    expect(res.status).toBe(401);
+  });
+});
 //status
 
 //assign
