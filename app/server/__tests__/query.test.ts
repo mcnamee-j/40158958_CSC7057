@@ -1,0 +1,206 @@
+import { describe, it, expect, afterAll, beforeAll } from "vitest";
+import pool from "../src/config/db";
+import request from "supertest";
+import app from "../src/app";
+
+let jane_token: string;
+let jane_id: number;
+let mark_token: string;
+let mark_id: number;
+let sarah_token: string;
+let sarah_id: number;
+let tom_token: string;
+let tom_id: number;
+let admin_token: string;
+
+const PHARMACY_ORG_ID = 1; //from seed data - City Pharmacy Belfast
+const GP_ORG_ID = 2; //Hillview surgery
+
+//starts a clean db table, Restart identity - resets autoincrement ids, cascade handles foreign key dependents
+beforeAll(async () => {
+  await pool.query(
+    `TRUNCATE refresh_tokens, password_reset_tokens, audit_log
+     RESTART IDENTITY CASCADE`,
+  );
+
+  //log all users in and store token and id
+  const jane = await request(app)
+    .post("/api/auth/login")
+    .send({ email: "jane@pharmacy.com", password: "Password123!" });
+  jane_token = jane.body.access_token;
+  jane_id = jane.body.user.id;
+
+  const mark = await request(app)
+    .post("/api/auth/login")
+    .send({ email: "mark@pharmacy.com", password: "Password123!" });
+  mark_token = mark.body.access_token;
+  mark_id = mark.body.user.id;
+
+  const sarah = await request(app)
+    .post("/api/auth/login")
+    .send({ email: "sarah@surgery.com", password: "Password123!" });
+  sarah_token = sarah.body.access_token;
+  sarah_id = sarah.body.user.id;
+
+  const tom = await request(app)
+    .post("/api/auth/login")
+    .send({ email: "tom@surgery.com", password: "Password123!" });
+  tom_token = tom.body.access_token;
+  tom_id = tom.body.user.id;
+
+  const admin = await request(app)
+    .post("/api/auth/login")
+    .send({ email: "admin@loop.com", password: "Password123!" });
+  admin_token = admin.body.access_token;
+});
+
+afterAll(async () => {
+  await pool.end();
+});
+
+//create a test query using jane
+const create_test_query = async (overrides: Record<string, unknown> = {}) => {
+  //override values used to assert values later in tests
+  const res = await request(app)
+    .post("/api/queries")
+    .set("Authorization", `Bearer ${jane_token}`)
+    .send({
+      recipient_org_id: GP_ORG_ID,
+      category: "prescription",
+      subject: "Test query",
+      body: "Test query body",
+      ...overrides,
+    });
+  return res.body.query;
+};
+
+//create query
+describe("POST /api/queries", () => {
+  it("returns 201 and reference number for valid queries", async () => {
+    const res = await request(app)
+      .post("/api/queries")
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({
+        recipient_org_id: GP_ORG_ID,
+        category: "precription",
+        subject: "Query about repeat prescription",
+        body: "Can you confirm the dosage is correct on this prescription?",
+      });
+
+    expect(res.status).toBe(201);
+    expect(res.body.query).toHaveProperty("ref_number");
+    expect(res.body.query.status).toBe("new");
+    expect(res.body.query.priority).toBe("medium");
+  });
+
+  it("returns 401 when no token is used", async () => {
+    const res = await request(app).post("/api/queries").send({
+      recipient_org_id: GP_ORG_ID,
+      category: "prescription",
+      subject: "Test",
+      body: "Test",
+    });
+
+    expect(res.status).toBe(401);
+  });
+
+  it("returns 403 for an unauthorised role", async () => {
+    const res = await request(app)
+      .post("/api/queries")
+      .set("Authorization", `Bearer ${admin_token}`)
+      .send({
+        recipient_org_id: GP_ORG_ID,
+        category: "prescription",
+        subject: "Test",
+        body: "Test",
+      });
+
+    expect(res.status).toBe(403);
+  });
+
+  it("returns 403 when recipient org is not a linked org", async () => {
+    const res = await request(app)
+      .post("/api/queries")
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({
+        recipient_org_id: 999,
+        category: "prescription",
+        subject: "Test",
+        body: "Test",
+      });
+
+    expect(res.status).toBe(403);
+    expect(res.body.error).toBe("Organisations are not linked");
+  });
+
+  it("returns 400 when category is missing", async () => {
+    const res = await request(app)
+      .post("/api/queries")
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({
+        recipient_org_id: GP_ORG_ID,
+        subject: "Test",
+        body: "Test",
+      });
+
+    expect(res.status).toBe(400);
+  });
+
+  it("returns 400 when patient has only one identifier", async () => {
+    const res = await request(app)
+      .post("/api/queries")
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({
+        recipient_org_id: GP_ORG_ID,
+        category: "patient",
+        subject: "Test",
+        body: "Test",
+        patient: { initials: "JS" },
+      });
+
+    expect(res.status).toBe(400);
+  });
+
+  it("returns 201 when patient has two identifiers", async () => {
+    const res = await request(app)
+      .post("/api/queries")
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({
+        recipient_org_id: GP_ORG_ID,
+        category: "patient",
+        subject: "Test",
+        body: "Test",
+        patient: { initials: "JS", dob: "1987-09-25" },
+      });
+
+    expect(res.status).toBe(201);
+    expect(res.body.query.patient_id).not.toBeNull();
+  });
+
+  it("returns 201 with a null patient_id when no patient is given", async () => {
+    const res = await request(app)
+      .post("/api/queries")
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({
+        recipient_org_id: GP_ORG_ID,
+        category: "stock",
+        subject: "Stock query",
+        body: "Do you have this item in stock?",
+      });
+
+    expect(res.status).toBe(201);
+    expect(res.body.query.patient_id).toBeNull();
+  });
+});
+
+//list queries
+
+//get query by id
+
+//query replies
+
+//status
+
+//assign
+
+//audit_log
