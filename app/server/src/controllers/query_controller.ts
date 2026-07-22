@@ -173,6 +173,9 @@ const update_query_status = async (
       res.status(404).json({ error: "Query not found" });
       return;
     }
+    if (e.message === "Invalid status") {
+      res.status(400).json({ error: "Invalid status value given" });
+    }
     next(e);
   }
 };
@@ -211,7 +214,7 @@ const assign_query_to_user = async (
       res.status(404).json({ error: "Query not found" });
       return;
     }
-    if (e.message === "Invalid assignee") {
+    if (e.message === "Invalid staff assignment") {
       res.status(400).json({
         error: "Assignee must be an active user in your organisation",
       });

@@ -36,7 +36,7 @@ router.post(
   authorise(ALLOWED_QUERY_ROLES),
   query_controller.reply_to_query,
 );
-router.post(
+router.patch(
   "/:id/status",
   authenticate,
   authorise(ALLOWED_QUERY_ROLES),

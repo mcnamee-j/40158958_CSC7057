@@ -28,7 +28,7 @@ const create_notifcation = async (
   users.rows.forEach((row, index) => {
     const user = index * 5;
     values.push(
-      `$${user + 1}, $${user + 2}, $${user + 3}, $${user + 4}, $${user + 5}`,
+      `($${user + 1}, $${user + 2}, $${user + 3}, $${user + 4}, $${user + 5})`,
     );
     params.push(row.id, query_id, type, message, false);
   });

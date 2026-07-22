@@ -61,7 +61,7 @@ const find_or_create_patient = async (patient?: PatientReferences) => {
   const insert_new = await pool.query(
     `INSERT INTO patients
     (initials, dob, hcn)
-    VALUES ($1, %2, $3)
+    VALUES ($1, $2, $3)
     RETURNING id`,
     [patient.initials ?? null, patient.dob ?? null, patient.hcn ?? null],
   );

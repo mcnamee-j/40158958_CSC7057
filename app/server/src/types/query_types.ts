@@ -5,6 +5,14 @@ export type QueryStatus =
   | "escalated"
   | "resolved";
 
+export const QUERY_STATUSES: readonly QueryStatus[] = [
+  "new",
+  "in_progress",
+  "awaiting_response",
+  "escalated",
+  "resolved",
+];
+
 export type QueryPriority = "low" | "medium" | "high";
 
 export type QueryCategory =

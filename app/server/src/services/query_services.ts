@@ -9,6 +9,7 @@ import generate_ref_number from "../utils/reference_number_genrator.js";
 import audit_services from "./audit_services.js";
 import notification_services from "./notification_services.js";
 import patient_services from "./patient_services.js";
+import { QUERY_STATUSES } from "../types/query_types.js";
 
 //create query - as per sequence diagram
 const create_query = async (
@@ -39,9 +40,9 @@ const create_query = async (
     try {
       query_data = await pool.query(
         `INSERT INTO queries
-            (ref_number, patient_id, sender_org_id, recipient_org_id, created by,
+            (ref_number, patient_id, sender_org_id, recipient_org_id, created_by,
             category, priority, status, subject, created_at, updated_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, 'new, $8, NOW(), NOW())
+            VALUES ($1, $2, $3, $4, $5, $6, $7, 'new', $8, NOW(), NOW())
             RETURNING *`,
         [
           ref_number,
@@ -107,7 +108,9 @@ const get_org_queries = async (
   },
 ) => {
   //build sql statement uisng if statements and .push
-  const conditions: string[] = [`(sender_org_id = $1 OR recipient_orgId = $1)`];
+  const conditions: string[] = [
+    `(sender_org_id = $1 OR recipient_org_id = $1)`,
+  ];
   const params: (string | number)[] = [user.organisationId];
 
   if (filters.status) {
@@ -128,7 +131,7 @@ const get_org_queries = async (
   if (filters.search) {
     params.push(`%${filters.search}%`);
     conditions.push(
-      `(subject ILIKE $${[params.length]} OR ref_number ILIKE $${[params.length]}`, //ILIKE is case insensitive
+      `(subject ILIKE $${[params.length]} OR ref_number ILIKE $${[params.length]})`, //ILIKE is case insensitive
     );
   }
 
@@ -290,9 +293,13 @@ const add_reply = async (
 const update_status = async (
   user: AuthenticatedUser,
   query_id: number,
-  new_status: QueryStatus,
+  new_status: string,
   resolution_note: string | undefined,
 ) => {
+  if (!QUERY_STATUSES.includes(new_status as QueryStatus)) {
+    throw new Error("Invalid status");
+  }
+
   const query_result = await pool.query(
     `SELECT *
     FROM queries
