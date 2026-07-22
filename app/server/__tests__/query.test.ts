@@ -435,7 +435,106 @@ describe("POST /api/queries/:id/replies", () => {
     expect(res.status).toBe(401);
   });
 });
+
 //status
+describe("PATCH /api/queries/:id/status", () => {
+  it("returns 200 for valid status change", async () => {
+    const created = await create_test_query();
+
+    const res = await request(app)
+      .patch(`/api/queries/${created.id}/status`)
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({ status: "in_progress" });
+
+    expect(res.status).toBe(200);
+    expect(res.body.query.status).toBe("in_progress");
+  });
+
+  it("returns 400 for an invalid status value", async () => {
+    const created = await create_test_query();
+
+    const res = await request(app)
+      .patch(`/api/queries/${created.id}/status`)
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({ status: "closed" });
+
+    expect(res.status).toBe(400);
+  });
+
+  it("sets resolved_at and adds a reply to the thread when a resolution note is added", async () => {
+    const created = await create_test_query();
+
+    const res = await request(app)
+      .patch(`/api/queries/${created.id}/status`)
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({
+        status: "resolved",
+        resolution_note: "Dosage confirmed with doctor",
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.query.resolved_at).not.toBeNull();
+
+    const thread = await request(app)
+      .get(`/api/queries/${created.id}`)
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(
+      thread.body.replies.some((reply: any) =>
+        reply.body.includes("Dosage confirmed with doctor"),
+      ),
+    ).toBe(true);
+  });
+
+  it("allows resolving without a resolution note", async () => {
+    const created = await create_test_query();
+
+    const res = await request(app)
+      .patch(`/api/queries/${created.id}/status`)
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({ status: "resolved" });
+
+    expect(res.status).toBe(200);
+    expect(res.body.query.resolution_note).toBeNull();
+  });
+
+  it("clears resolved_at when a resolved query is reopened", async () => {
+    const created = await create_test_query();
+
+    await request(app)
+      .patch(`/api/queries/${created.id}/status`)
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({ status: "resolved" });
+
+    const res = await request(app)
+      .patch(`/api/queries/${created.id}/status`)
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({ status: "in_progress" });
+
+    expect(res.status).toBe(200);
+    expect(res.body.query.resolved_at).toBeNull();
+  });
+
+  it("returns 400 when status is missing", async () => {
+    const created = await create_test_query();
+
+    const res = await request(app)
+      .patch(`/api/queries/${created.id}/status`)
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({});
+
+    expect(res.status).toBe(400);
+  });
+
+  it("returns 404 for a non-existent query", async () => {
+    const res = await request(app)
+      .patch("/api/queries/999999/status")
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({ status: "in_progress" });
+
+    expect(res.status).toBe(404);
+  });
+});
 
 //assign
 
