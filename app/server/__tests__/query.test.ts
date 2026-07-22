@@ -289,7 +289,96 @@ describe("GET /api/queries", () => {
 });
 
 //get query by id
+describe("GET /api/queries/:id", () => {
+  it("returns 200 with the query and its replies", async () => {
+    const created = await create_test_query({ body: "Original query message" });
 
+    const res = await request(app)
+      .get(`/api/queries/${created.id}`)
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.query.id).toBe(created.id);
+    expect(res.body.replies[0].body).toBe("Original query message");
+  });
+
+  it("marks other org messages as read", async () => {
+    const created = await create_test_query();
+
+    await request(app)
+      .get(`/api/queries/${created.id}`)
+      .set("Authorization", `Bearer ${sarah_token}`);
+
+    const check = await request(app)
+      .get(`/api/queries/${created.id}`)
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(check.body.replies[0].read_at).not.toBeNull();
+  });
+
+  it("returns 404 for a non-existent query", async () => {
+    const res = await request(app)
+      .get("/api/queries/999999")
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(404);
+  });
+
+  it("returns replies in chronological order", async () => {
+    const created = await create_test_query();
+
+    await request(app)
+      .post(`/api/queries/${created.id}/replies`)
+      .set("Authorization", `Bearer ${sarah_token}`)
+      .send({ body: "First reply" });
+
+    const res = await request(app)
+      .get(`/api/queries/${created.id}`)
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    const timestamps = res.body.replies.map((reply: any) =>
+      new Date(reply.sent_at).getTime(),
+    );
+    const sorted = [...timestamps].sort((a, b) => a - b);
+    expect(timestamps).toEqual(sorted);
+  });
+
+  it("hides internal notes from external organisations", async () => {
+    const created = await create_test_query();
+
+    await request(app)
+      .post(`/api/queries/${created.id}/replies`)
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({ body: "Internal note", is_internal: true });
+
+    const own_org = await request(app)
+      .get(`/api/queries/${created.id}`)
+      .set("Authorization", `Bearer ${mark_token}`);
+
+    const other_org = await request(app)
+      .get(`/api/queries/${created.id}`)
+      .set("Authorization", `Bearer ${sarah_token}`);
+
+    expect(
+      own_org.body.replies.some((reply: any) => reply.body === "Internal note"),
+    ).toBe(true);
+    expect(
+      other_org.body.replies.some(
+        (reply: any) => reply.body === "Internal note",
+      ),
+    ).toBe(false);
+  });
+
+  it("returns 404 for a query belonging to an unrelated organisation", async () => {
+    const created = await create_test_query();
+
+    const res = await request(app)
+      .get(`/api/queries/${created.id}`)
+      .set("Authorization", `Bearer ${aoife_token}`);
+
+    expect(res.status).toBe(404);
+  });
+});
 //query replies
 
 //status
