@@ -82,7 +82,7 @@ describe("POST /api/queries", () => {
       .set("Authorization", `Bearer ${jane_token}`)
       .send({
         recipient_org_id: GP_ORG_ID,
-        category: "precription",
+        category: "prescription",
         subject: "Query about repeat prescription",
         body: "Can you confirm the dosage is correct on this prescription?",
       });
