@@ -84,6 +84,8 @@ ALTER TYPE public.query_priority OWNER TO jamesmcnamee;
 CREATE TYPE public.query_status AS ENUM (
     'new',
     'in_progress',
+    'awaiting_response',
+    'escalated',
     'resolved'
 );
 
@@ -287,9 +289,9 @@ ALTER SEQUENCE public.organisations_id_seq OWNED BY public.organisations.id;
 
 CREATE TABLE public.patients (
     id integer NOT NULL,
-    initials character varying(10) NOT NULL,
-    dob date NOT NULL,
-    hcn character varying(10) NOT NULL
+    initials character varying(10),
+    dob date,
+    hcn character varying(10)
 );
 
 
