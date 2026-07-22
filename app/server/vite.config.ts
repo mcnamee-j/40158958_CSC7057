@@ -4,6 +4,11 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
+    env: {
+      DB_NAME: "loop_test",
+    },
+    testTimeout: 10000,
+    fileParallelism: false, //runs tests sequentially rather than concurrently
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov", "html"],

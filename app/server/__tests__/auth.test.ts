@@ -1,9 +1,15 @@
-import { describe, it, expect, afterAll } from "vitest";
+import { describe, it, expect, afterAll, beforeAll } from "vitest";
 import pool from "../src/config/db";
 import request from "supertest";
 import app from "../src/app";
 
-//
+beforeAll(async () => {
+  await pool.query(
+    `TRUNCATE refresh_tokens, password_reset_tokens, audit_log
+     RESTART IDENTITY CASCADE`,
+  );
+});
+
 afterAll(async () => {
   await pool.end();
 });
