@@ -5,7 +5,7 @@ export default defineConfig({
     globals: true,
     environment: "node",
     env: {
-      DB_NAME: "project_test",
+      DB_NAME: "loop_test",
     },
     testTimeout: 10000,
     fileParallelism: false, //runs tests sequentially rather than concurrently
