@@ -12,6 +12,7 @@ let sarah_id: number;
 let tom_token: string;
 let tom_id: number;
 let admin_token: string;
+let aoife_token: string;
 
 const PHARMACY_ORG_ID = 1; //from seed data - City Pharmacy Belfast
 const GP_ORG_ID = 2; //Hillview surgery
@@ -52,6 +53,11 @@ beforeAll(async () => {
     .post("/api/auth/login")
     .send({ email: "admin@loop.com", password: "Password123!" });
   admin_token = admin.body.access_token;
+
+  const aoife = await request(app)
+    .post("/api/auth/login")
+    .send({ email: "aoife@riverside.com", password: "Password123!" });
+  aoife_token = aoife.body.access_token;
 });
 
 afterAll(async () => {
@@ -194,6 +200,93 @@ describe("POST /api/queries", () => {
 });
 
 //list queries
+describe("GET /api/queries", () => {
+  it("returns 200 and lists queries relevant to requesting org", async () => {
+    const created = await create_test_query();
+
+    const res = await request(app)
+      .get("/api/queries")
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("queries");
+    expect(res.body).toHaveProperty("total");
+    expect(res.body.queries.some((query: any) => query.id === created.id)).toBe(
+      true,
+    ); //.some requires one query in array to match
+  });
+
+  it("returns the same query to the recipient org", async () => {
+    const created = await create_test_query();
+
+    const res = await request(app)
+      .get("/api/queries")
+      .set("Authorization", `Bearer ${sarah_token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.queries.some((query: any) => query.id === created.id)).toBe(
+      true,
+    );
+  });
+
+  it("filters by status", async () => {
+    const res = await request(app)
+      .get("/api/queries?status=new")
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.queries.every((query: any) => query.status === "new")).toBe(
+      true,
+    );
+  });
+
+  it("filters by priority", async () => {
+    await create_test_query({ priority: "high" });
+
+    const res = await request(app)
+      .get("/api/queries?priority=high")
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(200);
+    expect(
+      res.body.queries.every((query: any) => query.priority === "high"),
+    ).toBe(true);
+  });
+
+  it("combines filters with 'AND' logic", async () => {
+    const res = await request(app)
+      .get("/api/queries?status=new&priority=high")
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(200);
+    expect(
+      res.body.queries.every(
+        (query: any) => query.status === "new" && query.priority === "high",
+      ),
+    ).toBe(true);
+  });
+
+  it("returns elapsed_seconds on each query", async () => {
+    await create_test_query();
+
+    const res = await request(app)
+      .get("/api/queries")
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.queries[0]).toHaveProperty("elapsed_seconds");
+  });
+
+  it("returns an empty array for an organisation with no involvement", async () => {
+    const res = await request(app)
+      .get("/api/queries")
+      .set("Authorization", `Bearer ${aoife_token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.queries).toEqual([]);
+    expect(res.body.total).toBe(0);
+  });
+});
 
 //get query by id
 
