@@ -619,3 +619,57 @@ describe("PATCH /api/queries/:id/assign", () => {
 });
 
 //audit_log
+describe("audit log entries for query actions", () => {
+  it("creates an audit log entry when a query is created", async () => {
+    const created = await create_test_query();
+
+    const result = await pool.query(
+      `SELECT * 
+        FROM audit_log
+        WHERE action = 'query_created' 
+        AND query_id = $1`,
+      [created.id],
+    );
+
+    expect(result.rows.length).toBeGreaterThan(0);
+  });
+
+  it("creates an audit log entry when status changes", async () => {
+    const created = await create_test_query();
+
+    await request(app)
+      .patch(`/api/queries/${created.id}/status`)
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({ status: "in_progress" });
+
+    const result = await pool.query(
+      `SELECT * 
+      FROM audit_log
+      WHERE action = 'status_changed' 
+      AND query_id = $1`,
+      [created.id],
+    );
+
+    expect(result.rows.length).toBeGreaterThan(0);
+  });
+
+  it("creates two audit log entries when assigning with escalation", async () => {
+    const created = await create_test_query();
+
+    await request(app)
+      .patch(`/api/queries/${created.id}/assign`)
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({ assigned_to: mark_id, escalate: true });
+
+    const result = await pool.query(
+      `SELECT * 
+      FROM audit_log 
+      WHERE query_id = $1 
+      AND action 
+      IN ('query_assigned', 'status_changed')`,
+      [created.id],
+    );
+
+    expect(result.rows.length).toBe(2);
+  });
+});
