@@ -1,111 +1,33 @@
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+@import "tailwindcss";
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+@theme {
+  /* greens from figma mockups in project notes */
+  --color-green-50: #eaf4f3; /* lightest tint - subtle backgrounds, hover states */
+  --color-green-100: #cde3e1; /* light backgrounds, disabled states */
+  --color-green-300: #6fa8a4; /* sidebar */
+  --color-green-500: #0b6968; /* base - header */
+  --color-green-700: #084e4d; /* buttons, dominant UI elements */
+  --color-green-900: #052e2d; /* darkest - primary text on light backgrounds */
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --color-white-100: #eef2f7;
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
-}
+  /* coral - primary actions only */
+  --color-coral-400: #f0917c;
+  --color-coral-500: #e57559;
+  --color-coral-600: #cc5f45;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+  /* priority + query status indicator colours */
+  --color-status-danger-bg: #fbe4e2;
+  --color-status-danger-text: #b83a2e;
+  --color-status-warning-bg: #fdf1de;
+  --color-status-warning-text: #b3791c;
+  --color-status-success-bg: #e2f2e6;
+  --color-status-success-text: #2d7a44;
+  --color-status-accent-bg: #e4eef2;
+  --color-status-accent-text: #2c6e8a;
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
+  --color-surface-light: #e0e9f5;
+  --color-surface-mid: #ccd3dc;
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-}
-
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
-}
-
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+  --color-placeholder-text: #8d8d8d;
 }
