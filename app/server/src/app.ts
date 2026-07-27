@@ -1,9 +1,17 @@
 import express from "express";
+import cors from "cors";
 import auth_Routes from "./routes/auth_routes.js";
 import error_handler from "./middleware/error_handler.js";
 import query_routes from "./routes/query_routes.js";
 
 const app = express();
+
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  }),
+);
 
 app.use(express.json());
 
