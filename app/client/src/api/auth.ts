@@ -9,6 +9,7 @@ interface LoginResponse {
     last_name: string;
     role: string;
     organisation: number;
+    organisation_name: string;
   };
 }
 
@@ -37,3 +38,6 @@ export const forgotPassword = (email: string) =>
 
 export const resetPassword = (token: string, new_password: string) =>
   api.post("/api/auth/reset_password", { token, new_password });
+
+export const getUser = () =>
+  api.get<{ user: LoginResponse["user"] }>("/api/auth/get_user");

@@ -2,16 +2,7 @@ import { useState, useEffect, type ReactNode } from "react";
 import { login as api_login, logout as api_logout } from "../api/auth";
 import { set_on_auth_failure } from "../api/client";
 import { AuthContext, type User } from "./AuthContext";
-
-//need to decode JWT - 3 parts separated by '.' (note this does not verfy token)
-const decode_token = (token: string): Partial<User> | null => {
-  try {
-    const payload = token.split(".")[1]; //gets payload (base 64 encoded)
-    return JSON.parse(atob(payload)); //atob decodes into text - parsed into JSON object
-  } catch {
-    return null;
-  }
-};
+import { getUser } from "../api/auth";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   //wraps application so that any page can access authentication
@@ -45,8 +36,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const { set_access_token } = await import("../api/client"); //store new access token
         set_access_token(data.access_token);
 
-        const decoded = decode_token(data.access_token); //decode to get user
-        if (decoded) setUser(decoded as User); //save logged in user info
+        const getUserRes = await getUser();
+        const api_user = getUserRes.data.user;
+        setUser({
+          user_id: api_user.id,
+          role: api_user.role,
+          organisation_id: api_user.organisation,
+          organisation_name: api_user.organisation_name,
+          first_name: api_user.first_name,
+          last_name: api_user.last_name,
+        });
       } catch {
         localStorage.removeItem("refresh_token"); //delete refresh - no longer valid
       } finally {
@@ -59,13 +58,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     const api_user = await api_login(email, password);
-    console.log("api_user:", api_user); // temporary
     setUser({
       user_id: api_user.id,
       role: api_user.role,
       organisation_id: api_user.organisation,
       first_name: api_user.first_name,
       last_name: api_user.last_name,
+      organisation_name: api_user.organisation_name,
     });
   };
 

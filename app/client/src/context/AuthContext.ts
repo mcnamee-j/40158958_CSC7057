@@ -7,6 +7,7 @@ interface User {
   organisation_id: number;
   first_name?: string;
   last_name?: string;
+  organisation_name?: string;
 }
 
 //define what context provides - user, loading, login and logout (every component using the context will access these)

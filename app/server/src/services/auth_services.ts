@@ -15,9 +15,11 @@ if (!ACCESS_SECRET) {
 const login = async (email: string, password: string) => {
   //find user
   const userSearch = await pool.query(
-    `SELECT * 
+    `SELECT users.*, organisations.name AS organisation_name
     FROM users 
-    WHERE email = $1`,
+    JOIN organisations 
+    ON users.organisation_id = organisations.id
+    WHERE users.email = $1`,
     [email],
   );
 
@@ -99,6 +101,7 @@ const login = async (email: string, password: string) => {
       lastName: user.last_name,
       role: user.role,
       organisation: user.organisation_id,
+      organisationName: user.organisation_name,
     },
   };
 };
@@ -264,4 +267,29 @@ const reset_password = async (token: string, new_password: string) => {
   );
 };
 
-export default { login, logout, refresh, forgot_password, reset_password };
+const get_user = async (userId: number) => {
+  const response = await pool.query(
+    `SELECT users.id, users.first_name, users.last_name, users.role, users.organisation_id, organisations.name AS organisation_name
+    FROM users
+    JOIN organisations
+    ON users.organisation_id = organisations.id
+    WHERE users.id = $1
+    AND users.active = true`,
+    [userId],
+  );
+
+  const user = response.rows[0];
+  if (!user) {
+    throw new Error("User not found");
+  }
+  return user;
+};
+
+export default {
+  login,
+  logout,
+  refresh,
+  forgot_password,
+  reset_password,
+  get_user,
+};
