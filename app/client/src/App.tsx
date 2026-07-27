@@ -9,6 +9,7 @@ import DashboardPage from "./pages/dashboard/DashboardPage";
 import QueriesPage from "./pages/queries/QueriesPage";
 import QueryThreadPage from "./pages/queries/QueryThreadPage";
 import NewQueryPage from "./pages/queries/NewQueryPage";
+import UserLayout from "./components/layout/UserLayout";
 
 function App() {
   return (
@@ -20,10 +21,12 @@ function App() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
 
           <Route element={<RestrictedRoute />}>
-            <Route path="/" element={<DashboardPage />}></Route>
-            <Route path="/queries" element={<QueriesPage />}></Route>
-            <Route path="/queries/:id" element={<QueryThreadPage />}></Route>
-            <Route path="/new-query" element={<NewQueryPage />}></Route>
+            <Route element={<UserLayout />}>
+              <Route path="/" element={<DashboardPage />}></Route>
+              <Route path="/queries" element={<QueriesPage />}></Route>
+              <Route path="/queries/:id" element={<QueryThreadPage />}></Route>
+              <Route path="/new-query" element={<NewQueryPage />}></Route>
+            </Route>
           </Route>
         </Routes>
       </BrowserRouter>

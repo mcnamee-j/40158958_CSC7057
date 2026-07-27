@@ -59,6 +59,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     const api_user = await api_login(email, password);
+    console.log("api_user:", api_user); // temporary
     setUser({
       user_id: api_user.id,
       role: api_user.role,
