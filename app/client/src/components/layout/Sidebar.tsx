@@ -9,7 +9,7 @@ const navItems = [
 
 const Sidebar = () => {
   return (
-    <div className="w-40 shrink-0 bg-green-100 text-white flex flex-col gap-1 p-3 rounded-l-xl">
+    <div className="w-40 shrink-0 bg-green-300 text-white flex flex-col gap-1 p-3">
       <div>Loop</div>
       {navItems.map(({ to, label, icon: Icon, end }) => (
         <NavLink

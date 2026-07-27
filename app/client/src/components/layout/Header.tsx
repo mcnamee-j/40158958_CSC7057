@@ -9,7 +9,7 @@ const Header = () => {
     : "";
 
   return (
-    <div className="flex items-center justify-between px-6 py-4">
+    <div className="flex items-center justify-between px-6 py-4 border-b border-surface-mid/30">
       <span className="text-sm text-green-700">{user?.organisation_name}</span>
       <div className="flex items-center gap-2.5">
         <Bell
