@@ -1,7 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import authServices from "../services/auth_services.js";
 import auth_services from "../services/auth_services.js";
-import { error } from "console";
 
 //login
 const login = async (req: Request, res: Response, next: NextFunction) => {

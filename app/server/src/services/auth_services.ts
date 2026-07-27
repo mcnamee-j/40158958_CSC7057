@@ -97,11 +97,11 @@ const login = async (email: string, password: string) => {
     refresh_token,
     user: {
       id: user.id,
-      firstName: user.first_name,
-      lastName: user.last_name,
+      first_name: user.first_name,
+      last_name: user.last_name,
       role: user.role,
       organisation: user.organisation_id,
-      organisationName: user.organisation_name,
+      organisation_name: user.organisation_name,
     },
   };
 };
