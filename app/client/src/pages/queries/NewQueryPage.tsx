@@ -1,13 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { create_query } from "../../api/queries";
 import type { QueryCategory, QueryPriority } from "../../types/query.types";
 import { Api_Error } from "../../api/client";
+import {
+  get_linked_orgs,
+  type LinkedOrganisation,
+} from "../../api/organisations";
 
 const NewQueryPage = () => {
   const navigate = useNavigate();
 
-  const [recipientOrgId, setRecipientOrgId] = useState(2); // hardcoded value until api endpoint is adjusted/created
+  const [recipientOrgId, setRecipientOrgId] = useState<number | undefined>(
+    undefined,
+  );
   const [category, setCategory] = useState<QueryCategory>("prescription");
   const [priority, setPriority] = useState<QueryPriority>("medium");
   const [subject, setSubject] = useState("");
@@ -17,12 +23,20 @@ const NewQueryPage = () => {
   const [dob, setDob] = useState("");
   const [hcn, setHcn] = useState("");
 
+  const [linkedOrgs, setLinkedOrgs] = useState<LinkedOrganisation[]>([]);
+
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const handle_submit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+
+    if (!recipientOrgId) {
+      setError("Please select a GP surgery.");
+      return;
+    }
+
     setSubmitting(true);
 
     const patient =
@@ -54,6 +68,12 @@ const NewQueryPage = () => {
       setSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    get_linked_orgs()
+      .then(setLinkedOrgs)
+      .catch(() => setLinkedOrgs([]));
+  }, []);
 
   return (
     <div>
@@ -101,12 +121,18 @@ const NewQueryPage = () => {
 
         <div>
           <div>
-            <label>GP Surgery</label>
+            <label>Recipient</label>
             <select
               value={recipientOrgId}
               onChange={(e) => setRecipientOrgId(Number(e.target.value))}
+              required
             >
-              <option value={2}>Hillview Surgery</option>
+              <option value="">Select a linked recipient</option>
+              {linkedOrgs.map((org) => (
+                <option key={org.id} value={org.id}>
+                  {org.name}
+                </option>
+              ))}
             </select>
           </div>
           <div>
