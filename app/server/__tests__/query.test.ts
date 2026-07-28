@@ -286,6 +286,22 @@ describe("GET /api/queries", () => {
     expect(res.body.queries).toEqual([]);
     expect(res.body.total).toBe(0);
   });
+
+  //added after backend adjustments to get org names to frontend
+  it("includes sender org name and creator name in the list", async () => {
+    await create_test_query();
+
+    const res = await request(app)
+      .get("/api/queries")
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(200);
+    const created = res.body.queries.find(
+      (query: any) => query.created_by_first_name,
+    );
+    expect(created).toBeDefined();
+    expect(created.sender_org_name).toBe("City Pharmacy Belfast");
+  });
 });
 
 //get query by id

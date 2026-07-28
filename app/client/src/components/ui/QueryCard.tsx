@@ -28,6 +28,17 @@ const QueryCard = ({ query }: { query: Query }) => {
         <div>
           {query.subject} <span>- Ref: {query.ref_number}</span>
         </div>
+        <div>
+          {(query.created_by_first_name || query.recipient_org_name) && (
+            <div>
+              {query.created_by_first_name} {query.created_by_last_name}
+              {query.created_by_first_name &&
+                (query.sender_org_name || query.recipient_org_name) &&
+                " - "}
+              {query.sender_org_name}
+            </div>
+          )}
+        </div>
         <div>{query.elapsed_seconds}</div>
       </div>
       <div>

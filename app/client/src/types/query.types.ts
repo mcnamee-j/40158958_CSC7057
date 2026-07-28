@@ -46,6 +46,10 @@ export interface Query {
   created_at: string;
   updated_at: string;
   elapsed_seconds?: number;
+  sender_org_name?: string;
+  recipient_org_name?: string;
+  created_by_first_name?: string;
+  created_by_last_name?: string;
 }
 
 export interface QueryReply {

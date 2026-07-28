@@ -160,7 +160,7 @@ const get_org_queries = async (
     recipient_org.name AS recipient_org_name,
     users.first_name AS created_by_first_name,
     users.last_name AS created_by_last_name,
-    EXTRACT(EPOCH FROM (NOW() - created_at))
+    EXTRACT(EPOCH FROM (NOW() - queries.created_at))
     AS elapsed_seconds
     FROM queries
     JOIN organisations sender_org ON queries.sender_org_id = sender_org.id
