@@ -16,7 +16,7 @@ export const create_query = async (input: CreateQueryInput): Promise<Query> => {
 export const get_queries = async (
   filters: QueryListFilters = {},
 ): Promise<QueryListResponse> => {
-  const { data } = await api.get<QueryListResponse>("/api/queres", {
+  const { data } = await api.get<QueryListResponse>("/api/queries", {
     params: filters,
   });
   return data;

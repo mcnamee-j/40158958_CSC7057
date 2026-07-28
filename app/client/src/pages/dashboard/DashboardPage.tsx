@@ -52,16 +52,16 @@ const DashboardPage = () => {
   ];
 
   return (
-    <div>
-      <h2>Dashboard</h2>
-      <div>
+    <div className="flex flex-col gap-5 pt-3">
+      <h2 className="text-xl font-medium text-green-700">Dashboard</h2>
+      <div className="flex gap-2 flex-wrap justify-center">
         {filter_buttons.map(({ key, label, count }) => (
           <button
             key={key}
             onClick={() => setActiveFilter(key)}
             className={`px-3.5 py-1.5 rounded-md text-sm ${
               activeFilter === key
-                ? "bg-green500 text-white"
+                ? "bg-green-500 text-white"
                 : "bg-surface-light text-green-700 border border-surface-mid"
             }`}
           >
