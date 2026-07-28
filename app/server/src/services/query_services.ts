@@ -109,29 +109,29 @@ const get_org_queries = async (
 ) => {
   //build sql statement uisng if statements and .push
   const conditions: string[] = [
-    `(sender_org_id = $1 OR recipient_org_id = $1)`,
+    `(queries.sender_org_id = $1 OR queries.recipient_org_id = $1)`,
   ];
   const params: (string | number)[] = [user.organisationId];
 
   if (filters.status) {
     params.push(filters.status);
-    conditions.push(`status = $${[params.length]}`);
+    conditions.push(`queries.status = $${[params.length]}`);
   }
 
   if (filters.priority) {
     params.push(filters.priority);
-    conditions.push(`priority = $${[params.length]}`);
+    conditions.push(`queries.priority = $${[params.length]}`);
   }
 
   if (filters.category) {
     params.push(filters.category);
-    conditions.push(`category = $${[params.length]}`);
+    conditions.push(`queries.category = $${[params.length]}`);
   }
 
   if (filters.search) {
     params.push(`%${filters.search}%`);
     conditions.push(
-      `(subject ILIKE $${[params.length]} OR ref_number ILIKE $${[params.length]})`, //ILIKE is case insensitive
+      `(queries.subject ILIKE $${[params.length]} OR queries.ref_number ILIKE $${[params.length]})`, //ILIKE is case insensitive
     );
   }
 
@@ -155,12 +155,19 @@ const get_org_queries = async (
   //main query - also gets time elapsed since creation for adding visual flags to frontend (US - 23)
   params.push(limit, page_offset);
   const result = await pool.query(
-    `SELECT *,
+    `SELECT queries.*,
+    sender_org.name AS sender_org_name,
+    recipient_org.name AS recipient_org_name,
+    users.first_name AS created_by_first_name,
+    users.last_name AS created_by_last_name,
     EXTRACT(EPOCH FROM (NOW() - created_at))
     AS elapsed_seconds
     FROM queries
+    JOIN organisations sender_org ON queries.sender_org_id = sender_org.id
+    JOIN organisations recipient_org ON queries.recipient_org_id = recipient_org.id
+    JOIN users ON queries.created_by = users.id
     WHERE ${where}
-    ORDER BY created_at DESC
+    ORDER BY queries.created_at DESC
     LIMIT $${params.length - 1}
     OFFSET $${params.length}`,
     params,
