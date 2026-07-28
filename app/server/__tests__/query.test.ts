@@ -394,6 +394,19 @@ describe("GET /api/queries/:id", () => {
 
     expect(res.status).toBe(404);
   });
+
+  it("includes sender org name and creator name", async () => {
+    const created = await create_test_query();
+
+    const res = await request(app)
+      .get(`/api/queries/${created.id}`)
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.query.sender_org_name).toBe("City Pharmacy Belfast");
+    expect(res.body.query.recipient_org_name).toBe("Hillview Surgery");
+    expect(res.body.query.created_by_first_name).toBe("Jane");
+  });
 });
 
 //query replies
