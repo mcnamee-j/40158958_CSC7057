@@ -67,29 +67,40 @@ const QueriesPage = () => {
   ];
 
   return (
-    <div>
-      <div>
-        <h2>Queries</h2>
-        <Link to="/new-query">New Query</Link>
+    <div className="flex flex-col gap-5 pt-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-medium text-green-700">Queries</h2>
+        <Link
+          to="/new-query"
+          className="bg-green-700 text-white text-sm font-medium px-4 py-1.5 rounded-md"
+        >
+          New Query
+        </Link>
       </div>
 
-      <form onSubmit={handle_search_submit}>
+      <form onSubmit={handle_search_submit} className="flex flex-col gap-3">
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by subject or reference number"
+          className="w-full rounded-md border border-surface-mid text-sm px-3 py-2"
         />
-        <details>
-          <summary>Advanced Filters</summary>
-          <div>
+        <details className="bg-surface-light rounded-md px-4 py-3">
+          <summary className="text-sm font-medium text-green-900 cursor-pointer">
+            Advanced Filters
+          </summary>
+          <div className="grid grid-cols-2 gap-3 mt-3">
             <div>
-              <label>Category</label>
+              <label className="block text-sm text-green-700 mb-1">
+                Category
+              </label>
               <select
                 value={category}
                 onChange={(e) =>
                   setCategory(e.target.value as QueryCategory | "")
                 }
+                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
               >
                 <option value="">Any</option>
                 <option value="prescription">Prescription</option>
@@ -100,12 +111,15 @@ const QueriesPage = () => {
               </select>
             </div>
             <div>
-              <label>Priority</label>
+              <label className="block text-sm text-green-700 mb-1">
+                Priority
+              </label>
               <select
                 value={priority}
                 onChange={(e) =>
                   setPriority(e.target.value as QueryPriority | "")
                 }
+                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
               >
                 <option value="">Any</option>
                 <option value="high">High</option>
@@ -114,25 +128,41 @@ const QueriesPage = () => {
               </select>
             </div>
           </div>
-          <p>Filtering by patient, GP surgery and date goes here</p>
+          <p className="text-sd text-placeholder-text mt-3">
+            Filtering by patient, GP surgery and date will go here
+          </p>
         </details>
 
-        <div>
+        <div className="flex gap-2 flex-wrap justify-center">
           {filter_buttons.map(({ key, label }) => (
             <button
               key={key}
               type="button"
               onClick={() => setActiveFilter(key)}
+              className={`px-3.5 py-1.5 rounded-md text-sm ${
+                activeFilter === key
+                  ? "bg-green-500 text-white"
+                  : "bg-surface-light text-green-700 border border-surface-mid"
+              }`}
             >
               {label}
             </button>
           ))}
         </div>
-        <div>
-          <button type="button" onClick={handle_clear}>
+        <div className="flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={handle_clear}
+            className="px-4 py-1.5 bg-green-100 text-sm text-green-900 rounded-md border border-surface-mid"
+          >
             Clear
           </button>
-          <button type="submit">Search</button>
+          <button
+            type="submit"
+            className="px-4 py-1.5 text-sm rounded-md bg-green-700 text-white font-medium"
+          >
+            Search
+          </button>
         </div>
       </form>
 
@@ -143,13 +173,15 @@ const QueriesPage = () => {
 
       {!loading && !error && (
         <>
-          <p>
+          <p className="text-xs text-placeholder-text">
             {total} result{total !== 1 ? "s" : ""}
           </p>
           {queries.length === 0 ? (
-            <p>No queries match these search conditions</p>
+            <p className="text-xs text-placeholder-text">
+              No queries match these search conditions
+            </p>
           ) : (
-            <div>
+            <div className="flex flex-col gap-2.5">
               {queries.map((query) => (
                 <QueryCard key={query.id} query={query} />
               ))}

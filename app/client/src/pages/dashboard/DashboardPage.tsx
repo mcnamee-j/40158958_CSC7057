@@ -59,7 +59,7 @@ const DashboardPage = () => {
           <button
             key={key}
             onClick={() => setActiveFilter(key)}
-            className={`px-3.5 py-1.5 rounded-md text-sm ${
+            className={`cursor-pointer px-3.5 py-1.5 rounded-md text-sm ${
               activeFilter === key
                 ? "bg-green-500 text-white"
                 : "bg-surface-light text-green-700 border border-surface-mid"
