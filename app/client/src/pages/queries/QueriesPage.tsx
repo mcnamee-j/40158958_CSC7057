@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { get_queries } from "../../api/queries";
+import {
+  get_linked_orgs,
+  type LinkedOrganisation,
+} from "../../api/organisations";
 import type {
   Query,
   QueryCategory,
@@ -21,6 +25,19 @@ const QueriesPage = () => {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<QueryCategory | "">("");
   const [priority, setPriority] = useState<QueryPriority | "">("");
+  const [patientInitials, setPatientInitials] = useState("");
+  const [patientDob, setPatientDob] = useState("");
+  const [patientHcn, setPatientHcn] = useState("");
+  const [orgId, setOrgId] = useState<number | "">("");
+  const [date, setDate] = useState("");
+
+  const [linkedOrgs, setLinkedOrgs] = useState<LinkedOrganisation[]>([]);
+
+  useEffect(() => {
+    get_linked_orgs()
+      .then(setLinkedOrgs)
+      .catch(() => setLinkedOrgs([]));
+  }, []);
 
   const find_queries = async () => {
     setLoading(true);
@@ -31,6 +48,11 @@ const QueriesPage = () => {
         search: search || undefined,
         category: category || undefined,
         priority: priority || undefined,
+        patient_initials: patientInitials || undefined,
+        patient_dob: patientDob || undefined,
+        patient_hcn: patientHcn || undefined,
+        org_id: orgId || undefined,
+        date: date || undefined,
         limit: 50,
       });
       setQueries(result.queries);
@@ -56,6 +78,11 @@ const QueriesPage = () => {
     setSearch("");
     setCategory("");
     setPriority("");
+    setPatientInitials("");
+    setPatientDob("");
+    setPatientHcn("");
+    setOrgId("");
+    setDate("");
     setActiveFilter("all");
   };
 
@@ -90,7 +117,53 @@ const QueriesPage = () => {
           <summary className="text-sm font-medium text-green-900 cursor-pointer">
             Advanced Filters
           </summary>
+
+          <div className="mt-3">
+            <label className="block text-sm text-green-700 mb-1">Patient</label>
+            <div className="grid grid-cols-3 gap-2">
+              <input
+                type="text"
+                value={patientInitials}
+                onChange={(e) => setPatientInitials(e.target.value)}
+                placeholder="Initials"
+                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
+              />
+              <input
+                type="date"
+                value={patientDob}
+                onChange={(e) => setPatientDob(e.target.value)}
+                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm text-placeholder-text"
+              />
+              <input
+                type="text"
+                value={patientHcn}
+                onChange={(e) => setPatientHcn(e.target.value)}
+                placeholder="HCN"
+                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
+              />
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-3 mt-3">
+            <div>
+              <label className="block text-sm text-green-700 mb-1">
+                Organisation
+              </label>
+              <select
+                value={orgId}
+                onChange={(e) =>
+                  setOrgId(e.target.value ? Number(e.target.value) : "")
+                }
+                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm text-placeholder-text"
+              >
+                <option value="">Any</option>
+                {linkedOrgs.map((org) => (
+                  <option key={org.id} value={org.id}>
+                    {org.name}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div>
               <label className="block text-sm text-green-700 mb-1">
                 Category
@@ -100,7 +173,7 @@ const QueriesPage = () => {
                 onChange={(e) =>
                   setCategory(e.target.value as QueryCategory | "")
                 }
-                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
+                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm text-placeholder-text"
               >
                 <option value="">Any</option>
                 <option value="prescription">Prescription</option>
@@ -119,7 +192,7 @@ const QueriesPage = () => {
                 onChange={(e) =>
                   setPriority(e.target.value as QueryPriority | "")
                 }
-                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
+                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm text-placeholder-text"
               >
                 <option value="">Any</option>
                 <option value="high">High</option>
@@ -127,10 +200,18 @@ const QueriesPage = () => {
                 <option value="low">Low</option>
               </select>
             </div>
+            <div>
+              <label className="block text-sm text-green-700 mb-1">
+                Date raised
+              </label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm text-placeholder-text"
+              />
+            </div>
           </div>
-          <p className="text-sd text-placeholder-text mt-3">
-            Filtering by patient, GP surgery and date will go here
-          </p>
         </details>
 
         <div className="flex gap-2 flex-wrap justify-center">

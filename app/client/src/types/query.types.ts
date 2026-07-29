@@ -68,6 +68,11 @@ export interface QueryListFilters {
   priority?: QueryPriority;
   category?: QueryCategory;
   search?: string;
+  patient_initials?: string;
+  patient_dob?: string;
+  patient_hcn?: string;
+  org_id?: number;
+  date?: string;
   page?: number;
   limit?: number;
 }
