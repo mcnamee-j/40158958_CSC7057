@@ -17,4 +17,18 @@ const get_linked_organisations = async (user: AuthenticatedUser) => {
   return result.rows;
 };
 
-export default { get_linked_organisations };
+const get_org_staff = async (user: AuthenticatedUser) => {
+  const result = await pool.query(
+    `SELECT id, first_name, last_name, role
+    FROM users
+    WHERE organisation_id = $1
+    AND active = true,
+    and id != $2
+    ORDER BY first_name`,
+    [user.organisationId, user.userId],
+  );
+
+  return result.rows;
+};
+
+export default { get_linked_organisations, get_org_staff };

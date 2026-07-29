@@ -69,3 +69,22 @@ describe("GET /api/organisations/linked", () => {
     expect(res.body.organisations).toEqual([]);
   });
 });
+
+describe("GET /api/organisations/staff", () => {
+  it("returns 200 and active colleagues, excluding self", async () => {
+    const res = await request(app)
+      .get("/api/organisations/staff")
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.staff.some((s: any) => s.first_name === "Mark")).toBe(true);
+    expect(res.body.staff.some((s: any) => s.first_name === "Jane")).toBe(
+      false,
+    );
+  });
+
+  it("returns 401 when no token is provided", async () => {
+    const res = await request(app).get("/api/organisations/staff");
+    expect(res.status).toBe(401);
+  });
+});

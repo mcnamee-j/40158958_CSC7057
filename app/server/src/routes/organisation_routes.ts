@@ -5,5 +5,6 @@ import authenticate from "../middleware/authenticate.js";
 const router = express.Router();
 
 router.get("/linked", authenticate, organisation_controller.get_linked_orgs);
+router.get("/staff", authenticate, organisation_controller.get_staff);
 
 export default router;
