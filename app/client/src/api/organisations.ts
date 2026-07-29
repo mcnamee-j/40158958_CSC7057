@@ -6,6 +6,8 @@ export interface LinkedOrganisation {
   type: "pharmacy" | "gp_surgery";
 }
 
+// export interface OrgStaffMember
+
 export const get_linked_orgs = async (): Promise<LinkedOrganisation[]> => {
   const { data } = await api.get<{ organisations: LinkedOrganisation[] }>(
     "/api/organisations/linked",

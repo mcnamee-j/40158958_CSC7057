@@ -22,7 +22,7 @@ const get_org_staff = async (user: AuthenticatedUser) => {
     `SELECT id, first_name, last_name, role
     FROM users
     WHERE organisation_id = $1
-    AND active = true,
+    AND active = true
     and id != $2
     ORDER BY first_name`,
     [user.organisationId, user.userId],
