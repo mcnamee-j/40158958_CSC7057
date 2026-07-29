@@ -103,6 +103,11 @@ const get_org_queries = async (
     priority?: string | undefined;
     category?: string | undefined;
     search?: string | undefined;
+    patient_initials?: string | undefined;
+    patient_dob?: string | undefined;
+    patient_hcn?: string | undefined;
+    org_id?: number | undefined;
+    date?: string | undefined;
     page?: number | undefined; //if i implement pagination of filtered results
     limit?: number | undefined;
   },
@@ -135,6 +140,33 @@ const get_org_queries = async (
     );
   }
 
+  if (filters.patient_initials) {
+    params.push(filters.patient_initials);
+    conditions.push(`patients.initials = $${[params.length]}`);
+  }
+
+  if (filters.patient_dob) {
+    params.push(filters.patient_dob);
+    conditions.push(`patients.dob = $${[params.length]}`);
+  }
+
+  if (filters.patient_hcn) {
+    params.push(filters.patient_hcn);
+    conditions.push(`patients.hcn = $${[params.length]}`);
+  }
+
+  if (filters.org_id) {
+    params.push(filters.org_id);
+    conditions.push(
+      `(queries.sender_org_id = $${[params.length]} OR queries.recipient_org_id = $${[params.length]})`,
+    );
+  }
+
+  if (filters.date) {
+    params.push(filters.date);
+    conditions.push(`queries.created_at::date = $${[params.length]}::date`);
+  }
+
   //join all conditions together
   const where = conditions.join(" AND ");
 
@@ -147,6 +179,8 @@ const get_org_queries = async (
   const results_count = await pool.query(
     `SELECT COUNT(*)
     FROM queries
+    LEFT JOIN patients
+    ON queries.patient_id = patients.id
     WHERE ${where}`,
     params,
   );
@@ -166,6 +200,7 @@ const get_org_queries = async (
     JOIN organisations sender_org ON queries.sender_org_id = sender_org.id
     JOIN organisations recipient_org ON queries.recipient_org_id = recipient_org.id
     JOIN users ON queries.created_by = users.id
+    LEFT JOIN patients ON queries.patient_id = patients.id
     WHERE ${where}
     ORDER BY queries.created_at DESC
     LIMIT $${params.length - 1}
@@ -259,6 +294,26 @@ const add_reply = async (
       query.recipient_org_id !== user.organisationId)
   ) {
     throw new Error("Query not found");
+  }
+
+  //add auto-status update
+  const should_auto_update = !is_internal && query.status === "new";
+
+  if (should_auto_update) {
+    await pool.query(
+      `UPDATE queries 
+      SET status = 'in_progress'
+      WHERE id = $1`,
+      [query_id],
+    );
+
+    await audit_services.log_action(
+      user.userId,
+      query_id,
+      "status_changed",
+      "new",
+      "in_progress",
+    );
   }
 
   const reply_result = await pool.query(

@@ -463,6 +463,36 @@ describe("POST /api/queries/:id/replies", () => {
 
     expect(res.status).toBe(401);
   });
+
+  it("auto-progresses status from new to in_progress on a non-internal reply", async () => {
+    const created = await create_test_query();
+
+    await request(app)
+      .post(`/api/queries/${created.id}/replies`)
+      .set("Authorization", `Bearer ${sarah_token}`)
+      .send({ body: "Looking into this" });
+
+    const res = await request(app)
+      .get(`/api/queries/${created.id}`)
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.body.query.status).toBe("in_progress");
+  });
+
+  it("does not change status when the reply is an internal note", async () => {
+    const created = await create_test_query();
+
+    await request(app)
+      .post(`/api/queries/${created.id}/replies`)
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({ body: "Internal note", is_internal: true });
+
+    const res = await request(app)
+      .get(`/api/queries/${created.id}`)
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.body.query.status).toBe("new");
+  });
 });
 
 //status
