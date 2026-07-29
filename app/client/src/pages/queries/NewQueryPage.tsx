@@ -76,56 +76,71 @@ const NewQueryPage = () => {
   }, []);
 
   return (
-    <div>
-      <div>
-        <h2>New Query</h2>
-        <button>Cancek</button>
+    <div className="flex flex-col gap-5 pt-4 max-w-lg">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-medium text-green-700">New Query</h2>
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="px-3 py-1.5 text-sm bg-green-700 font-medium text-white rounded-md border border-surface-mid"
+        >
+          Cancel
+        </button>
       </div>
 
-      <form onSubmit={handle_submit}>
-        <div>
-          <div>Patient details</div>
-          <p>
+      <form onSubmit={handle_submit} className="flex flex-col gap-4">
+        <div className="bg-surface-light rounded-md px-4 py-3">
+          <div className="text-sm font-medium text-green-900 mb-1">
+            Patient details
+          </div>
+          <p className="text-xs text-placeholder-text mb-3">
             Optional. If adding a patient, provide at least 2 identifiers:
             initials, DOB, HCN
           </p>
-          <div>
+          <div className="grid grid-cols-3 gap-2">
             <div>
-              <label>Initials</label>
+              <label className="block text-xs text-green-700 mb-1">
+                Initials
+              </label>
               <input
                 type="text"
                 value={initials}
                 onChange={(e) => setInitials(e.target.value)}
                 placeholder="e.g. LM"
+                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
               />
             </div>
             <div>
-              <label>DOB</label>
+              <label className="block text-xs text-green-700 mb-1">DOB</label>
               <input
                 type="date"
                 value={dob}
                 onChange={(e) => setDob(e.target.value)}
+                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm text-placeholder-text"
               />
             </div>
             <div>
-              <label>HCN</label>
+              <label className="block text-xs text-green-700 mb-1">HCN</label>
               <input
                 type="text"
                 value={hcn}
                 onChange={(e) => setHcn(e.target.value)}
                 placeholder="xxx-xxx-xxxx"
+                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
               />
             </div>
           </div>
         </div>
-
-        <div>
+        <div className="grid grid-cols-1 gap 3">
           <div>
-            <label>Recipient</label>
+            <label className="block text-sm text-green-900 mb-1">
+              Recipient
+            </label>
             <select
               value={recipientOrgId}
               onChange={(e) => setRecipientOrgId(Number(e.target.value))}
               required
+              className="w-full rounded-md border border-surface-mid px-3 py-2 text-sm text-placeholder-text"
             >
               <option value="">Select a linked recipient</option>
               {linkedOrgs.map((org) => (
@@ -135,11 +150,16 @@ const NewQueryPage = () => {
               ))}
             </select>
           </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
           <div>
-            <label>Category</label>
+            <label className="block text-sm text-green-900 mb-1">
+              Category
+            </label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as QueryCategory)}
+              className="w-full rounded-md border border-surface-mid px-3 py-2 text-sm text-placeholder-text"
             >
               <option value="prescription">Prescription</option>
               <option value="stock">Stock</option>
@@ -148,24 +168,28 @@ const NewQueryPage = () => {
               <option value="other">Other</option>
             </select>
           </div>
-        </div>
 
-        <div>
-          <label>Priority</label>
-          <select
-            value={priority}
-            onChange={(e) => setPriority(e.target.value as QueryPriority)}
-          >
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-          </select>
-        </div>
-
-        <div>
           <div>
-            <label>Subject</label>
-            <span>{subject.length}/80</span>
+            <label className="block text-sm text-green-900 mb-1">
+              Priority
+            </label>
+            <select
+              value={priority}
+              onChange={(e) => setPriority(e.target.value as QueryPriority)}
+              className="w-full rounded-md border border-surface-mid px-3 py-2 text-sm text-placeholder-text"
+            >
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <div className="flex justify-between">
+            <label className="block text-sm text-green-900 mb-1">Subject</label>
+            <span className="text-xs text-placeholder-text">
+              {subject.length}/80
+            </span>
           </div>
           <input
             type="text"
@@ -174,13 +198,16 @@ const NewQueryPage = () => {
             maxLength={80}
             required
             placeholder="Enter Query Subject"
+            className="w-full rounded-md border border-surface-mid px-3 py-2 text-sm text-placeholder-text"
           />
         </div>
 
         <div>
-          <div>
-            <label>Message</label>
-            <span>{body.length}/1000</span>
+          <div className="flex justify-between">
+            <label className="block text-sm text-green-900 mb-1">Message</label>
+            <span className="text-xs text-placeholder-text">
+              {body.length}/1000
+            </span>
           </div>
           <textarea
             value={body}
@@ -188,13 +215,18 @@ const NewQueryPage = () => {
             maxLength={1000}
             required
             placeholder="Enter Query Message"
+            className="w-full min-h-24 rounded-md border border-surface-mid px-3 py-2 text-sm text-placeholder-text"
           ></textarea>
         </div>
 
         {error && <p className="txt-sm text-status-danger-text">{error}</p>}
 
-        <div>
-          <button type="submit" disabled={submitting}>
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            disabled={submitting}
+            className="px-5 py-2 text-sm font-medium rounded-md bg-green-700 text-white disabled:opacity-60"
+          >
             {submitting ? "Creating..." : "Create Query"}
           </button>
         </div>
