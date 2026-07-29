@@ -163,19 +163,22 @@ const QueryThreadPage = () => {
   }
 
   return (
-    <div className="flex flex-col gap-4 pt-4 max-w-2xl">
+    <div className="flex flex-col gap-4 pt-2 max-w-2xl">
       <div className="flex items-start justify-between">
         <div>
           <div className="text-base font-medium">
-            {query.subject} <span>- Ref: {query.ref_number}</span>
+            {query.subject}{" "}
+            <span className="text-placeholder-text font-normal text-sm">
+              - Ref: {query.ref_number}
+            </span>
           </div>
-          <div>
+          <div className="text-sm text-green-700 flex items-center gap-1.5 mt-0.5">
             {query.sender_org_name}
             <span aria-hidden="true">&harr;</span>
             {query.recipient_org_name}
           </div>
         </div>
-        <div>
+        <div className="flex items-center gap-1.5 shrink-0">
           <Badge
             label={priority_label[query.priority]}
             variant={priority_variant[query.priority]}
@@ -184,11 +187,16 @@ const QueryThreadPage = () => {
             label={status_label[query.status]}
             variant={status_variant[query.status]}
           />
-          <button onClick={() => navigate("/queries")}>Back</button>
+          <button
+            onClick={() => navigate("/queries")}
+            className="bg-green-700 text-white px-3 py-1.5 text-sm rounded-md border border-surface-mid"
+          >
+            Back
+          </button>
         </div>
       </div>
 
-      <div>
+      <div className="flex flex-col gap-2.5">
         {replies.map((reply) => {
           const own_org_message = reply.sender_org_id === user?.organisation_id;
           return (
@@ -223,25 +231,34 @@ const QueryThreadPage = () => {
         })}
       </div>
 
-      <form onSubmit={handle_reply_submit}>
+      <form
+        onSubmit={handle_reply_submit}
+        className="border-t border-surface-mid pt-3 flex flex-col gap-2"
+      >
         <textarea
           value={replyBody}
           onChange={(e) => setReplyBody(e.target.value)}
           placeholder="Enter a reply..."
+          className="w-full min-h-16 rounded-md border border-surface-mid px-3 py-2 text-sm"
         ></textarea>
-        <div>
-          <label>
+        <div className="flex justify-between items-center">
+          <label className="flex items-center gap-1.5 text-sm text-green-700">
             <input
               type="checkbox"
               checked={isInternal}
               onChange={(e) => setIsInternal(e.target.checked)}
+              className="w-auto"
             />
             Internal Note
             <span className="text-xs text-placeholder-text">
               (only visible to your organisation)
             </span>
           </label>
-          <button type="submit" disabled={sending || !replyBody.trim()}>
+          <button
+            type="submit"
+            disabled={sending || !replyBody.trim()}
+            className="px-4 py-1.5 text-sm font-medium rounded-md bg-green-700 text-white disabled:opacity-60"
+          >
             {sending ? "Sending..." : "Send Reply"}
           </button>
         </div>
@@ -251,13 +268,14 @@ const QueryThreadPage = () => {
         <p className="text-sm text-status-danger-text">{actionError}</p>
       )}
 
-      <div>
-        <div>
-          <div>
-            <label>Status</label>
+      <div className="bg-surface-light rounded-md p-4 flex flex-col gap-3">
+        <div className="flex items-end gap-2">
+          <div className="flex-1">
+            <label className="block text-xs text-green-700 mb-1">Status</label>
             <select
               value={statusVal}
               onChange={(e) => setStatusVal(e.target.value as QueryStatus)}
+              className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
             >
               {STATUSES.map((status) => (
                 <option key={status} value={status}>
@@ -269,29 +287,36 @@ const QueryThreadPage = () => {
           <button
             onClick={handle_status_change}
             disabled={updatingStatus || statusVal === query.status}
+            className="px-3 py-1.5 text-sm rounded-md border border-surface-mid disabled:opacity-60"
           >
             {updatingStatus ? "Updating..." : "Update Status"}
           </button>
         </div>
         {statusVal === "resolved" && (
           <div>
-            <label>Resolution Note (optional)</label>
+            <label className="block text-xs text-green-700 mb-1">
+              Resolution Note (optional)
+            </label>
             <input
               type="text"
               value={resolutionNote}
               onChange={(e) => setResolutionNote(e.target.value)}
+              className="w-ful rounded-md border border-surface-mid px-2 py-1.5 text-sm"
             />
           </div>
         )}
 
-        <div>
-          <div>
-            <label>Asssign to</label>
+        <div className="flex items-end gap-2 pt-2 border-t border-surface-mid">
+          <div className="flex-1">
+            <label className="block text-xs text-green-700 mb-1">
+              Asssign to
+            </label>
             <select
               value={assigneeId}
               onChange={(e) =>
                 setAssigneeId(e.target.value ? Number(e.target.value) : "")
               }
+              className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
             >
               <option value="">Select a staff member</option>
               {staff.map((member) => (
@@ -301,15 +326,20 @@ const QueryThreadPage = () => {
               ))}
             </select>
           </div>
-          <label>
+          <label className="flex items-center gap-1.5 text-xs text-green-700 pb-2">
             <input
               type="checkbox"
               checked={escalate}
               onChange={(e) => setEscalate(e.target.checked)}
+              className="w-auto"
             />
             Escalate
           </label>
-          <button onClick={handle_assignment} disabled={assigning}>
+          <button
+            onClick={handle_assignment}
+            disabled={assigning}
+            className="px-3 py-1.5 text-sm rounded-md border border-surface-mid disabled:opacity-60"
+          >
             {assigning ? "Assigning" : "Assign"}
           </button>
         </div>
