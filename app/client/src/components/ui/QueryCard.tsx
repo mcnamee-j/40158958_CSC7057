@@ -33,7 +33,7 @@ const time_elapsed_format = (seconds?: number): string => {
 const QueryCard = ({ query }: { query: Query }) => {
   return (
     <Link
-      to={`/queries/$query.id`}
+      to={`/queries/${query.id}`}
       className={`flex items-center justify-between bg-surface-light rounded-md border border-surface-mid border-1-4 px-4 py-3 hover:bg-green-50 transition-colors ${priority_border[query.priority]}`}
     >
       <div>
