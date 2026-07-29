@@ -76,7 +76,7 @@ const NewQueryPage = () => {
   }, []);
 
   return (
-    <div className="flex flex-col gap-5 pt-4 max-w-lg">
+    <div className="flex flex-col gap-5 pt-4 max-w-lg mx-auto">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-medium text-green-700">New Query</h2>
         <button

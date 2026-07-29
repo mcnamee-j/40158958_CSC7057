@@ -163,7 +163,7 @@ const QueryThreadPage = () => {
   }
 
   return (
-    <div className="flex flex-col gap-4 pt-2 max-w-2xl">
+    <div className="flex flex-col gap-4 pt-2 max-w-2xl mx-auto">
       <div className="flex items-start justify-between">
         <div>
           <div className="text-base font-medium">
@@ -209,7 +209,7 @@ const QueryThreadPage = () => {
                   reply.is_internal
                     ? "bg-status-warning-bg border border-status-warning-text/30"
                     : own_org_message
-                      ? "bg-green-500 text-white"
+                      ? "bg-green-300 text-white"
                       : "bg-surface-light"
                 }`}
               >
