@@ -286,85 +286,6 @@ const QueryThreadPage = () => {
         {actionError && (
           <p className="text-sm text-status-danger-text">{actionError}</p>
         )}
-
-        <div className="bg-surface-light rounded-md p-4 flex flex-col gap-3">
-          <div className="flex items-end gap-2">
-            <div className="flex-1">
-              <label className="block text-xs text-green-700 mb-1">
-                Status
-              </label>
-              <select
-                value={statusVal}
-                onChange={(e) => setStatusVal(e.target.value as QueryStatus)}
-                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
-              >
-                {status_options.map((status) => (
-                  <option key={status} value={status}>
-                    {status_label[status]}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <button
-              onClick={handle_status_change}
-              disabled={updatingStatus || statusVal === query.status}
-              className="px-3 py-1.5 text-sm bg-green-700 text-white rounded-md border border-surface-mid disabled:opacity-60 cursor-pointer"
-            >
-              {updatingStatus ? "Updating..." : "Update Status"}
-            </button>
-          </div>
-          {statusVal === "resolved" && (
-            <div>
-              <label className="block text-xs text-green-700 mb-1">
-                Resolution Note (optional)
-              </label>
-              <input
-                type="text"
-                value={resolutionNote}
-                onChange={(e) => setResolutionNote(e.target.value)}
-                className="w-ful rounded-md border border-surface-mid px-2 py-1.5 text-sm"
-              />
-            </div>
-          )}
-
-          <div className="flex items-end gap-2 pt-2 border-t border-surface-mid">
-            <div className="flex-1">
-              <label className="block text-xs text-green-700 mb-1">
-                Asssign to
-              </label>
-              <select
-                value={assigneeId}
-                onChange={(e) =>
-                  setAssigneeId(e.target.value ? Number(e.target.value) : "")
-                }
-                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
-              >
-                <option value="">Select a staff member</option>
-                {staff.map((member) => (
-                  <option key={member.id} value={member.id}>
-                    {member.first_name} {member.last_name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <label className="flex items-center gap-1.5 text-xs text-green-700 pb-2">
-              <input
-                type="checkbox"
-                checked={escalate}
-                onChange={(e) => setEscalate(e.target.checked)}
-                className="w-auto"
-              />
-              Escalate
-            </label>
-            <button
-              onClick={handle_assignment}
-              disabled={assigning}
-              className="px-3 py-1.5 text-sm rounded-md border border-surface-mid bg-green-700 text-white disabled:opacity-60 cursor-pointer"
-            >
-              {assigning ? "Assigning" : "Assign"}
-            </button>
-          </div>
-        </div>
       </div>
 
       <div className="w-56 shrink-0 bg-surface-light rounded-md p-4 flex flex-col gap-3 text-sm h-fit">
@@ -408,6 +329,82 @@ const QueryThreadPage = () => {
             {new Date(query.updated_at).toLocaleString()}
           </div>
         </div>
+
+        <div className="border-t border-surface-mid pt-3 flex flex-col gap-3">
+          <div className="flex-1">
+            <label className="block text-xs text-green-700 mb-1">Status</label>
+            <select
+              value={statusVal}
+              onChange={(e) => setStatusVal(e.target.value as QueryStatus)}
+              className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
+            >
+              {status_options.map((status) => (
+                <option key={status} value={status}>
+                  {status_label[status]}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button
+            onClick={handle_status_change}
+            disabled={updatingStatus || statusVal === query.status}
+            className="w-full px-3 py-1.5 mt-1.5 text-sm bg-green-700 text-white rounded-md disabled:opacity-60 cursor-pointer"
+          >
+            {updatingStatus ? "Updating..." : "Update Status"}
+          </button>
+          {statusVal === "resolved" && (
+            <div>
+              <label className="block text-xs text-green-700 mb-1">
+                Resolution Note (optional)
+              </label>
+              <input
+                type="text"
+                value={resolutionNote}
+                onChange={(e) => setResolutionNote(e.target.value)}
+                className="w-ful rounded-md border border-surface-mid px-2 py-1.5 text-sm"
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="pt-2 border-t border-surface-mid">
+          <label className="block text-xs text-green-700 mb-1">
+            Asssign to
+          </label>
+          <select
+            value={assigneeId}
+            onChange={(e) =>
+              setAssigneeId(e.target.value ? Number(e.target.value) : "")
+            }
+            className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
+          >
+            <option value="">Select a staff member</option>
+            {staff.map((member) => (
+              <option key={member.id} value={member.id}>
+                {member.first_name} {member.last_name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <label className="flex items-center gap-1.5 text-sm text-green-700 mt-1.5">
+          <input
+            type="checkbox"
+            checked={escalate}
+            onChange={(e) => setEscalate(e.target.checked)}
+            className="w-auto"
+          />
+          Escalate{" "}
+        </label>
+        <p className="text-xs text-placeholder-text">
+          Tick if escalating query to a manager or prescriber
+        </p>
+        <button
+          onClick={handle_assignment}
+          disabled={assigning}
+          className="w-full mt-1.5 px-3 py-1.5 text-sm rounded-md bg-green-700 text-white disabled:opacity-60 cursor-pointer"
+        >
+          {assigning ? "Assigning" : "Assign"}
+        </button>
       </div>
     </div>
   );

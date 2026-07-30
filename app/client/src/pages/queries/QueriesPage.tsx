@@ -115,11 +115,13 @@ const QueriesPage = () => {
         />
         <details className="bg-surface-light rounded-md px-4 py-3">
           <summary className="text-sm font-medium text-green-900 cursor-pointer">
-            Advanced Filters
+            Advanced Search Filters
           </summary>
 
           <div className="mt-3">
-            <label className="block text-sm text-green-700 mb-1">Patient</label>
+            <label className="block text-sm text-green-700 mb-1">
+              Patient - initials, DOB or HCN
+            </label>
             <div className="grid grid-cols-3 gap-2">
               <input
                 type="text"
@@ -147,7 +149,7 @@ const QueriesPage = () => {
           <div className="grid grid-cols-2 gap-3 mt-3">
             <div>
               <label className="block text-sm text-green-700 mb-1">
-                Organisation
+                Sender
               </label>
               <select
                 value={orgId}
