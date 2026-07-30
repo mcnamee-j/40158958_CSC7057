@@ -33,7 +33,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-surface-light">
+    <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-sm flex-col items-center gap-6 px-4">
         <div className="text-center">
           <div className="text-2xl font-medium text-green-500">Loop</div>

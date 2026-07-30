@@ -76,13 +76,13 @@ const NewQueryPage = () => {
   }, []);
 
   return (
-    <div className="flex flex-col gap-5 pt-4 max-w-lg mx-auto">
+    <div className="flex flex-col gap-5 pt-4 max-w-2xl mx-auto">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-medium text-green-700">New Query</h2>
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="px-3 py-1.5 text-sm bg-green-700 font-medium text-white rounded-md border border-surface-mid"
+          className="px-3 py-1.5 text-sm bg-green-700 font-medium text-white rounded-md border border-surface-mid cursor-pointer"
         >
           Cancel
         </button>
@@ -140,9 +140,9 @@ const NewQueryPage = () => {
               value={recipientOrgId}
               onChange={(e) => setRecipientOrgId(Number(e.target.value))}
               required
-              className="w-full rounded-md border border-surface-mid px-3 py-2 text-sm text-placeholder-text"
+              className="w-full rounded-md border border-surface-mid px-3 py-2 text-sm"
             >
-              <option value="">Select a linked recipient</option>
+              <option value="">Select a recipient</option>
               {linkedOrgs.map((org) => (
                 <option key={org.id} value={org.id}>
                   {org.name}
@@ -159,7 +159,7 @@ const NewQueryPage = () => {
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as QueryCategory)}
-              className="w-full rounded-md border border-surface-mid px-3 py-2 text-sm text-placeholder-text"
+              className="w-full rounded-md border border-surface-mid px-3 py-2 text-sm"
             >
               <option value="prescription">Prescription</option>
               <option value="stock">Stock</option>
@@ -176,7 +176,7 @@ const NewQueryPage = () => {
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value as QueryPriority)}
-              className="w-full rounded-md border border-surface-mid px-3 py-2 text-sm text-placeholder-text"
+              className="w-full rounded-md border border-surface-mid px-3 py-2 text-sm"
             >
               <option value="high">High</option>
               <option value="medium">Medium</option>
@@ -198,7 +198,7 @@ const NewQueryPage = () => {
             maxLength={80}
             required
             placeholder="Enter Query Subject"
-            className="w-full rounded-md border border-surface-mid px-3 py-2 text-sm text-placeholder-text"
+            className="w-full rounded-md border border-surface-mid px-3 py-2 text-sm"
           />
         </div>
 
@@ -215,7 +215,7 @@ const NewQueryPage = () => {
             maxLength={1000}
             required
             placeholder="Enter Query Message"
-            className="w-full min-h-24 rounded-md border border-surface-mid px-3 py-2 text-sm text-placeholder-text"
+            className="w-full min-h-28 rounded-md border border-surface-mid px-3 py-2 text-sm"
           ></textarea>
         </div>
 
@@ -225,7 +225,7 @@ const NewQueryPage = () => {
           <button
             type="submit"
             disabled={submitting}
-            className="px-5 py-2 text-sm font-medium rounded-md bg-green-700 text-white disabled:opacity-60"
+            className="px-5 py-2 text-sm font-medium rounded-md bg-green-700 text-white disabled:opacity-60 cursor-pointer"
           >
             {submitting ? "Creating..." : "Create Query"}
           </button>

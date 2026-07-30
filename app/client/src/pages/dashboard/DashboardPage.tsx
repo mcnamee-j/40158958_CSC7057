@@ -52,7 +52,7 @@ const DashboardPage = () => {
   ];
 
   return (
-    <div className="flex flex-col gap-5 pt-3">
+    <div className="flex flex-col gap-5 pt-3 max-w-2xl mx-auto">
       <h2 className="text-xl font-medium text-green-700">Dashboard</h2>
       <div className="flex gap-2 flex-wrap justify-center">
         {filter_buttons.map(({ key, label, count }) => (

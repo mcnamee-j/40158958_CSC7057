@@ -21,6 +21,8 @@ const time_elapsed_format = (seconds?: number): string => {
   if (seconds === undefined) return "";
 
   const mins = Math.floor(seconds / 60);
+  if (mins < 1) return `${Math.floor(seconds)}s ago`;
+
   if (mins < 60) return `${mins}m ago`;
 
   const hours = Math.floor(mins / 60);
@@ -37,13 +39,13 @@ const QueryCard = ({ query }: { query: Query }) => {
       className={`flex items-center justify-between bg-surface-light rounded-md border border-surface-mid border-1-4 px-4 py-3 hover:bg-green-50 transition-colors ${priority_border[query.priority]}`}
     >
       <div>
-        <div className="text-sm font-medium">
+        <div className="text-sm text-green-900 font-medium">
           {query.subject}
           <span className="text-placeholder-text font-normal">
             - Ref: {query.ref_number}
           </span>
         </div>
-        <div className="text-sm font-normal">
+        <div className="text-sm font-normal text-green-700">
           {(query.created_by_first_name || query.recipient_org_name) && (
             <div className="text-sm font-normal">
               {query.created_by_first_name} {query.created_by_last_name}

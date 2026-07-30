@@ -216,13 +216,20 @@ const get_query_by_id = async (user: AuthenticatedUser, query_id: number) => {
     `SELECT queries.*,
     sender_org.name AS sender_org_name,
     recipient_org.name AS recipient_org_name,
-    users.first_name AS created_by_first_name,
-    users.last_name AS created_by_last_name, 
+    creator.first_name AS created_by_first_name,
+    creator.last_name AS created_by_last_name, 
+    assignee.first_name AS assigned_to_first_name,
+    assignee.last_name AS assigned_to_last_name,
+    patients.initials as patient_initials,
+    patients.dob as patient_dob,
+    patients.hcn as patient_hcn,
     EXTRACT(EPOCH FROM (NOW() - queries.created_at)) AS elapsed_seconds
     FROM queries
     JOIN organisations sender_org ON queries.sender_org_id = sender_org.id
     JOIN organisations recipient_org ON queries.recipient_org_id = recipient_org.id
-    JOIN users ON queries.created_by = users.id
+    JOIN users creator ON queries.created_by = creator.id
+    LEFT JOIN users assignee ON queries.assigned_to = assignee.id
+    LEFT JOIN patients ON queries.patient_id = patients.id
     WHERE queries.id = $1`,
     [query_id],
   );
@@ -244,6 +251,7 @@ const get_query_by_id = async (user: AuthenticatedUser, query_id: number) => {
     SET read_at = NOW()
     WHERE query_id = $1
     AND read_at IS NULL
+    AND is_internal = false
     AND sender_id 
     IN ( 
     SELECT id
@@ -255,10 +263,15 @@ const get_query_by_id = async (user: AuthenticatedUser, query_id: number) => {
 
   //then get thread
   const replies_result = await pool.query(
-    `SELECT query_replies.*, users.organisation_id AS sender_org_id
+    `SELECT query_replies.*, 
+    users.organisation_id AS sender_org_id,
+    users.first_name AS sender_first_name,
+    users.last_name AS sender_last_name,
+    users.role AS sender_role,
+    organisations.name AS sender_org_display_name
     FROM query_replies
-    JOIN users
-    ON query_replies.sender_id = users.id
+    JOIN users ON query_replies.sender_id = users.id
+    JOIN organisations ON users.organisation_id = organisations.id
     WHERE query_replies.query_id = $1
     ORDER BY query_replies.sent_at ASC`,
     [query_id],

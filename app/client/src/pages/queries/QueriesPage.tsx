@@ -94,7 +94,7 @@ const QueriesPage = () => {
   ];
 
   return (
-    <div className="flex flex-col gap-5 pt-4">
+    <div className="flex flex-col gap-5 pt-4 max-w-2xl mx-auto">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-medium text-green-700">Queries</h2>
         <Link
@@ -154,7 +154,7 @@ const QueriesPage = () => {
                 onChange={(e) =>
                   setOrgId(e.target.value ? Number(e.target.value) : "")
                 }
-                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm text-placeholder-text"
+                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
               >
                 <option value="">Any</option>
                 {linkedOrgs.map((org) => (
@@ -173,7 +173,7 @@ const QueriesPage = () => {
                 onChange={(e) =>
                   setCategory(e.target.value as QueryCategory | "")
                 }
-                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm text-placeholder-text"
+                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
               >
                 <option value="">Any</option>
                 <option value="prescription">Prescription</option>
@@ -192,7 +192,7 @@ const QueriesPage = () => {
                 onChange={(e) =>
                   setPriority(e.target.value as QueryPriority | "")
                 }
-                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm text-placeholder-text"
+                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
               >
                 <option value="">Any</option>
                 <option value="high">High</option>
@@ -208,7 +208,7 @@ const QueriesPage = () => {
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm text-placeholder-text"
+                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
               />
             </div>
           </div>

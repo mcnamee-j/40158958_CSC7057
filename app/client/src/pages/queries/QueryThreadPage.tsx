@@ -18,15 +18,6 @@ import {
   status_label,
 } from "../../components/ui/BadgeHelper";
 
-//for mapping
-const STATUSES: QueryStatus[] = [
-  "new",
-  "in_progress",
-  "awaiting_response",
-  "escalated",
-  "resolved",
-];
-
 const QueryThreadPage = () => {
   //can use params to get id (string)
   const { id } = useParams<{ id: string }>();
@@ -162,6 +153,17 @@ const QueryThreadPage = () => {
     );
   }
 
+  //for mapping
+  const SELECTABLE_STATUSES: QueryStatus[] = [
+    "in_progress",
+    "escalated",
+    "resolved",
+  ];
+  const status_options: QueryStatus[] =
+    query?.status === "new"
+      ? ["new", ...SELECTABLE_STATUSES]
+      : SELECTABLE_STATUSES;
+
   return (
     <div className="flex flex-col gap-4 pt-2 max-w-2xl mx-auto">
       <div className="flex items-start justify-between">
@@ -189,7 +191,7 @@ const QueryThreadPage = () => {
           />
           <button
             onClick={() => navigate("/queries")}
-            className="bg-green-700 text-white px-3 py-1.5 text-sm rounded-md border border-surface-mid"
+            className="bg-green-700 text-white px-3 py-1.5 text-sm rounded-md border border-surface-mid cursor-pointer"
           >
             Back
           </button>
@@ -199,11 +201,22 @@ const QueryThreadPage = () => {
       <div className="flex flex-col gap-2.5">
         {replies.map((reply) => {
           const own_org_message = reply.sender_org_id === user?.organisation_id;
+          const initials = `${reply.sender_first_name?.[0] ?? ""}${reply.sender_last_name?.[0] ?? ""}`;
           return (
             <div
               key={reply.id}
-              className={`max-w-[80%] ${own_org_message ? "self-end" : "self-start"}`}
+              className={`max-w-[80%] flex gap-2${own_org_message ? "self-end flex-row-reverse" : "self-start"}`}
             >
+              <div className="w-7 h-7 rounded-full bg-status-accent-bg text-status-accent-text text-xs font-medium flex items-center justify-center shrink-0">
+                {initials}
+              </div>
+              <div
+                className={`text-xs text-placeholder-text mb-0.5 ${own_org_message ? "text-right" : ""}`}
+              >
+                {reply.sender_first_name} {reply.sender_last_name} -{" "}
+                {reply.sender_role?.replace("_", " ")},{" "}
+                {reply.sender_org_display_name}
+              </div>
               <div
                 className={`rounded-md px-3.5 py-2.5 text-sm ${
                   reply.is_internal
@@ -257,7 +270,7 @@ const QueryThreadPage = () => {
           <button
             type="submit"
             disabled={sending || !replyBody.trim()}
-            className="px-4 py-1.5 text-sm font-medium rounded-md bg-green-700 text-white disabled:opacity-60"
+            className="px-4 py-1.5 text-sm font-medium rounded-md bg-green-700 text-white disabled:opacity-60 cursor-pointer"
           >
             {sending ? "Sending..." : "Send Reply"}
           </button>
@@ -277,7 +290,7 @@ const QueryThreadPage = () => {
               onChange={(e) => setStatusVal(e.target.value as QueryStatus)}
               className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
             >
-              {STATUSES.map((status) => (
+              {status_options.map((status) => (
                 <option key={status} value={status}>
                   {status_label[status]}
                 </option>
@@ -287,7 +300,7 @@ const QueryThreadPage = () => {
           <button
             onClick={handle_status_change}
             disabled={updatingStatus || statusVal === query.status}
-            className="px-3 py-1.5 text-sm rounded-md border border-surface-mid disabled:opacity-60"
+            className="px-3 py-1.5 text-sm bg-green-700 text-white rounded-md border border-surface-mid disabled:opacity-60 cursor-pointer"
           >
             {updatingStatus ? "Updating..." : "Update Status"}
           </button>
@@ -338,10 +351,37 @@ const QueryThreadPage = () => {
           <button
             onClick={handle_assignment}
             disabled={assigning}
-            className="px-3 py-1.5 text-sm rounded-md border border-surface-mid disabled:opacity-60"
+            className="px-3 py-1.5 text-sm rounded-md border border-surface-mid bg-green-700 text-white disabled:opacity-60 cursor-pointer"
           >
             {assigning ? "Assigning" : "Assign"}
           </button>
+        </div>
+      </div>
+
+      <div>
+        <div>
+          <div>Category</div>
+          <div>{query.category}</div>
+        </div>
+        <div>
+          <div>Assigned to</div>
+          <div>
+            {query.assigned_to_first_name
+              ? `${query.assigned_to_first_name} ${query.assigned_to_last_name}`
+              : "Unassigned"}
+          </div>
+        </div>
+        {query.patient_initials && (
+          <div>
+            <div>Patient</div>
+            <div>{query.patient_initials}</div>
+            {query.patient_dob && <div>DOB: {query.patient_dob}</div>}
+            {query.patient_hcn && <div>HCN: {query.patient_hcn}</div>}
+          </div>
+        )}
+        <div>
+          <div>Date Raised</div>
+          <div>{new Date(query.created_at).toLocaleString()}</div>
         </div>
       </div>
     </div>

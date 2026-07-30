@@ -9,7 +9,7 @@ const navItems = [
 
 const Sidebar = () => {
   return (
-    <div className="w-40 shrink-0 bg-green-300 text-white flex flex-col gap-1 p-3">
+    <div className="w-50 shrink-0 bg-green-300 text-white flex flex-col gap-1 p-3">
       <div className="py-3">
         <p className="text-xl pl-2 pb-1.5">Loop</p>
       </div>

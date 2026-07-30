@@ -50,6 +50,11 @@ export interface Query {
   recipient_org_name?: string;
   created_by_first_name?: string;
   created_by_last_name?: string;
+  assigned_to_first_name?: string;
+  assigned_to_last_name?: string;
+  patient_initials?: string;
+  patient_dob?: string;
+  patient_hcn?: string;
 }
 
 export interface QueryReply {
@@ -61,6 +66,10 @@ export interface QueryReply {
   is_internal: boolean;
   read_at: string | null;
   sent_at: string;
+  sender_first_name?: string;
+  sender_last_name?: string;
+  sender_role?: string;
+  sender_org_display_name?: string;
 }
 
 export interface QueryListFilters {
