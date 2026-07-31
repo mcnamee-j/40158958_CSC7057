@@ -77,12 +77,12 @@ const LoginPage = () => {
             />
           </div>
 
-          {error && <p className="text-sm text-status-danager-text">{error}</p>}
+          {error && <p className="text-sm text-status-danger-text">{error}</p>}
 
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-md bg-green-700 py-2 text-sm font-medium text-white diabled:opacity-60"
+            className="w-full rounded-md bg-green-700 py-2 text-sm font-medium text-white disabled:opacity-60 cursor-pointer"
           >
             {submitting ? "Logging in..." : "Log in"}
           </button>

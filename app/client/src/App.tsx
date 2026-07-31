@@ -10,6 +10,15 @@ import QueriesPage from "./pages/queries/QueriesPage";
 import QueryThreadPage from "./pages/queries/QueryThreadPage";
 import NewQueryPage from "./pages/queries/NewQueryPage";
 import UserLayout from "./components/layout/UserLayout";
+import RoleCheckRoute from "./components/auth/RoleCheckRoute";
+import AdminHomePage from "./pages/admin/AdminHomePage";
+
+const ALLOWED_ORG_ROLES = [
+  "pharmacy_staff",
+  "pharmacy_manager",
+  "practice_staff",
+  "practice_manager",
+];
 
 function App() {
   return (
@@ -22,10 +31,20 @@ function App() {
 
           <Route element={<RestrictedRoute />}>
             <Route element={<UserLayout />}>
-              <Route path="/" element={<DashboardPage />}></Route>
-              <Route path="/queries" element={<QueriesPage />}></Route>
-              <Route path="/queries/:id" element={<QueryThreadPage />}></Route>
-              <Route path="/new-query" element={<NewQueryPage />}></Route>
+              <Route
+                element={
+                  <RoleCheckRoute
+                    allowed_roles={ALLOWED_ORG_ROLES}
+                    redirect_to="/admin"
+                  />
+                }
+              >
+                <Route path="/" element={<DashboardPage />} />
+                <Route path="/queries" element={<QueriesPage />} />
+                <Route path="/queries/:id" element={<QueryThreadPage />} />
+                <Route path="/new-query" element={<NewQueryPage />} />
+              </Route>
+              <Route path="/admin" element={<AdminHomePage />} />
             </Route>
           </Route>
         </Routes>

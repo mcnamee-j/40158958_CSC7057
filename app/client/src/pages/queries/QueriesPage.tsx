@@ -149,7 +149,7 @@ const QueriesPage = () => {
           <div className="grid grid-cols-2 gap-3 mt-3">
             <div>
               <label className="block text-sm text-green-700 mb-1">
-                Sender
+                Related Organisation
               </label>
               <select
                 value={orgId}
@@ -225,7 +225,7 @@ const QueriesPage = () => {
               className={`px-3.5 py-1.5 rounded-md text-sm ${
                 activeFilter === key
                   ? "bg-green-500 text-white"
-                  : "bg-surface-light text-green-700 border border-surface-mid"
+                  : "bg-surface-light text-green-700 border border-surface-mid cursor-pointer"
               }`}
             >
               {label}
@@ -236,13 +236,13 @@ const QueriesPage = () => {
           <button
             type="button"
             onClick={handle_clear}
-            className="px-4 py-1.5 bg-green-100 text-sm text-green-900 rounded-md border border-surface-mid"
+            className="px-4 py-1.5 bg-green-100 text-sm text-green-900 rounded-md border border-surface-mid cursor-pointer"
           >
             Clear
           </button>
           <button
             type="submit"
-            className="px-4 py-1.5 text-sm rounded-md bg-green-700 text-white font-medium"
+            className="px-4 py-1.5 text-sm rounded-md bg-green-700 text-white font-medium cursor-pointer"
           >
             Search
           </button>

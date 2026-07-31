@@ -123,7 +123,7 @@ const ResetPasswordPage = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full rounded-md bg-green-700 py-2 text-sm font-medium text-white disabled:opacity-60"
+              className="w-full rounded-md bg-green-700 py-2 text-sm font-medium text-white disabled:opacity-60 cursor-pointer"
             >
               {submitting ? "Resetting..." : "Reset Password"}
             </button>

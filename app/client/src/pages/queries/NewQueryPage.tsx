@@ -120,12 +120,18 @@ const NewQueryPage = () => {
               />
             </div>
             <div>
-              <label className="block text-xs text-green-700 mb-1">HCN</label>
+              <label className="block text-xs text-green-700 mb-1">
+                HCN{" "}
+                <span className="text-placeholder-text text-xs">
+                  {" "}
+                  - 10 digits
+                </span>
+              </label>
               <input
                 type="text"
                 value={hcn}
                 onChange={(e) => setHcn(e.target.value)}
-                placeholder="xxx-xxx-xxxx"
+                placeholder="xxxxxxxxxx"
                 className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
               />
             </div>

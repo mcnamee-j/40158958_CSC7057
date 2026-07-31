@@ -71,7 +71,7 @@ const ForgotPasswordPage = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full rounded-md bg-green-700 py-2 text-white text-sm font-medium disabled:opacity-60"
+              className="w-full rounded-md bg-green-700 py-2 text-white text-sm font-medium disabled:opacity-60 cursor-pointer"
             >
               {submitting ? "Sending..." : "Send reset link"}
             </button>

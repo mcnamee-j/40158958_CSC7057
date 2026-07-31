@@ -1,13 +1,19 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Inbox, Plus } from "lucide-react";
-
-const navItems = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/queries", label: "Queries", icon: Inbox, end: true },
-  { to: "/new-query", label: "New Query", icon: Plus, end: true },
-];
+import { LayoutDashboard, Inbox, Plus, ShieldCheck } from "lucide-react";
+import { useAuth } from "../../hooks/useAuth";
 
 const Sidebar = () => {
+  const { user } = useAuth();
+  const is_admin = user?.role === "admin";
+
+  const navItems = is_admin
+    ? [{ to: "/admin", label: "Admin", icon: ShieldCheck, end: true }]
+    : [
+        { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
+        { to: "/queries", label: "Queries", icon: Inbox, end: false },
+        { to: "/new-query", label: "New query", icon: Plus, end: false },
+      ];
+
   return (
     <div className="w-50 shrink-0 bg-green-300 text-white flex flex-col gap-1 p-3">
       <div className="py-3">
