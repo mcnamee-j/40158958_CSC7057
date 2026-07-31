@@ -16,7 +16,9 @@ import {
   priority_label,
   status_variant,
   status_label,
+  is_old,
 } from "../../components/ui/BadgeHelper";
+import { AlertTriangle } from "lucide-react";
 
 const QueryThreadPage = () => {
   //can use params to get id (string)
@@ -190,6 +192,12 @@ const QueryThreadPage = () => {
               label={status_label[query.status]}
               variant={status_variant[query.status]}
             />
+            {is_old(query.status, query.elapsed_seconds) && (
+              <span className="flex items-center gap-1 text-xs text-status-danger-text font-medium">
+                <AlertTriangle size={12} />
+                Unactioned for over a day
+              </span>
+            )}
             <button
               onClick={() => navigate("/queries")}
               className="bg-green-700 text-white px-3 py-1.5 text-sm rounded-md border border-surface-mid cursor-pointer"

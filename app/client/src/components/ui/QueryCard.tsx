@@ -6,7 +6,9 @@ import {
   priority_label,
   status_variant,
   status_label,
+  is_old,
 } from "./BadgeHelper";
+import { AlertTriangle } from "lucide-react";
 
 //formatting badges
 // - borders
@@ -33,6 +35,8 @@ const time_elapsed_format = (seconds?: number): string => {
 };
 
 const QueryCard = ({ query }: { query: Query }) => {
+  const old = is_old(query.status, query.elapsed_seconds);
+
   return (
     <Link
       to={`/queries/${query.id}`}
@@ -45,19 +49,25 @@ const QueryCard = ({ query }: { query: Query }) => {
             - Ref: {query.ref_number}
           </span>
         </div>
-        <div className="text-sm font-normal text-green-700">
-          {(query.created_by_first_name || query.recipient_org_name) && (
-            <div className="text-sm font-normal">
-              {query.created_by_first_name} {query.created_by_last_name}
-              {query.created_by_first_name &&
-                (query.sender_org_name || query.recipient_org_name) &&
-                " - "}
-              {query.sender_org_name}
-            </div>
-          )}
-        </div>
-        <div className="text-xs text-placeholder-text mt-0.5">
+
+        {(query.created_by_first_name || query.recipient_org_name) && (
+          <div className="text-sm font-normal text-green-700">
+            {query.created_by_first_name} {query.created_by_last_name}
+            {query.created_by_first_name &&
+              (query.sender_org_name || query.recipient_org_name) &&
+              " - "}
+            {query.sender_org_name}
+          </div>
+        )}
+
+        <div className="text-xs text-placeholder-text mt-0.5 flex items-center gap-1">
           {time_elapsed_format(query.elapsed_seconds)}
+          {old && (
+            <span>
+              <AlertTriangle size={12} />
+              Unactioned for over a day
+            </span>
+          )}
         </div>
       </div>
       <div className="flex items-center gap-2">

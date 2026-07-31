@@ -33,3 +33,11 @@ export const status_label: Record<QueryStatus, string> = {
   escalated: "Escalated",
   resolved: "Resolved",
 };
+
+export const AGE_THRESHOLD_SECONDS = 24 * 60 * 60; //1day
+
+export const is_old = (
+  status: QueryStatus,
+  elapsed_seconds?: number,
+): boolean =>
+  status !== "resolved" && (elapsed_seconds ?? 0) > AGE_THRESHOLD_SECONDS;
