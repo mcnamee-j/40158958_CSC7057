@@ -188,6 +188,12 @@ const NewQueryPage = () => {
               <option value="medium">Medium</option>
               <option value="low">Low</option>
             </select>
+            {priority === "high" && (
+              <p className="text-xs text-status-danger-text mt-1.5">
+                If this is extremely urgent, please consider contacting this
+                organisation by phone.
+              </p>
+            )}
           </div>
         </div>
         <div>

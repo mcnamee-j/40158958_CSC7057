@@ -206,7 +206,11 @@ const QueryThreadPage = () => {
             </button>
           </div>
         </div>
-
+        {query.priority === "high" && (
+          <p className="text-xs text-status-danger-text self-end">
+            NOTE: Extremely urgent queries should be followed up by phone.
+          </p>
+        )}
         <div className="flex flex-col gap-2.5">
           {replies.map((reply) => {
             const own_org_message =
