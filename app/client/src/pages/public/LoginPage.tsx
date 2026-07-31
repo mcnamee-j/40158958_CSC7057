@@ -3,10 +3,13 @@ import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Api_Error } from "../../api/client";
 import { Link } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 const LoginPage = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [search_params] = useSearchParams();
+  const session_expired = search_params.get("expired") === "true";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,6 +46,12 @@ const LoginPage = () => {
 
         <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
           <div>
+            {session_expired && (
+              <p className="text-sm text-status-warning-bg rounded-md px-3 py-2">
+                Your session expired due to inactivity. Please log in again to
+                continue.
+              </p>
+            )}
             <label
               htmlFor="email"
               className="block text-sm text-green-500 mb-1"

@@ -1,8 +1,10 @@
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import { useTimeout } from "../../hooks/useTimeout";
 
 const UserLayout = () => {
+  useTimeout();
   return (
     <div className="min-h-screen bg-surface-light flex">
       <Sidebar />
