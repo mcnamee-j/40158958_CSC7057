@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Api_Error } from "../../api/client";
+import { Link } from "react-router-dom";
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -89,12 +90,12 @@ const LoginPage = () => {
           <p className="text-center text-xs text-placeholder-text">
             For authorised users only
           </p>
-          <a
-            href="/forgot-password"
+          <Link
+            to="/forgot_password"
             className="text-center text-sm text-green-700"
           >
             Forgot password?
-          </a>
+          </Link>
         </form>
       </div>
     </div>

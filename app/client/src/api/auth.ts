@@ -33,10 +33,10 @@ export const logout = async () => {
   localStorage.removeItem("refresh_token");
 };
 
-export const forgotPassword = (email: string) =>
+export const forgot_password = (email: string) =>
   api.post("/api/auth/forgot_password", { email });
 
-export const resetPassword = (token: string, new_password: string) =>
+export const reset_password = (token: string, new_password: string) =>
   api.post("/api/auth/reset_password", { token, new_password });
 
 export const getUser = () =>
