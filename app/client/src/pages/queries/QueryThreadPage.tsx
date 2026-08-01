@@ -192,12 +192,6 @@ const QueryThreadPage = () => {
               label={status_label[query.status]}
               variant={status_variant[query.status]}
             />
-            {is_old(query.status, query.elapsed_seconds) && (
-              <span className="flex items-center gap-1 text-xs text-status-danger-text font-medium">
-                <AlertTriangle size={12} />
-                Unactioned for over a day
-              </span>
-            )}
             <button
               onClick={() => navigate("/queries")}
               className="bg-green-700 text-white px-3 py-1.5 text-sm rounded-md border border-surface-mid cursor-pointer"
@@ -206,11 +200,21 @@ const QueryThreadPage = () => {
             </button>
           </div>
         </div>
-        {query.priority === "high" && (
-          <p className="text-xs text-status-danger-text self-end">
-            NOTE: Extremely urgent queries should be followed up by phone.
-          </p>
-        )}
+        <div className="flex justify-between">
+          {is_old(query.status, query.elapsed_seconds) && (
+            <span className="flex gap-1 text-xs text-status-danger-text font-medium">
+              <AlertTriangle size={12} />
+              Unactioned for over a day
+            </span>
+          )}
+          {query.priority === "high" && (
+            <span className="flex gap-1 text-xs text-status-danger-text font-medium">
+              <AlertTriangle size={12} />
+              Extremely urgent queries should be followed up by phone.
+            </span>
+          )}
+        </div>
+
         <div className="flex flex-col gap-2.5">
           {replies.map((reply) => {
             const own_org_message =

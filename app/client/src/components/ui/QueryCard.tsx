@@ -63,7 +63,7 @@ const QueryCard = ({ query }: { query: Query }) => {
         <div className="text-xs text-placeholder-text mt-0.5 flex items-center gap-1">
           {time_elapsed_format(query.elapsed_seconds)}
           {old && (
-            <span>
+            <span className="flex items-center gap-1 text-status-danger-text font-medium">
               <AlertTriangle size={12} />
               Unactioned for over a day
             </span>
