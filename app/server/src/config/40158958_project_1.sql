@@ -40,7 +40,8 @@ ALTER TYPE public.notification_type OWNER TO jamesmcnamee;
 
 CREATE TYPE public.organisation_type AS ENUM (
     'pharmacy',
-    'gp_surgery'
+    'gp_surgery',
+    'system'
 );
 
 

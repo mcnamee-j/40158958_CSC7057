@@ -253,6 +253,134 @@ describe("GET /api/queries", () => {
     ).toBe(true);
   });
 
+  it("filters by category", async () => {
+    await create_test_query({ category: "stock" });
+
+    const res = await request(app)
+      .get("/api/queries?category=stock")
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(200);
+    expect(
+      res.body.queries.every((query: any) => query.category === "stock"),
+    ).toBe(true);
+  });
+
+  it("filters by search matching subject", async () => {
+    const created = await create_test_query({
+      subject: "Unique searchable subject xyz",
+    });
+
+    const res = await request(app)
+      .get("/api/queries?search=searchable")
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.queries.some((query: any) => query.id === created.id)).toBe(
+      true,
+    );
+  });
+
+  it("filters by search matching ref_number", async () => {
+    const created = await create_test_query();
+
+    const res = await request(app)
+      .get(`/api/queries?search=${created.ref_number}`)
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.queries.some((query: any) => query.id === created.id)).toBe(
+      true,
+    );
+  });
+
+  it("filters by patient initials", async () => {
+    const created = await create_test_query({
+      patient: { initials: "ZQ", dob: "1985-05-05" },
+    });
+
+    const res = await request(app)
+      .get("/api/queries?patient_initials=ZQ")
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.queries.some((query: any) => query.id === created.id)).toBe(
+      true,
+    );
+  });
+
+  it("filters by patient initials case-insensitively", async () => {
+    const created = await create_test_query({
+      patient: { initials: "LM", dob: "1997-10-20" },
+    });
+
+    const res = await request(app)
+      .get("/api/queries?patient_initials=lm")
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.queries.some((query: any) => query.id === created.id)).toBe(
+      true,
+    );
+  });
+
+  it("filters by patient dob", async () => {
+    const created = await create_test_query({
+      patient: { initials: "AB", dob: "1977-03-03" },
+    });
+
+    const res = await request(app)
+      .get("/api/queries?patient_dob=1977-03-03")
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.queries.some((query: any) => query.id === created.id)).toBe(
+      true,
+    );
+  });
+
+  it("filters by patient hcn", async () => {
+    const created = await create_test_query({
+      patient: { initials: "CD", hcn: "999888777" },
+    });
+
+    const res = await request(app)
+      .get("/api/queries?patient_hcn=999888777")
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.queries.some((query: any) => query.id === created.id)).toBe(
+      true,
+    );
+  });
+
+  it("filters by org_id", async () => {
+    const created = await create_test_query();
+
+    const res = await request(app)
+      .get(`/api/queries?org_id=${GP_ORG_ID}`)
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.queries.some((query: any) => query.id === created.id)).toBe(
+      true,
+    );
+  });
+
+  it("filters by date raised", async () => {
+    const created = await create_test_query();
+    const today = new Date().toISOString().split("T")[0];
+
+    const res = await request(app)
+      .get(`/api/queries?date=${today}`)
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.queries.some((query: any) => query.id === created.id)).toBe(
+      true,
+    );
+  });
+
   it("combines filters with 'AND' logic", async () => {
     const res = await request(app)
       .get("/api/queries?status=new&priority=high")
@@ -285,6 +413,22 @@ describe("GET /api/queries", () => {
     expect(res.status).toBe(200);
     expect(res.body.queries).toEqual([]);
     expect(res.body.total).toBe(0);
+  });
+
+  //added after backend adjustments to get org names to frontend
+  it("includes sender org name and creator name in the list", async () => {
+    await create_test_query();
+
+    const res = await request(app)
+      .get("/api/queries")
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(200);
+    const created = res.body.queries.find(
+      (query: any) => query.created_by_first_name,
+    );
+    expect(created).toBeDefined();
+    expect(created.sender_org_name).toBe("City Pharmacy Belfast");
   });
 });
 
@@ -369,6 +513,24 @@ describe("GET /api/queries/:id", () => {
     ).toBe(false);
   });
 
+  it("does not mark internal notes as read", async () => {
+    const created = await create_test_query();
+    await request(app)
+      .post(`/api/queries/${created.id}/replies`)
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({ body: "Internal note", is_internal: true });
+
+    await request(app)
+      .get(`/api/queries/${created.id}`)
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    const check = await pool.query(
+      `SELECT read_at FROM query_replies WHERE query_id = $1 AND is_internal = true`,
+      [created.id],
+    );
+    expect(check.rows[0].read_at).toBeNull();
+  });
+
   it("returns 404 for a query belonging to an unrelated organisation", async () => {
     const created = await create_test_query();
 
@@ -377,6 +539,19 @@ describe("GET /api/queries/:id", () => {
       .set("Authorization", `Bearer ${aoife_token}`);
 
     expect(res.status).toBe(404);
+  });
+
+  it("includes sender org name and creator name", async () => {
+    const created = await create_test_query();
+
+    const res = await request(app)
+      .get(`/api/queries/${created.id}`)
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.query.sender_org_name).toBe("City Pharmacy Belfast");
+    expect(res.body.query.recipient_org_name).toBe("Hillview Surgery");
+    expect(res.body.query.created_by_first_name).toBe("Jane");
   });
 });
 
@@ -433,6 +608,36 @@ describe("POST /api/queries/:id/replies", () => {
       .send({ body: "Test reply" });
 
     expect(res.status).toBe(401);
+  });
+
+  it("auto-progresses status from new to in_progress on a non-internal reply", async () => {
+    const created = await create_test_query();
+
+    await request(app)
+      .post(`/api/queries/${created.id}/replies`)
+      .set("Authorization", `Bearer ${sarah_token}`)
+      .send({ body: "Looking into this" });
+
+    const res = await request(app)
+      .get(`/api/queries/${created.id}`)
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.body.query.status).toBe("in_progress");
+  });
+
+  it("does not change status when the reply is an internal note", async () => {
+    const created = await create_test_query();
+
+    await request(app)
+      .post(`/api/queries/${created.id}/replies`)
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({ body: "Internal note", is_internal: true });
+
+    const res = await request(app)
+      .get(`/api/queries/${created.id}`)
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.body.query.status).toBe("new");
   });
 });
 

@@ -264,3 +264,25 @@ describe("audit log entry tests", () => {
     expect(result.rows[0].action).toBe("failed_login");
   });
 });
+
+//new get_user endpoint
+describe("GET /api/auth/get_user", () => {
+  it("returns 200 and user details for a valid token", async () => {
+    const login = await request(app)
+      .post("/api/auth/login")
+      .send({ email: "jane@pharmacy.com", password: "Password123!" });
+
+    const res = await request(app)
+      .get("/api/auth/get_user")
+      .set("Authorization", `Bearer ${login.body.access_token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.user.email ?? res.body.user.role).toBeDefined();
+    expect(res.body.user.organisation_name).toBe("City Pharmacy Belfast");
+  });
+
+  it("returns 401 when no token is provided", async () => {
+    const res = await request(app).get("/api/auth/get_user");
+    expect(res.status).toBe(401);
+  });
+});

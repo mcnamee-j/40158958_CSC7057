@@ -60,13 +60,30 @@ const list_queries = async (
   try {
     const user = (req as any).user;
 
-    const { status, priority, category, search, page, limit } = req.query;
+    const {
+      status,
+      priority,
+      category,
+      search,
+      patient_initials,
+      patient_dob,
+      patient_hcn,
+      org_id,
+      date,
+      page,
+      limit,
+    } = req.query;
 
     const result = await query_services.get_org_queries(user, {
       status: status as string | undefined,
       priority: priority as string | undefined,
       category: category as string | undefined,
       search: search as string | undefined,
+      patient_initials: patient_initials as string | undefined,
+      patient_dob: patient_dob as string | undefined,
+      patient_hcn: patient_hcn as string | undefined,
+      org_id: org_id ? parseInt(org_id as string, 10) : undefined,
+      date: date as string | undefined,
       page: page ? parseInt(page as string, 10) : undefined,
       limit: limit ? parseInt(limit as string, 10) : undefined,
     });

@@ -116,4 +116,35 @@ const reset_password = async (
   }
 };
 
-export default { login, logout, refresh, forgot_password, reset_password };
+const get_user = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = (req as any).user.userId;
+    const user = await authServices.get_user(userId);
+
+    res.status(200).json({
+      user: {
+        id: user.id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        role: user.role,
+        organisation: user.organisation_id,
+        organisation_name: user.organisation_name,
+      },
+    });
+  } catch (e: any) {
+    if (e.message === "User not found") {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+    next(e);
+  }
+};
+
+export default {
+  login,
+  logout,
+  refresh,
+  forgot_password,
+  reset_password,
+  get_user,
+};

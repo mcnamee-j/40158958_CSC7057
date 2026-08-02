@@ -103,36 +103,68 @@ const get_org_queries = async (
     priority?: string | undefined;
     category?: string | undefined;
     search?: string | undefined;
+    patient_initials?: string | undefined;
+    patient_dob?: string | undefined;
+    patient_hcn?: string | undefined;
+    org_id?: number | undefined;
+    date?: string | undefined;
     page?: number | undefined; //if i implement pagination of filtered results
     limit?: number | undefined;
   },
 ) => {
   //build sql statement uisng if statements and .push
   const conditions: string[] = [
-    `(sender_org_id = $1 OR recipient_org_id = $1)`,
+    `(queries.sender_org_id = $1 OR queries.recipient_org_id = $1)`,
   ];
   const params: (string | number)[] = [user.organisationId];
 
   if (filters.status) {
     params.push(filters.status);
-    conditions.push(`status = $${[params.length]}`);
+    conditions.push(`queries.status = $${[params.length]}`);
   }
 
   if (filters.priority) {
     params.push(filters.priority);
-    conditions.push(`priority = $${[params.length]}`);
+    conditions.push(`queries.priority = $${[params.length]}`);
   }
 
   if (filters.category) {
     params.push(filters.category);
-    conditions.push(`category = $${[params.length]}`);
+    conditions.push(`queries.category = $${[params.length]}`);
   }
 
   if (filters.search) {
     params.push(`%${filters.search}%`);
     conditions.push(
-      `(subject ILIKE $${[params.length]} OR ref_number ILIKE $${[params.length]})`, //ILIKE is case insensitive
+      `(queries.subject ILIKE $${[params.length]} OR queries.ref_number ILIKE $${[params.length]})`, //ILIKE is case insensitive
     );
+  }
+
+  if (filters.patient_initials) {
+    params.push(filters.patient_initials);
+    conditions.push(`patients.initials ILIKE $${[params.length]}`);
+  }
+
+  if (filters.patient_dob) {
+    params.push(filters.patient_dob);
+    conditions.push(`patients.dob = $${[params.length]}`);
+  }
+
+  if (filters.patient_hcn) {
+    params.push(filters.patient_hcn);
+    conditions.push(`patients.hcn = $${[params.length]}`);
+  }
+
+  if (filters.org_id) {
+    params.push(filters.org_id);
+    conditions.push(
+      `(queries.sender_org_id = $${[params.length]} OR queries.recipient_org_id = $${[params.length]})`,
+    );
+  }
+
+  if (filters.date) {
+    params.push(filters.date);
+    conditions.push(`queries.created_at::date = $${[params.length]}::date`);
   }
 
   //join all conditions together
@@ -147,6 +179,8 @@ const get_org_queries = async (
   const results_count = await pool.query(
     `SELECT COUNT(*)
     FROM queries
+    LEFT JOIN patients
+    ON queries.patient_id = patients.id
     WHERE ${where}`,
     params,
   );
@@ -155,12 +189,20 @@ const get_org_queries = async (
   //main query - also gets time elapsed since creation for adding visual flags to frontend (US - 23)
   params.push(limit, page_offset);
   const result = await pool.query(
-    `SELECT *,
-    EXTRACT(EPOCH FROM (NOW() - created_at))
+    `SELECT queries.*,
+    sender_org.name AS sender_org_name,
+    recipient_org.name AS recipient_org_name,
+    users.first_name AS created_by_first_name,
+    users.last_name AS created_by_last_name,
+    EXTRACT(EPOCH FROM (NOW() - queries.created_at))
     AS elapsed_seconds
     FROM queries
+    JOIN organisations sender_org ON queries.sender_org_id = sender_org.id
+    JOIN organisations recipient_org ON queries.recipient_org_id = recipient_org.id
+    JOIN users ON queries.created_by = users.id
+    LEFT JOIN patients ON queries.patient_id = patients.id
     WHERE ${where}
-    ORDER BY created_at DESC
+    ORDER BY queries.created_at DESC
     LIMIT $${params.length - 1}
     OFFSET $${params.length}`,
     params,
@@ -171,10 +213,24 @@ const get_org_queries = async (
 
 const get_query_by_id = async (user: AuthenticatedUser, query_id: number) => {
   const query_result = await pool.query(
-    `SELECT *, 
-        EXTRACT(EPOCH FROM (NOW() - created_at)) AS elapsed_seconds
-        FROM queries
-        WHERE id = $1`,
+    `SELECT queries.*,
+    sender_org.name AS sender_org_name,
+    recipient_org.name AS recipient_org_name,
+    creator.first_name AS created_by_first_name,
+    creator.last_name AS created_by_last_name, 
+    assignee.first_name AS assigned_to_first_name,
+    assignee.last_name AS assigned_to_last_name,
+    patients.initials as patient_initials,
+    patients.dob as patient_dob,
+    patients.hcn as patient_hcn,
+    EXTRACT(EPOCH FROM (NOW() - queries.created_at)) AS elapsed_seconds
+    FROM queries
+    JOIN organisations sender_org ON queries.sender_org_id = sender_org.id
+    JOIN organisations recipient_org ON queries.recipient_org_id = recipient_org.id
+    JOIN users creator ON queries.created_by = creator.id
+    LEFT JOIN users assignee ON queries.assigned_to = assignee.id
+    LEFT JOIN patients ON queries.patient_id = patients.id
+    WHERE queries.id = $1`,
     [query_id],
   );
 
@@ -195,6 +251,7 @@ const get_query_by_id = async (user: AuthenticatedUser, query_id: number) => {
     SET read_at = NOW()
     WHERE query_id = $1
     AND read_at IS NULL
+    AND is_internal = false
     AND sender_id 
     IN ( 
     SELECT id
@@ -206,10 +263,15 @@ const get_query_by_id = async (user: AuthenticatedUser, query_id: number) => {
 
   //then get thread
   const replies_result = await pool.query(
-    `SELECT query_replies.*, users.organisation_id AS sender_org_id
+    `SELECT query_replies.*, 
+    users.organisation_id AS sender_org_id,
+    users.first_name AS sender_first_name,
+    users.last_name AS sender_last_name,
+    users.role AS sender_role,
+    organisations.name AS sender_org_display_name
     FROM query_replies
-    JOIN users
-    ON query_replies.sender_id = users.id
+    JOIN users ON query_replies.sender_id = users.id
+    JOIN organisations ON users.organisation_id = organisations.id
     WHERE query_replies.query_id = $1
     ORDER BY query_replies.sent_at ASC`,
     [query_id],
@@ -245,6 +307,26 @@ const add_reply = async (
       query.recipient_org_id !== user.organisationId)
   ) {
     throw new Error("Query not found");
+  }
+
+  //add auto-status update
+  const should_auto_update = !is_internal && query.status === "new";
+
+  if (should_auto_update) {
+    await pool.query(
+      `UPDATE queries 
+      SET status = 'in_progress'
+      WHERE id = $1`,
+      [query_id],
+    );
+
+    await audit_services.log_action(
+      user.userId,
+      query_id,
+      "status_changed",
+      "new",
+      "in_progress",
+    );
   }
 
   const reply_result = await pool.query(
