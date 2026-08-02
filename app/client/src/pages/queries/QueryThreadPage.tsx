@@ -18,7 +18,7 @@ import {
   status_label,
   is_old,
 } from "../../components/ui/BadgeHelper";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, ArrowLeft } from "lucide-react";
 
 const QueryThreadPage = () => {
   //can use params to get id (string)
@@ -191,38 +191,44 @@ const QueryThreadPage = () => {
   return (
     <div className="flex gap-4 pt-2 max-w-4xl mx-auto">
       <div className="flex-1 flex flex-col gap-4">
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="text-base font-medium">
-              {query.subject}{" "}
-              <span className="text-placeholder-text font-normal text-sm">
-                - Ref: {query.ref_number}
-              </span>
+        <div className="flex items-start gap-3">
+          <button
+            onClick={() => navigate("/queries")}
+            className="shrink-0 flex items-center gap-1 px-3 py-1.5 text-sm bg-green-700 text-white rounded-md border border-surface-mid cursor-pointer"
+          >
+            <ArrowLeft size={12} />
+            Back
+          </button>
+
+          <div className="flex-1 flex items-start justify-between">
+            <div>
+              <div className="text-base font-medium">
+                {query.subject}{" "}
+                <span className="text-placeholder-text font-normal text-sm">
+                  - Ref: {query.ref_number}
+                </span>
+              </div>
+              <div className="text-sm text-green-700 flex items-center gap-1.5 mt-0.5">
+                {query.sender_org_name}
+                <span aria-hidden="true">&harr;</span>
+                {query.recipient_org_name}
+              </div>
             </div>
-            <div className="text-sm text-green-700 flex items-center gap-1.5 mt-0.5">
-              {query.sender_org_name}
-              <span aria-hidden="true">&harr;</span>
-              {query.recipient_org_name}
+
+            <div className="flex items-center gap-1.5 shrink-0">
+              <Badge
+                label={priority_label[query.priority]}
+                variant={priority_variant[query.priority]}
+              />
+              <Badge
+                label={status_label[query.status]}
+                variant={status_variant[query.status]}
+              />
             </div>
-          </div>
-          <div className="flex items-center gap-1.5 shrink-0">
-            <Badge
-              label={priority_label[query.priority]}
-              variant={priority_variant[query.priority]}
-            />
-            <Badge
-              label={status_label[query.status]}
-              variant={status_variant[query.status]}
-            />
-            <button
-              onClick={() => navigate("/queries")}
-              className="bg-green-700 text-white px-3 py-1.5 text-sm rounded-md border border-surface-mid cursor-pointer"
-            >
-              Back
-            </button>
           </div>
         </div>
-        <div className="flex justify-between">
+
+        <div className="flex flex-wrap gap-3">
           {is_old(query.status, query.elapsed_seconds) && (
             <span className="flex gap-1 text-xs text-status-danger-text font-medium">
               <AlertTriangle size={12} />

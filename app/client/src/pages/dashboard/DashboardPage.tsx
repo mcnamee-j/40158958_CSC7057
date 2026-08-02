@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { get_queries } from "../../api/queries";
 import type { Query, QueryStatus } from "../../types/query.types";
 import QueryCard from "../../components/ui/QueryCard";
+import { Link } from "react-router-dom";
 
 type Filter = "all" | QueryStatus;
 type Sort = "date" | "priority";
@@ -65,7 +66,16 @@ const DashboardPage = () => {
 
   return (
     <div className="flex flex-col gap-5 pt-3 max-w-2xl mx-auto">
-      <h2 className="text-xl font-medium text-green-700">Dashboard</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-medium text-green-700">Dashboard</h2>
+        <Link
+          to="/new-query"
+          className="text-sm text-white border border-surface-mid bg-green-700 px-3 py-1 rounded-md hover:bg-green-50"
+        >
+          Add New Query
+        </Link>
+      </div>
+
       <div className="flex justify-between items-center flex-wrap gap-2">
         <div className="flex gap-2 flex-wrap">
           {filter_buttons.map(({ key, label, count }) => (

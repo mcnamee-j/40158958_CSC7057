@@ -100,9 +100,9 @@ const QueriesPage = () => {
         <h2 className="text-xl font-medium text-green-700">Queries</h2>
         <Link
           to="/new-query"
-          className="bg-green-700 text-white text-sm font-medium px-4 py-1.5 rounded-md"
+          className="text-sm text-white border border-surface-mid bg-green-700 px-3 py-1 rounded-md hover:bg-green-50"
         >
-          New Query
+          Add New Query
         </Link>
       </div>
 
