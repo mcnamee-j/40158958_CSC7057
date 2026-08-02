@@ -4,12 +4,15 @@ import type { Query, QueryStatus } from "../../types/query.types";
 import QueryCard from "../../components/ui/QueryCard";
 
 type Filter = "all" | QueryStatus;
+type Sort = "date" | "priority";
+const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
 const DashboardPage = () => {
   const [queries, setQueries] = useState<Query[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<Filter>("all");
+  const [sortBy, setSortBy] = useState<Sort>("date");
 
   useEffect(() => {
     const fetch_queries = async () => {
@@ -18,7 +21,7 @@ const DashboardPage = () => {
 
       try {
         const { queries } = await get_queries({ limit: 200 });
-        setQueries(queries);
+        setQueries(queries.filter((query) => query.status !== "resolved"));
       } catch {
         setError("Could not load queries. Please try again.");
       } finally {
@@ -35,40 +38,60 @@ const DashboardPage = () => {
     new: queries.filter((query) => query.status === "new").length,
     in_progress: queries.filter((query) => query.status === "in_progress")
       .length,
-    resolved: queries.filter((query) => query.status === "resolved").length,
+    escalated: queries.filter((query) => query.status === "escalated").length,
   };
 
   //need to filter by the selected status
-  const filtered_queries =
+  const filtered_queries = (
     activeFilter === "all"
       ? queries
-      : queries.filter((query) => query.status === activeFilter);
+      : queries.filter((query) => query.status === activeFilter)
+  )
+    .slice()
+    .sort((a, b) => {
+      if (sortBy === "priority")
+        return PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority];
+      return (
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+    });
 
   const filter_buttons: { key: Filter; label: string; count: number }[] = [
     { key: "all", label: "All", count: counts.all },
     { key: "new", label: "New", count: counts.new },
     { key: "in_progress", label: "In progress", count: counts.in_progress },
-    { key: "resolved", label: "Resolved", count: counts.resolved },
+    { key: "escalated", label: "Escalated", count: counts.escalated },
   ];
 
   return (
     <div className="flex flex-col gap-5 pt-3 max-w-2xl mx-auto">
       <h2 className="text-xl font-medium text-green-700">Dashboard</h2>
-      <div className="flex gap-2 flex-wrap justify-center">
-        {filter_buttons.map(({ key, label, count }) => (
-          <button
-            key={key}
-            onClick={() => setActiveFilter(key)}
-            className={`cursor-pointer px-3.5 py-1.5 rounded-md text-sm ${
-              activeFilter === key
-                ? "bg-green-500 text-white"
-                : "bg-surface-light text-green-700 border border-surface-mid"
-            }`}
-          >
-            {label} - {count}
-          </button>
-        ))}
+      <div className="flex justify-between items-center flex-wrap gap-2">
+        <div className="flex gap-2 flex-wrap">
+          {filter_buttons.map(({ key, label, count }) => (
+            <button
+              key={key}
+              onClick={() => setActiveFilter(key)}
+              className={`cursor-pointer px-3.5 py-1.5 rounded-md text-sm ${
+                activeFilter === key
+                  ? "bg-green-500 text-white"
+                  : "bg-surface-light text-green-700 border border-surface-mid"
+              }`}
+            >
+              {label} - {count}
+            </button>
+          ))}
+        </div>
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value as Sort)}
+          className="rounded-md border border-surface-mid px-2 py-1.5 text-sm"
+        >
+          <option value="date">Sort: Newest first</option>
+          <option value="priority">Sort: Priority</option>
+        </select>
       </div>
+
       {loading && (
         <p className="text-sm text-placeholder-text">Loading queires...</p>
       )}

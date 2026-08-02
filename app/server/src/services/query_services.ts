@@ -142,7 +142,7 @@ const get_org_queries = async (
 
   if (filters.patient_initials) {
     params.push(filters.patient_initials);
-    conditions.push(`patients.initials = $${[params.length]}`);
+    conditions.push(`patients.initials ILIKE $${[params.length]}`);
   }
 
   if (filters.patient_dob) {

@@ -137,6 +137,28 @@ const QueryThreadPage = () => {
     }
   };
 
+  const handle_marked_resolved = async () => {
+    setUpdatingStatus(true);
+    setActionError(null);
+    try {
+      const updated = await update_status(
+        query_id,
+        "resolved",
+        resolutionNote || undefined,
+      );
+      setQuery(updated);
+      setStatusVal("resolved");
+    } catch (e) {
+      setActionError(
+        e instanceof Api_Error
+          ? e.message
+          : "Could not resolve query at this time.",
+      );
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
   if (loading)
     return <p className="text-sm text-placeholder-text pt-4">Loading...</p>;
   if (error || !query) {
@@ -289,13 +311,23 @@ const QueryThreadPage = () => {
                 (only visible to your organisation)
               </span>
             </label>
-            <button
-              type="submit"
-              disabled={sending || !replyBody.trim()}
-              className="px-4 py-1.5 text-sm font-medium rounded-md bg-green-700 text-white disabled:opacity-60 cursor-pointer"
-            >
-              {sending ? "Sending..." : "Send Reply"}
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handle_marked_resolved}
+                disabled={updatingStatus || query.status === "resolved"}
+                className="px-4 py-1.5 text-sm font-medium rounded-md border border-green-700 text-green-700 disabled:opacity-60 cursor-pointer"
+              >
+                Mark as resolved
+              </button>
+              <button
+                type="submit"
+                disabled={sending || !replyBody.trim()}
+                className="px-4 py-1.5 text-sm font-medium rounded-md bg-green-700 text-white disabled:opacity-60 cursor-pointer"
+              >
+                {sending ? "Sending..." : "Send Reply"}
+              </button>
+            </div>
           </div>
         </form>
 
@@ -397,7 +429,8 @@ const QueryThreadPage = () => {
             <option value="">Select a staff member</option>
             {staff.map((member) => (
               <option key={member.id} value={member.id}>
-                {member.first_name} {member.last_name}
+                {member.first_name} {member.last_name} -{" "}
+                {member.role.replace("_", " ")}
               </option>
             ))}
           </select>

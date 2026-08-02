@@ -90,6 +90,7 @@ const QueriesPage = () => {
     { key: "all", label: "All" },
     { key: "new", label: "New" },
     { key: "in_progress", label: "In progress" },
+    { key: "escalated", label: "Escalated" },
     { key: "resolved", label: "Resolved" },
   ];
 

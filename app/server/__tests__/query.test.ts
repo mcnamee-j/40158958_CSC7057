@@ -261,9 +261,9 @@ describe("GET /api/queries", () => {
       .set("Authorization", `Bearer ${jane_token}`);
 
     expect(res.status).toBe(200);
-    expect(res.body.queries.every((q: any) => q.category === "stock")).toBe(
-      true,
-    );
+    expect(
+      res.body.queries.every((query: any) => query.category === "stock"),
+    ).toBe(true);
   });
 
   it("filters by search matching subject", async () => {
@@ -276,7 +276,9 @@ describe("GET /api/queries", () => {
       .set("Authorization", `Bearer ${jane_token}`);
 
     expect(res.status).toBe(200);
-    expect(res.body.queries.some((q: any) => q.id === created.id)).toBe(true);
+    expect(res.body.queries.some((query: any) => query.id === created.id)).toBe(
+      true,
+    );
   });
 
   it("filters by search matching ref_number", async () => {
@@ -287,7 +289,9 @@ describe("GET /api/queries", () => {
       .set("Authorization", `Bearer ${jane_token}`);
 
     expect(res.status).toBe(200);
-    expect(res.body.queries.some((q: any) => q.id === created.id)).toBe(true);
+    expect(res.body.queries.some((query: any) => query.id === created.id)).toBe(
+      true,
+    );
   });
 
   it("filters by patient initials", async () => {
@@ -300,7 +304,24 @@ describe("GET /api/queries", () => {
       .set("Authorization", `Bearer ${jane_token}`);
 
     expect(res.status).toBe(200);
-    expect(res.body.queries.some((q: any) => q.id === created.id)).toBe(true);
+    expect(res.body.queries.some((query: any) => query.id === created.id)).toBe(
+      true,
+    );
+  });
+
+  it("filters by patient initials case-insensitively", async () => {
+    const created = await create_test_query({
+      patient: { initials: "LM", dob: "1997-10-20" },
+    });
+
+    const res = await request(app)
+      .get("/api/queries?patient_initials=lm")
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.queries.some((query: any) => query.id === created.id)).toBe(
+      true,
+    );
   });
 
   it("filters by patient dob", async () => {
@@ -313,7 +334,9 @@ describe("GET /api/queries", () => {
       .set("Authorization", `Bearer ${jane_token}`);
 
     expect(res.status).toBe(200);
-    expect(res.body.queries.some((q: any) => q.id === created.id)).toBe(true);
+    expect(res.body.queries.some((query: any) => query.id === created.id)).toBe(
+      true,
+    );
   });
 
   it("filters by patient hcn", async () => {
@@ -326,7 +349,9 @@ describe("GET /api/queries", () => {
       .set("Authorization", `Bearer ${jane_token}`);
 
     expect(res.status).toBe(200);
-    expect(res.body.queries.some((q: any) => q.id === created.id)).toBe(true);
+    expect(res.body.queries.some((query: any) => query.id === created.id)).toBe(
+      true,
+    );
   });
 
   it("filters by org_id", async () => {
@@ -337,7 +362,9 @@ describe("GET /api/queries", () => {
       .set("Authorization", `Bearer ${jane_token}`);
 
     expect(res.status).toBe(200);
-    expect(res.body.queries.some((q: any) => q.id === created.id)).toBe(true);
+    expect(res.body.queries.some((query: any) => query.id === created.id)).toBe(
+      true,
+    );
   });
 
   it("filters by date raised", async () => {
@@ -349,7 +376,9 @@ describe("GET /api/queries", () => {
       .set("Authorization", `Bearer ${jane_token}`);
 
     expect(res.status).toBe(200);
-    expect(res.body.queries.some((q: any) => q.id === created.id)).toBe(true);
+    expect(res.body.queries.some((query: any) => query.id === created.id)).toBe(
+      true,
+    );
   });
 
   it("combines filters with 'AND' logic", async () => {
