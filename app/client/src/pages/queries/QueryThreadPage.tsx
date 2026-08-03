@@ -194,7 +194,7 @@ const QueryThreadPage = () => {
         <div className="flex items-start gap-3">
           <button
             onClick={() => navigate("/queries")}
-            className="shrink-0 flex items-center gap-1 px-3 py-1.5 text-sm bg-green-700 text-white rounded-md border border-surface-mid cursor-pointer"
+            className="shrink-0 flex items-center gap-1 px-3 py-1.5 text-sm bg-green-700 text-white rounded-md border border-surface-mid cursor-pointer hover:bg-green-300"
           >
             <ArrowLeft size={12} />
             Back
@@ -322,14 +322,14 @@ const QueryThreadPage = () => {
                 type="button"
                 onClick={handle_marked_resolved}
                 disabled={updatingStatus || query.status === "resolved"}
-                className="px-4 py-1.5 text-sm font-medium rounded-md border border-green-700 text-green-700 disabled:opacity-60 cursor-pointer"
+                className="px-4 py-1.5 text-sm font-medium rounded-md border border-green-700 text-green-700 disabled:opacity-60 cursor-pointer hover:bg-green-50"
               >
                 Mark as resolved
               </button>
               <button
                 type="submit"
                 disabled={sending || !replyBody.trim()}
-                className="px-4 py-1.5 text-sm font-medium rounded-md bg-green-700 text-white disabled:opacity-60 cursor-pointer"
+                className="px-4 py-1.5 text-sm font-medium rounded-md bg-green-700 text-white disabled:opacity-60 cursor-pointer hover:bg-green-300"
               >
                 {sending ? "Sending..." : "Send Reply"}
               </button>
@@ -402,7 +402,7 @@ const QueryThreadPage = () => {
           <button
             onClick={handle_status_change}
             disabled={updatingStatus || statusVal === query.status}
-            className="w-full px-3 py-1.5 mt-1.5 text-sm bg-green-700 text-white rounded-md disabled:opacity-60 cursor-pointer"
+            className="w-full px-3 py-1.5 mt-1.5 text-sm bg-green-700 text-white rounded-md disabled:opacity-60 cursor-pointer hover:bg-green-300"
           >
             {updatingStatus ? "Updating..." : "Update Status"}
           </button>
@@ -456,7 +456,7 @@ const QueryThreadPage = () => {
         <button
           onClick={handle_assignment}
           disabled={assigning}
-          className="w-full mt-1.5 px-3 py-1.5 text-sm rounded-md bg-green-700 text-white disabled:opacity-60 cursor-pointer"
+          className="w-full mt-1.5 px-3 py-1.5 text-sm rounded-md bg-green-700 text-white disabled:opacity-60 cursor-pointer hover:bg-green-300"
         >
           {assigning ? "Assigning" : "Assign"}
         </button>

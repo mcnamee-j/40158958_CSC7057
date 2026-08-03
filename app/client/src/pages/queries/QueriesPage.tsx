@@ -100,7 +100,7 @@ const QueriesPage = () => {
         <h2 className="text-xl font-medium text-green-700">Queries</h2>
         <Link
           to="/new-query"
-          className="text-sm text-white border border-surface-mid bg-green-700 px-3 py-1 rounded-md hover:bg-green-50"
+          className="text-sm text-white border border-surface-mid bg-green-700 px-3 py-1 rounded-md hover:bg-green-300"
         >
           Add New Query
         </Link>
@@ -226,7 +226,7 @@ const QueriesPage = () => {
               className={`px-3.5 py-1.5 rounded-md text-sm ${
                 activeFilter === key
                   ? "bg-green-500 text-white"
-                  : "bg-surface-light text-green-700 border border-surface-mid cursor-pointer"
+                  : "bg-surface-light text-green-700 border border-surface-mid cursor-pointer hover:bg-green-50"
               }`}
             >
               {label}
@@ -237,13 +237,13 @@ const QueriesPage = () => {
           <button
             type="button"
             onClick={handle_clear}
-            className="px-4 py-1.5 bg-green-100 text-sm text-green-900 rounded-md border border-surface-mid cursor-pointer"
+            className="px-4 py-1.5 bg-green-100 text-sm text-green-900 rounded-md border border-surface-mid cursor-pointer hover:bg-green-50"
           >
             Clear
           </button>
           <button
             type="submit"
-            className="px-4 py-1.5 text-sm rounded-md bg-green-700 text-white font-medium cursor-pointer"
+            className="px-4 py-1.5 text-sm rounded-md bg-green-700 text-white font-medium cursor-pointer hover:bg-green-300"
           >
             Search
           </button>

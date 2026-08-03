@@ -25,7 +25,7 @@ const Sidebar = () => {
           to={to}
           end={end}
           className={({ isActive }) =>
-            `flex items-center gap-2 px-2.5 py-2 rounded-md text-sm ${isActive ? "bg-white/15" : "opacity-85 hover:opacity-100"}`
+            `flex items-center gap-2 px-2.5 py-2 rounded-md text-sm hover:bg-white/20 ${isActive ? "bg-white/15" : "opacity-85 hover:opacity-100"}`
           }
         >
           <Icon size={16} />

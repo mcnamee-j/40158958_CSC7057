@@ -82,7 +82,7 @@ const NewQueryPage = () => {
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="px-3 py-1.5 text-sm bg-green-700 font-medium text-white rounded-md border border-surface-mid cursor-pointer"
+          className="px-3 py-1.5 text-sm bg-green-700 font-medium text-white rounded-md border border-surface-mid cursor-pointer hover:bg-green-300"
         >
           Cancel
         </button>
@@ -237,7 +237,7 @@ const NewQueryPage = () => {
           <button
             type="submit"
             disabled={submitting}
-            className="px-5 py-2 text-sm font-medium rounded-md bg-green-700 text-white disabled:opacity-60 cursor-pointer"
+            className="px-5 py-2 text-sm font-medium rounded-md bg-green-700 text-white disabled:opacity-60 cursor-pointer hover:bg-green-300"
           >
             {submitting ? "Creating..." : "Create Query"}
           </button>
