@@ -85,7 +85,7 @@ const create_query = async (
   );
 
   //notification created
-  await notification_services.create_notifcation(
+  await notification_services.create_notification(
     input.recipient_org_id,
     query.id,
     "query_reply",
@@ -361,7 +361,7 @@ const add_reply = async (
         ? query.recipient_org_id
         : query.sender_org_id;
 
-    await notification_services.create_notifcation(
+    await notification_services.create_notification(
       other_org_id,
       query_id,
       "query_reply",
@@ -439,7 +439,7 @@ const update_status = async (
       ? query.recipient_org_id
       : query.sender_org_id;
 
-  await notification_services.create_notifcation(
+  await notification_services.create_notification(
     other_org_id,
     query_id,
     "query_updated",

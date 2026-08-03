@@ -885,6 +885,14 @@ ALTER TABLE ONLY public.password_reset_tokens
 ALTER TABLE ONLY public.password_reset_tokens
     ADD CONSTRAINT password_reset_tokens_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
+CREATE INDEX IF NOT EXISTS idx_queries_sender_org_id ON queries(sender_org_id);
+CREATE INDEX IF NOT EXISTS idx_queries_recipient_org_id ON queries(recipient_org_id);
+CREATE INDEX IF NOT EXISTS idx_queries_status ON queries(status);
+CREATE INDEX IF NOT EXISTS idx_queries_patient_id ON queries(patient_id);
+CREATE INDEX IF NOT EXISTS idx_query_replies_query_id ON query_replies(query_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_is_read ON notifications(is_read);
+
 
 -- Completed on 2026-07-02 17:43:40 BST
 
