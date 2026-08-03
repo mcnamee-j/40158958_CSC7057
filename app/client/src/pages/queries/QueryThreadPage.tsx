@@ -100,7 +100,9 @@ const QueryThreadPage = () => {
         statusVal,
         statusVal === "resolved" ? resolutionNote || undefined : undefined,
       );
-      setQuery(updated);
+      setQuery((previous) =>
+        previous ? { ...previous, ...updated } : updated,
+      );
       setResolutionNote("");
     } catch (e) {
       setActionError(
@@ -122,9 +124,8 @@ const QueryThreadPage = () => {
     setAssigning(true);
     setActionError(null);
     try {
-      const updated = await assign_query(query_id, assigneeId, escalate);
-      setQuery(updated);
-      setStatusVal(updated.status);
+      await assign_query(query_id, assigneeId, escalate);
+      await get_thread();
       setEscalate(false);
     } catch (e) {
       setActionError(
@@ -146,7 +147,9 @@ const QueryThreadPage = () => {
         "resolved",
         resolutionNote || undefined,
       );
-      setQuery(updated);
+      setQuery((previous) =>
+        previous ? { ...previous, ...updated } : updated,
+      );
       setStatusVal("resolved");
     } catch (e) {
       setActionError(

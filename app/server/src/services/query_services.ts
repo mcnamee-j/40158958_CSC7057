@@ -365,7 +365,7 @@ const add_reply = async (
       other_org_id,
       query_id,
       "query_reply",
-      `New reply on ${query.ref_number}`,
+      `New reply on ${query.ref_number}: ${query.subject}`,
     );
   }
   return reply_result.rows[0];
@@ -443,7 +443,7 @@ const update_status = async (
     other_org_id,
     query_id,
     "query_updated",
-    `${query.ref_number} status changed to ${new_status}`,
+    `${query.ref_number}: ${query.subject} - status changed to ${new_status}`,
   );
 
   return updated.rows[0];
@@ -522,7 +522,7 @@ const assign_query = async (
     assigned_to,
     query_id,
     "query_assigned",
-    `You have been assigned to ${query.ref_number}`,
+    `You have been assigned to ${query.ref_number}: ${query.subject}`,
   );
   return update.rows[0];
 };
