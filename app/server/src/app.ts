@@ -5,6 +5,7 @@ import error_handler from "./middleware/error_handler.js";
 import query_routes from "./routes/query_routes.js";
 import organisation_routes from "./routes/organisation_routes.js";
 import notification_routes from "./routes/notification_routes.js";
+import admin_routes from "./routes/admin_routes.js";
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use("/api/auth", auth_Routes);
 app.use("/api/queries", query_routes);
 app.use("/api/organisations", organisation_routes);
 app.use("/api/notifications", notification_routes);
+app.use("/api/admin", admin_routes);
 
 app.use(error_handler);
 
