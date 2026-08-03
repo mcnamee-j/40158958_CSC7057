@@ -19,6 +19,7 @@ import {
   is_old,
 } from "../../components/ui/BadgeHelper";
 import { AlertTriangle, ArrowLeft } from "lucide-react";
+import { format_label } from "../../utils/format";
 
 const QueryThreadPage = () => {
   //can use params to get id (string)
@@ -439,7 +440,7 @@ const QueryThreadPage = () => {
             {staff.map((member) => (
               <option key={member.id} value={member.id}>
                 {member.first_name} {member.last_name} -{" "}
-                {member.role.replace("_", " ")}
+                {format_label(member.role)}
               </option>
             ))}
           </select>
