@@ -110,6 +110,7 @@ const get_org_queries = async (
     date?: string | undefined;
     page?: number | undefined; //if i implement pagination of filtered results
     limit?: number | undefined;
+    assigned_to?: number | undefined;
   },
 ) => {
   //build sql statement uisng if statements and .push
@@ -165,6 +166,11 @@ const get_org_queries = async (
   if (filters.date) {
     params.push(filters.date);
     conditions.push(`queries.created_at::date = $${[params.length]}::date`);
+  }
+
+  if (filters.assigned_to) {
+    params.push(filters.assigned_to);
+    conditions.push(`queries.assigned_to = $${[params.length]}`);
   }
 
   //join all conditions together

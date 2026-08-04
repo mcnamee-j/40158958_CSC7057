@@ -40,3 +40,29 @@ export const sendPasswordResetEmail = async (
         `,
   });
 };
+
+export const send_invitation_email = async (
+  email: string,
+  first_name: string,
+  invite_token: string,
+) => {
+  if (process.env.NODE_ENV === "test") {
+    console.log(`[TEST] Staff invitation email would be sent to ${email}`);
+    console.log(`[TEST] Invite token: ${invite_token}`);
+    return;
+  }
+
+  const invitation_URL = `${process.env.APP_URL}/reset_password?token=${invite_token}`;
+
+  await transporter.sendMail({
+    from: process.env.MAIL_FROM,
+    to: email,
+    subject: "Loop - You have been invited to sign up to Loop",
+    html: `
+    <p>Hi ${first_name},</p>
+    <p>You have been added as a user on Loop. To get started, set your password by clicking the link below.
+    <a href="${invitation_URL}">Get Started here!</a>
+    <p>This link expires in 48 hours</p>
+    `,
+  });
+};

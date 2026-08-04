@@ -72,6 +72,7 @@ const list_queries = async (
       date,
       page,
       limit,
+      assigned_to,
     } = req.query;
 
     const result = await query_services.get_org_queries(user, {
@@ -86,6 +87,9 @@ const list_queries = async (
       date: date as string | undefined,
       page: page ? parseInt(page as string, 10) : undefined,
       limit: limit ? parseInt(limit as string, 10) : undefined,
+      assigned_to: assigned_to
+        ? parseInt(assigned_to as string, 10)
+        : undefined,
     });
 
     res.status(200).json(result);
