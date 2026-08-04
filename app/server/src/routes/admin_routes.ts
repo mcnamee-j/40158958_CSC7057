@@ -11,5 +11,29 @@ router.get(
   authorise(["admin"]),
   admin_controller.get_overview,
 );
+router.get(
+  "/organisations",
+  authenticate,
+  authorise(["admin"]),
+  admin_controller.list_orgs,
+);
+router.post(
+  "/organisations",
+  authenticate,
+  authorise(["admin"]),
+  admin_controller.create_org,
+);
+router.get(
+  "/organisation-links",
+  authenticate,
+  authorise(["admin"]),
+  admin_controller.list_links,
+);
+router.post(
+  "/organisation-links",
+  authenticate,
+  authorise(["admin"]),
+  admin_controller.create_link,
+);
 
 export default router;

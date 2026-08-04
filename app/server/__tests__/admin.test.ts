@@ -48,3 +48,47 @@ describe("GET /api/admin/overview", () => {
     expect(res.status).toBe(403);
   });
 });
+
+describe("POST /api/admin/organisations", () => {
+  it("returns 201 for a valid org", async () => {
+    const res = await request(app)
+      .post("/api/admin/organisations")
+      .set("Authorization", `Bearer ${admin_token}`)
+      .send({ name: "Test Surgery", type: "gp_surgery" });
+    expect(res.status).toBe(201);
+  });
+
+  it("returns 400 for an invalid type", async () => {
+    const res = await request(app)
+      .post("/api/admin/organisations")
+      .set("Authorization", `Bearer ${admin_token}`)
+      .send({ name: "Bad Org", type: "system" });
+    expect(res.status).toBe(400);
+  });
+
+  it("returns 403 for a non-admin", async () => {
+    const res = await request(app)
+      .post("/api/admin/organisations")
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({ name: "Test", type: "pharmacy" });
+    expect(res.status).toBe(403);
+  });
+});
+
+describe("POST /api/admin/organisation-links", () => {
+  it("returns 409 when the link already exists", async () => {
+    const res = await request(app)
+      .post("/api/admin/organisation-links")
+      .set("Authorization", `Bearer ${admin_token}`)
+      .send({ pharmacy_id: 1, gp_surgery_id: 2 }); //linked in seed data already
+    expect(res.status).toBe(409);
+  });
+
+  it("returns 400 when pharmacy_id is not actually a pharmacy", async () => {
+    const res = await request(app)
+      .post("/api/admin/organisation-links")
+      .set("Authorization", `Bearer ${admin_token}`)
+      .send({ pharmacy_id: 2, gp_surgery_id: 1 }); // swapped ids - 2 is the GP surgery
+    expect(res.status).toBe(400);
+  });
+});
