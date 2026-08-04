@@ -35,5 +35,11 @@ router.post(
   authorise(["admin"]),
   admin_controller.create_link,
 );
+router.patch(
+  "/organisations/:id/deactivate",
+  authenticate,
+  authorise(["admin"]),
+  admin_controller.deactivate_org,
+);
 
 export default router;

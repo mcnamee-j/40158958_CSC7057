@@ -88,4 +88,37 @@ const create_link = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export default { get_overview, create_org, list_orgs, list_links, create_link };
+const deactivate_org = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const organisation_id = parseInt(req.params.id as string, 10);
+    if (!Number.isInteger(organisation_id)) {
+      res.status(400).json({ error: "Invalud organisation id" });
+      return;
+    }
+    await admin_services.deactivate_organisation(organisation_id);
+    res.status(200).json({ message: "Organisation deactivated" });
+  } catch (e: any) {
+    if (e.message === "Organisation not found") {
+      res.status(404).json({ error: "Organisation not found" });
+      return;
+    }
+    if (e.message === "Cannot deactivate system organisation") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    next(e);
+  }
+};
+
+export default {
+  get_overview,
+  create_org,
+  list_orgs,
+  list_links,
+  create_link,
+  deactivate_org,
+};

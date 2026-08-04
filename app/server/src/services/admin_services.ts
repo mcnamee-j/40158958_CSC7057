@@ -120,10 +120,51 @@ const create_organisation_link = async (
   }
 };
 
+const deactivate_organisation = async (organisation_id: number) => {
+  const org = await pool.query(
+    `SELECT id, type
+    FROM organisations 
+    WHERE id = $1`,
+    [organisation_id],
+  );
+
+  if (org.rows.length === 0) {
+    throw new Error("Organisation not found");
+  }
+  if (org.rows[0].type === "system") {
+    throw new Error("Cannot deactivate system organisation");
+  }
+
+  await pool.query(
+    `UPDATE organisations
+    SET active = false
+    WHERE id = $1`,
+    [organisation_id],
+  );
+
+  await pool.query(
+    `UPDATE users
+    SET active = false
+    WHERE organisation_id = $1`,
+    [organisation_id],
+  );
+
+  //upon deactivation - any active sessions from that org's users needs revoked (so when
+  // current token expires, refresh token is revoked and session ends)
+  await pool.query(
+    `UPDATE refresh_tokens 
+    SET revoked = true
+    WHERE user_id
+    IN (SELECT id FROM users WHERE organisation_id = $1)`,
+    [organisation_id],
+  );
+};
+
 export default {
   get_admin_overview,
   create_organisation,
   list_organisations,
   list_organisation_links,
   create_organisation_link,
+  deactivate_organisation,
 };

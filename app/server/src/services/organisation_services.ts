@@ -10,8 +10,9 @@ const get_linked_organisations = async (user: AuthenticatedUser) => {
      WHEN organisation_links.pharmacy_id = $1 THEN organisation_links.gp_surgery_id
      ELSE organisation_links.pharmacy_id
      END
-     WHERE organisation_links.pharmacy_id = $1
-     OR organisation_links.gp_surgery_id = $1`,
+     WHERE (organisation_links.pharmacy_id = $1
+     OR organisation_links.gp_surgery_id = $1)
+     AND organisations.active = true`,
     [user.organisationId],
   );
   return result.rows;
