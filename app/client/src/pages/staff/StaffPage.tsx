@@ -108,7 +108,7 @@ const StaffPage = () => {
         <div className="text-sm font-medium text-green-900">
           Invite a new staff member
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs text-green-700 mb-1">
               First Name

@@ -93,7 +93,7 @@ const OverviewTab = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-surface-light rounded-md p-4">
           <div className="text-xs text-green-700">Organisations</div>
           <div className="text-2xl font-medium">{total_orgs}</div>
@@ -108,7 +108,7 @@ const OverviewTab = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="bg-surface-light rounded-md p-4">
           <div className="text-sm font-medium text-green-900 mb-2">
             Organisations by type
@@ -141,11 +141,11 @@ const OverviewTab = () => {
           </div>
         </div>
 
-        <div className="bg-surface-light rounded-md p-4 col-span-2">
+        <div className="bg-surface-light rounded-md p-4">
           <div className="text-sm font-medium text-green-900 mb-2">
             Queries by status
           </div>
-          <div className="grid grid-cols-2 gap-1 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-sm">
             {overview.queries.map((query) => (
               <div key={query.status} className="flex justify-between">
                 <span>{format_label(query.status)}</span>
@@ -239,7 +239,7 @@ const OrganisationsTab = () => {
         <div className="text-sm font-medium text-green-900">
           Add Organisation
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs text-green-700 mb-1">Name</label>
             <input
@@ -409,7 +409,7 @@ const LinksTab = () => {
         <div className="text-sm font-medium text-green-900">
           Link a pharmacy and GP surgery
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs text-green-700 mb-1">
               Pharmacy

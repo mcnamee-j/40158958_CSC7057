@@ -132,7 +132,7 @@ const NewQueryPage = () => {
             Optional. If adding a patient, provide at least 2 identifiers:
             initials, DOB, HCN
           </p>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <div>
               <label className="block text-xs text-green-700 mb-1">
                 Initials
@@ -172,7 +172,7 @@ const NewQueryPage = () => {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 gap 3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap 3">
           <div>
             <label className="block text-sm text-green-900 mb-1">
               Recipient
@@ -192,7 +192,7 @@ const NewQueryPage = () => {
             </select>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-sm text-green-900 mb-1">
               Category

@@ -70,7 +70,7 @@ const QueryCard = ({ query }: { query: Query }) => {
           )}
         </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <Badge
           label={priority_label[query.priority]}
           variant={priority_variant[query.priority]}

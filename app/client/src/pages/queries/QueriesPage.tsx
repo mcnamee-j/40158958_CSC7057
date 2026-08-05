@@ -134,7 +134,7 @@ const QueriesPage = () => {
             <label className="block text-sm text-green-700 mb-1">
               Patient - initials, DOB or HCN
             </label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3">
               <input
                 type="text"
                 value={patientInitials}
@@ -158,7 +158,7 @@ const QueriesPage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 mt-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
             <div>
               <label className="block text-sm text-green-700 mb-1">
                 Related Organisation

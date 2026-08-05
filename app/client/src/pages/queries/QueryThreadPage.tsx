@@ -193,9 +193,9 @@ const QueryThreadPage = () => {
       : SELECTABLE_STATUSES;
 
   return (
-    <div className="flex gap-4 pt-2 max-w-4xl mx-auto">
-      <div className="flex-1 flex flex-col gap-4">
-        <div className="flex items-start gap-3">
+    <div className="flex flex-col sm:flex-row gap-4 pt-2 mx-auto">
+      <div className="flex-1 min-w-0 flex flex-col gap-4 max-w-4xl">
+        <div className="flex flex-col sm:flex-row items-start gap-3">
           <button
             onClick={() => navigate("/queries")}
             className="shrink-0 flex items-center gap-1 px-3 py-1.5 text-sm bg-green-700 text-white rounded-md border border-surface-mid cursor-pointer hover:bg-green-300"
@@ -204,7 +204,7 @@ const QueryThreadPage = () => {
             Back
           </button>
 
-          <div className="flex-1 flex items-start justify-between">
+          <div className="flex-1 min-w-0 w-full flex flex-col sm:flex-row items-start sm:justify-between gap-2">
             <div>
               <div className="text-base font-medium">
                 {query.subject}{" "}
@@ -219,7 +219,7 @@ const QueryThreadPage = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="flex items-center gap-1.5 flex-wrap">
               <Badge
                 label={priority_label[query.priority]}
                 variant={priority_variant[query.priority]}
@@ -255,7 +255,7 @@ const QueryThreadPage = () => {
             return (
               <div
                 key={reply.id}
-                className={`max-w-[80%] flex gap-2 ${own_org_message ? "self-end flex-row-reverse" : "self-start"}`}
+                className={`max-w-[85%] sm:max-w-[80%] flex gap-2 ${own_org_message ? "self-end flex-row-reverse" : "self-start"}`}
               >
                 <div className="w-7 h-7 rounded-full bg-status-accent-bg text-status-accent-text text-xs font-medium flex items-center justify-center shrink-0">
                   {initials}
@@ -308,7 +308,7 @@ const QueryThreadPage = () => {
             placeholder="Enter a reply..."
             className="w-full min-h-16 rounded-md border border-surface-mid px-3 py-2 text-sm"
           ></textarea>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-wrap gap-2 justify-between items-center">
             <label className="flex items-center gap-1.5 text-sm text-green-700">
               <input
                 type="checkbox"
@@ -317,7 +317,7 @@ const QueryThreadPage = () => {
                 className="w-auto"
               />
               Internal Note
-              <span className="text-xs text-placeholder-text">
+              <span className="hidden sm:inline text-xs text-placeholder-text">
                 (only visible to your organisation)
               </span>
             </label>
@@ -346,7 +346,7 @@ const QueryThreadPage = () => {
         )}
       </div>
 
-      <div className="w-56 shrink-0 bg-surface-light rounded-md p-4 flex flex-col gap-3 text-sm h-fit">
+      <div className="w-full sm:w-56 sm:shrink-0 bg-surface-light rounded-md p-4 flex flex-col gap-3 text-sm h-fit">
         <div>
           <div className="text-xs text-green-700 mb-0.5">Category</div>
           <div className="capitalize">{query.category}</div>

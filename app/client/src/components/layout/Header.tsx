@@ -95,9 +95,11 @@ const Header = () => {
   };
 
   return (
-    <div className="flex items-center justify-between px-6 py-4 border-b border-surface-mid/30">
-      <span className="text-sm text-green-700">{user?.organisation_name}</span>
-      <div className="flex items-center gap-2.5">
+    <div className="flex items-center px-6 py-4 border-b border-surface-mid/30">
+      <span className="hidden sm:inline text-sm text-green-700">
+        {user?.organisation_name}
+      </span>
+      <div className="flex items-center gap-2.5 ml-auto">
         <div className="relative" ref={notificationRef}>
           <button
             onClick={() => setNotificationsOpen((open) => !open)}
@@ -112,7 +114,7 @@ const Header = () => {
           </button>
 
           {notificationsOpen && (
-            <div className="absolute right-0 mt-2 w-80 bg-white border border-surface-mid rounded-md shadow-md z-10">
+            <div className="fixed inset-x-4 top-16 sm:absolute sm:inset-x-auto sm:top-auto sm:right-0 sm:mt-2 w-auto sm:w-80 sm:max-w-[calc(100vw-2rem)] bg-white border border-surface-mid rounded-md shadow-md z-20">
               <div className="flex items-center justify-between px-3 py-2 border-b border-surface-mid">
                 <span className="font-medium text-green-700 text-sm">
                   Notifications
@@ -165,7 +167,7 @@ const Header = () => {
             <div className="w-8 h-8 rounded-full bg-status-accent-bg flex items-center justify-center text-xs font-medium text-status-accent-text">
               {initials}
             </div>
-            <div className="leading-tight">
+            <div className="leading-tight text-left hidden sm:block">
               <div className="text-sm font-medium">
                 {user?.first_name} {user?.last_name}
               </div>
@@ -177,7 +179,7 @@ const Header = () => {
           </button>
 
           {menuOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-surface-mid rounded-md shadow-md py-1 z-10">
+            <div className="fixed inset-x-4 top-16 sm:absolute sm:inset-x-auto sm:top-auto sm:right-0 sm:mt-2 w-auto sm:w-48 bg-white border border-surface-mid rounded-md shadow-md py-1 z-20">
               <div className="px-3 py-2 border-b border-surface-mid">
                 <div className="text-sm font-medium">
                   {user?.first_name} {user?.last_name}
