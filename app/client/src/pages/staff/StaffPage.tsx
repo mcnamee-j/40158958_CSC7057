@@ -98,42 +98,58 @@ const StaffPage = () => {
   };
 
   return (
-    <div>
-      <h2>Staff</h2>
+    <div className="pt-4 flex flex-col gap-5 max-w-2xl m-auto">
+      <h2 className="text-xl font-medium text-green-900">Staff</h2>
 
-      <form onSubmit={handle_submit}>
-        <div>Invite a new staff member</div>
-        <div>
+      <form
+        onSubmit={handle_submit}
+        className="bg-surface-light rounded-md p-4 flex flex-col gap-3"
+      >
+        <div className="text-sm font-medium text-green-900">
+          Invite a new staff member
+        </div>
+        <div className="grid grid-cols-2 gap-3">
           <div>
-            <label htmlFor="">First Name</label>
+            <label className="block text-xs text-green-700 mb-1">
+              First Name
+            </label>
             <input
               type="text"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               required
+              className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
             />
           </div>
           <div>
-            <label htmlFor="">Last Name</label>
+            <label className="block text-xs text-green-700 mb-1">
+              Last Name
+            </label>
             <input
               type="text"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               required
+              className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
             />
           </div>
           <div>
-            <label htmlFor="">Email</label>
+            <label className="block text-xs text-green-700 mb-1">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
             />
           </div>
           <div>
-            <label htmlFor="">Role</label>
-            <select value={role} onChange={(e) => setRole(e.target.value)}>
+            <label className="block text-xs text-green-700 mb-1">Role</label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
+            >
               <option value="">Select a role</option>
               {role_options.map((role) => (
                 <option key={role} value={role}>
@@ -149,7 +165,11 @@ const StaffPage = () => {
         {inviteSent && (
           <p className="text-sm text-status-success-text">Invitation sent.</p>
         )}
-        <button type="submit" disabled={submitting}>
+        <button
+          type="submit"
+          disabled={submitting}
+          className="self-end px-4 py-1.5 text-sm font-medium rounded-md bg-green-700 text-white disabled:opacity-60 cursor-pointer hover:bg-green-300"
+        >
           {submitting ? "Sending" : "Send Invitation"}
         </button>
       </form>
@@ -159,19 +179,29 @@ const StaffPage = () => {
       {!loading && !error && (
         <div className="flex flex-col gap-2">
           {staff.map((member) => (
-            <div>
+            <div
+              key={member.id}
+              className="flex justify-between items-center bg-surface-light rounded-md px-4 py-2.5 text-sm"
+            >
               <div>
-                <div>
+                <div className="font-medium">
                   {member.first_name} {member.last_name}
                 </div>
-                <div>{member.email}</div>
+                <div className="text-xs text-placeholder-text">
+                  {member.email}
+                </div>
               </div>
-              <div>
-                <span>
+              <div className="flex items-center gap-3">
+                <span
+                  className={`text-xs capitalize ${member.active ? "text-green-700" : "text-status-danger-text"}`}
+                >
                   {member.active ? format_label(member.role) : "Inactive"}
                 </span>
                 {member.active && (
-                  <button onClick={() => handle_deactivate(member)}>
+                  <button
+                    onClick={() => handle_deactivate(member)}
+                    className="text-xs text-status-danger-text hover:underline cursor-pointer"
+                  >
                     Deactivate
                   </button>
                 )}
