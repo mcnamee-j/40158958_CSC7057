@@ -1,10 +1,12 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Inbox, Plus, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, Inbox, Plus, ShieldCheck, Users } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 
 const Sidebar = () => {
   const { user } = useAuth();
   const is_admin = user?.role === "admin";
+  const is_manager =
+    user?.role === "pharmacy_manager" || user?.role === "practice_manager";
 
   const navItems = is_admin
     ? [{ to: "/admin", label: "Admin", icon: ShieldCheck, end: true }]
@@ -12,6 +14,9 @@ const Sidebar = () => {
         { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
         { to: "/queries", label: "Queries", icon: Inbox, end: false },
         { to: "/new-query", label: "New query", icon: Plus, end: false },
+        ...(is_manager
+          ? [{ to: "/staff", label: "Staff", icon: Users, end: false }]
+          : []),
       ];
 
   return (

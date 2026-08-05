@@ -12,6 +12,7 @@ import NewQueryPage from "./pages/queries/NewQueryPage";
 import UserLayout from "./components/layout/UserLayout";
 import RoleCheckRoute from "./components/auth/RoleCheckRoute";
 import AdminHomePage from "./pages/admin/AdminHomePage";
+import StaffPage from "./pages/staff/StaffPage";
 
 const ALLOWED_ORG_ROLES = [
   "pharmacy_staff",
@@ -43,6 +44,7 @@ function App() {
                 <Route path="/queries" element={<QueriesPage />} />
                 <Route path="/queries/:id" element={<QueryThreadPage />} />
                 <Route path="/new-query" element={<NewQueryPage />} />
+                <Route path="/staff" element={<StaffPage />} />
               </Route>
               <Route path="/admin" element={<AdminHomePage />} />
             </Route>
