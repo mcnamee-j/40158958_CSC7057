@@ -286,3 +286,60 @@ describe("GET /api/auth/get_user", () => {
     expect(res.status).toBe(401);
   });
 });
+
+describe("PATCH /api/auth/update", () => {
+  it("updates the user's own name and email", async () => {
+    const login = await request(app)
+      .post("/api/auth/login")
+      .send({ email: "jane@pharmacy.com", password: "Password123!" });
+
+    const res = await request(app)
+      .patch("/api/auth/update")
+      .set("Authorization", `Bearer ${login.body.access_token}`)
+      .send({
+        first_name: "Janet",
+        last_name: "Smith",
+        email: "jane@pharmacy.com",
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.user.first_name).toBe("Janet");
+
+    // revert for other tests
+    await request(app)
+      .patch("/api/auth/update")
+      .set("Authorization", `Bearer ${login.body.access_token}`)
+      .send({
+        first_name: "Jane",
+        last_name: "Smith",
+        email: "jane@pharmacy.com",
+      });
+  });
+
+  it("returns 409 when email is already taken by another user", async () => {
+    const login = await request(app)
+      .post("/api/auth/login")
+      .send({ email: "jane@pharmacy.com", password: "Password123!" });
+
+    const res = await request(app)
+      .patch("/api/auth/update")
+      .set("Authorization", `Bearer ${login.body.access_token}`)
+      .send({
+        first_name: "Jane",
+        last_name: "Smith",
+        email: "mark@pharmacy.com",
+      });
+
+    expect(res.status).toBe(409);
+  });
+
+  it("returns 401 with no token", async () => {
+    const res = await request(app).patch("/api/auth/update").send({
+      first_name: "Jane",
+      last_name: "Smith",
+      email: "jane@pharmacy.com",
+    });
+
+    expect(res.status).toBe(401);
+  });
+});

@@ -285,6 +285,38 @@ const get_user = async (userId: number) => {
   return user;
 };
 
+const update_profile = async (
+  user_id: number,
+  first_name: string,
+  last_name: string,
+  email: string,
+) => {
+  const existing_user = await pool.query(
+    `SELECT id
+    FROM users
+    WHERE email = $1
+    AND id != $2`,
+    [email, user_id],
+  );
+  if (existing_user.rows.length > 0) {
+    throw new Error("Email already in use");
+  }
+
+  const updated = await pool.query(
+    `UPDATE users
+    SET first_name = $1, last_name = $2, email = $3
+    WHERE id = $4
+    RETURNING id, first_name, last_name, email, role, organisation_id`,
+    [first_name, last_name, email, user_id],
+  );
+
+  if (updated.rows.length === 0) {
+    throw new Error("User not found");
+  }
+
+  return updated.rows[0];
+};
+
 export default {
   login,
   logout,
@@ -292,4 +324,5 @@ export default {
   forgot_password,
   reset_password,
   get_user,
+  update_profile,
 };
