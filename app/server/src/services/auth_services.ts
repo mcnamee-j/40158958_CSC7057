@@ -99,6 +99,7 @@ const login = async (email: string, password: string) => {
       id: user.id,
       first_name: user.first_name,
       last_name: user.last_name,
+      email: user.email,
       role: user.role,
       organisation: user.organisation_id,
       organisation_name: user.organisation_name,
@@ -269,7 +270,7 @@ const reset_password = async (token: string, new_password: string) => {
 
 const get_user = async (userId: number) => {
   const response = await pool.query(
-    `SELECT users.id, users.first_name, users.last_name, users.role, users.organisation_id, organisations.name AS organisation_name
+    `SELECT users.id, users.first_name, users.last_name, users.email, users.role, users.organisation_id, organisations.name AS organisation_name
     FROM users
     JOIN organisations
     ON users.organisation_id = organisations.id

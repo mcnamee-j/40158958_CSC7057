@@ -189,6 +189,15 @@ const Header = () => {
                 </div>
               </div>
               <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  navigate("/profile");
+                }}
+                className="w-full text-left px-3 py-2 text-sm hover:bg-surface-light cursor-pointer"
+              >
+                My Profile
+              </button>
+              <button
                 onClick={handle_logout}
                 className="w-full flex items-center gap-2 px-3 py-2 text-sm text-status-danger-text hover:bg-status-danger-bg cursor-pointer"
               >

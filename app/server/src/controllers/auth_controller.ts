@@ -125,6 +125,7 @@ const get_user = async (req: Request, res: Response, next: NextFunction) => {
         id: user.id,
         first_name: user.first_name,
         last_name: user.last_name,
+        email: user.email,
         role: user.role,
         organisation: user.organisation_id,
         organisation_name: user.organisation_name,
