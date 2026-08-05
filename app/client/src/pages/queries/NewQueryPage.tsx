@@ -7,6 +7,7 @@ import {
   get_linked_orgs,
   type LinkedOrganisation,
 } from "../../api/organisations";
+import { QUERY_TEMPLATES } from "../../data/query_templates";
 
 const NewQueryPage = () => {
   const navigate = useNavigate();
@@ -27,6 +28,8 @@ const NewQueryPage = () => {
 
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const [templateId, setTemplateId] = useState("");
 
   const handle_submit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -75,6 +78,17 @@ const NewQueryPage = () => {
       .catch(() => setLinkedOrgs([]));
   }, []);
 
+  const handle_template_select = (id: string) => {
+    setTemplateId(id);
+    const template = QUERY_TEMPLATES.find((temp) => temp.id === id);
+    if (template) {
+      setCategory(template.category);
+      setPriority(template.priority);
+      setSubject(template.subject);
+      setBody(template.body);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-5 pt-4 max-w-2xl mx-auto">
       <div className="flex items-center justify-between">
@@ -89,6 +103,27 @@ const NewQueryPage = () => {
       </div>
 
       <form onSubmit={handle_submit} className="flex flex-col gap-4">
+        <div>
+          <label className="block text-sm text-green-900 mb-1">
+            Use a template{" "}
+            <span className="text-xs text-placeholder-text font-normal">
+              {" "}
+              (optional)
+            </span>
+          </label>
+          <select
+            value={templateId}
+            onChange={(e) => handle_template_select(e.target.value)}
+            className="w-full rounded-md border border-surface-mid px-3 py-2 text-sm"
+          >
+            <option value="">Blank query</option>
+            {QUERY_TEMPLATES.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+        </div>
         <div className="bg-surface-light rounded-md px-4 py-3">
           <div className="text-sm font-medium text-green-900 mb-1">
             Patient details
