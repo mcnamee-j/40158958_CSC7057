@@ -45,9 +45,9 @@ const QueryCard = ({ query }: { query: Query }) => {
       <div>
         <div className="text-sm text-green-900 font-medium">
           {query.subject}
-          <span className="text-placeholder-text font-normal">
-            - Ref: {query.ref_number}
-          </span>
+        </div>
+        <div className="text-placeholder-text text-sm">
+          Ref: {query.ref_number}
         </div>
 
         {(query.created_by_first_name || query.recipient_org_name) && (
