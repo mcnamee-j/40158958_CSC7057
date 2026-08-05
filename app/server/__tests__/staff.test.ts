@@ -31,12 +31,14 @@ describe("GET /api/staff", () => {
       res.body.staff.some((staff: any) => staff.email === "jane@pharmacy.com"),
     ).toBe(true);
   });
+});
 
-  it("returns 403 for a non-manager", async () => {
+describe("GET /api/staff (read access)", () => {
+  it("allows a non-manager staff member to read their own org's staff list", async () => {
     const res = await request(app)
       .get("/api/staff")
       .set("Authorization", `Bearer ${jane_token}`);
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(200);
   });
 });
 

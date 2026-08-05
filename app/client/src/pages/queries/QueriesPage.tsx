@@ -12,6 +12,7 @@ import type {
   QueryStatus,
 } from "../../types/query.types";
 import QueryCard from "../../components/ui/QueryCard";
+import { list_staff, type Staff_Member } from "../../api/staff";
 
 type Filter = "all" | QueryStatus;
 
@@ -30,6 +31,8 @@ const QueriesPage = () => {
   const [patientHcn, setPatientHcn] = useState("");
   const [orgId, setOrgId] = useState<number | "">("");
   const [date, setDate] = useState("");
+  const [assignedTo, setAssignedTo] = useState<number | "">("");
+  const [staffOptions, setStaffOptions] = useState<Staff_Member[]>([]);
 
   const [linkedOrgs, setLinkedOrgs] = useState<LinkedOrganisation[]>([]);
 
@@ -37,6 +40,12 @@ const QueriesPage = () => {
     get_linked_orgs()
       .then(setLinkedOrgs)
       .catch(() => setLinkedOrgs([]));
+  }, []);
+
+  useEffect(() => {
+    list_staff()
+      .then(setStaffOptions)
+      .catch(() => setStaffOptions([]));
   }, []);
 
   const find_queries = async () => {
@@ -54,6 +63,7 @@ const QueriesPage = () => {
         org_id: orgId || undefined,
         date: date || undefined,
         limit: 50,
+        assigned_to: assignedTo || undefined,
       });
       setQueries(result.queries);
       setTotal(result.total);
@@ -84,6 +94,7 @@ const QueriesPage = () => {
     setOrgId("");
     setDate("");
     setActiveFilter("all");
+    setAssignedTo("");
   };
 
   const filter_buttons: { key: Filter; label: string }[] = [
@@ -213,6 +224,25 @@ const QueriesPage = () => {
                 onChange={(e) => setDate(e.target.value)}
                 className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
               />
+            </div>
+            <div>
+              <label className="block text-sm text-green-700 mb-1">
+                Assigned To
+              </label>
+              <select
+                value={assignedTo}
+                onChange={(e) =>
+                  setAssignedTo(e.target.value ? Number(e.target.value) : "")
+                }
+                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
+              >
+                <option value="">Any</option>
+                {staffOptions.map((member) => (
+                  <option key={member.id} value={member.id}>
+                    {member.first_name} {member.last_name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         </details>
