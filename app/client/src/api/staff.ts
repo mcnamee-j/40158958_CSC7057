@@ -32,3 +32,6 @@ export const create_staff = async (
 export const deactivate_staff = (id: number, organisation_id?: number) => {
   api.patch(`/api/staff/${id}/deactivate`, { organisation_id });
 };
+
+export const reset_staff_password = (id: number, organisation_id?: number) =>
+  api.post(`/api/staff/${id}/reset-password`, { organisation_id });

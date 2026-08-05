@@ -117,3 +117,37 @@ describe("PATCH /api/staff/:id/deactivate", () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe("POST /api/staff/:id/reset-password", () => {
+  it("returns 200 and sends a reset link", async () => {
+    const created = await request(app)
+      .post("/api/staff")
+      .set("Authorization", `Bearer ${mark_token}`)
+      .send({
+        first_name: "Reset",
+        last_name: "Test",
+        email: `reset-${Date.now()}@pharmacy.com`,
+        role: "pharmacy_staff",
+      });
+
+    const res = await request(app)
+      .post(`/api/staff/${created.body.staff.id}/reset-password`)
+      .set("Authorization", `Bearer ${mark_token}`);
+
+    expect(res.status).toBe(200);
+  });
+
+  it("returns 403 for a non-manager", async () => {
+    const res = await request(app)
+      .post("/api/staff/1/reset-password")
+      .set("Authorization", `Bearer ${jane_token}`);
+    expect(res.status).toBe(403);
+  });
+
+  it("returns 404 for a staff member in a different org", async () => {
+    const res = await request(app)
+      .post("/api/staff/999999/reset-password")
+      .set("Authorization", `Bearer ${mark_token}`);
+    expect(res.status).toBe(404);
+  });
+});

@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
     : undefined,
 });
 
-export const sendPasswordResetEmail = async (
+export const send_password_reset_email = async (
   email: string,
   first_name: string,
   reset_token: string,

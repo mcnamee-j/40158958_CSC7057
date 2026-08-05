@@ -255,7 +255,7 @@ const QueryThreadPage = () => {
             return (
               <div
                 key={reply.id}
-                className={`max-w-[85%] sm:max-w-[80%] flex gap-2 ${own_org_message ? "self-end flex-row-reverse" : "self-start"}`}
+                className={`max-w-[85%] sm:max-w-[75%] flex gap-2 ${own_org_message ? "self-end flex-row-reverse" : "self-start"}`}
               >
                 <div className="w-7 h-7 rounded-full bg-status-accent-bg text-status-accent-text text-xs font-medium flex items-center justify-center shrink-0">
                   {initials}

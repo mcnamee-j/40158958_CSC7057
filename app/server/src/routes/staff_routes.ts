@@ -31,5 +31,11 @@ router.patch(
   authorise(MANAGER_ROLES),
   staff_controller.deactivate,
 );
+router.post(
+  "/:id/reset-password",
+  authenticate,
+  authorise(MANAGER_ROLES),
+  staff_controller.reset_password,
+);
 
 export default router;

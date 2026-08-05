@@ -4,6 +4,7 @@ import {
   create_staff,
   deactivate_staff,
   type Staff_Member,
+  reset_staff_password,
 } from "../../api/staff";
 import { useAuth } from "../../hooks/useAuth";
 import { format_label } from "../../utils/format";
@@ -27,6 +28,7 @@ const StaffPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [inviteSent, setInviteSent] = useState(false);
+  const [resetSentId, setResetSentId] = useState<number | null>(null);
 
   //organisation type not on auth user object - need to decide based on role
   const org_type = user?.role.startsWith("pharmacy")
@@ -94,6 +96,22 @@ const StaffPage = () => {
       await get_staff();
     } catch {
       setError("Could not deactivate staff member.");
+    }
+  };
+
+  const handle_reset_password = async (member: Staff_Member) => {
+    if (
+      !confirm(
+        `Send a password reset link to ${member.first_name} ${member.last_name}?`,
+      )
+    )
+      return;
+    try {
+      await reset_staff_password(member.id);
+      setResetSentId(member.id);
+      setTimeout(() => setResetSentId(null), 3000);
+    } catch {
+      setError("Could not send a reset link at this time.");
     }
   };
 
@@ -198,12 +216,26 @@ const StaffPage = () => {
                   {member.active ? format_label(member.role) : "Inactive"}
                 </span>
                 {member.active && (
-                  <button
-                    onClick={() => handle_deactivate(member)}
-                    className="text-xs text-status-danger-text hover:underline cursor-pointer"
-                  >
-                    Deactivate
-                  </button>
+                  <div className="flex items-center gap-3">
+                    {resetSentId === member.id ? (
+                      <span className="text-xs text-status-success-text">
+                        Link sent
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => handle_reset_password(member)}
+                        className="text-xs text-green-700 hover:underline cursor-pointer"
+                      >
+                        Reset Password
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handle_deactivate(member)}
+                      className="text-xs text-status-danger-text hover:underline cursor-pointer"
+                    >
+                      Deactivate
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

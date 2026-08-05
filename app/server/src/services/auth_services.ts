@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import type { User } from "../types/types.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-import { sendPasswordResetEmail } from "./mail_service.js";
+import { send_password_reset_email } from "./mail_service.js";
 
 //access token on validation
 const ACCESS_SECRET = process.env.ACCESS_SECRET;
@@ -202,7 +202,7 @@ const forgot_password = async (email: string) => {
   );
 
   // send email and record in audit_log
-  await sendPasswordResetEmail(user.email, user.first_name, reset_token);
+  await send_password_reset_email(user.email, user.first_name, reset_token);
 
   await pool.query(
     `INSERT INTO audit_log
