@@ -48,7 +48,13 @@ function App() {
                 <Route path="/staff" element={<StaffPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
               </Route>
-              <Route path="/admin" element={<AdminHomePage />} />
+              <Route
+                element={
+                  <RoleCheckRoute allowed_roles={["admin"]} redirect_to="/" />
+                }
+              >
+                <Route path="/admin" element={<AdminHomePage />} />
+              </Route>
             </Route>
           </Route>
         </Routes>
