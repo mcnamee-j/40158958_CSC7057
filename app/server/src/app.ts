@@ -7,6 +7,7 @@ import organisation_routes from "./routes/organisation_routes.js";
 import notification_routes from "./routes/notification_routes.js";
 import admin_routes from "./routes/admin_routes.js";
 import staff_routes from "./routes/staff_routes.js";
+import report_routes from "./routes/report_routes.js";
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use("/api/organisations", organisation_routes);
 app.use("/api/notifications", notification_routes);
 app.use("/api/admin", admin_routes);
 app.use("/api/staff", staff_routes);
+app.use("/api/reports", report_routes);
 
 app.use(error_handler);
 

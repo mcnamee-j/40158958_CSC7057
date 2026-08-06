@@ -1,12 +1,30 @@
 import { NavLink } from "react-router-dom";
 import { LayoutDashboard, Inbox, Plus, ShieldCheck, Users } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
+import { get_performance_stats, type Statistics } from "../../api/reports";
+import { useEffect, useState } from "react";
+
+const format_time = (seconds: number | null): string => {
+  if (seconds === null) return "N/A";
+  const hours = seconds / 3600; // 60 seconds in 1 min. 60 mins in 1 hr - 60 x 60
+  if (hours < 24) return `${hours.toFixed(1)}h`;
+  return `${(hours / 24).toFixed(1)}d`; //days
+};
 
 const Sidebar = () => {
   const { user } = useAuth();
   const is_admin = user?.role === "admin";
   const is_manager =
     user?.role === "pharmacy_manager" || user?.role === "practice_manager";
+
+  const [stats, setStats] = useState<Statistics | null>(null);
+
+  useEffect(() => {
+    if (!is_manager) return;
+    get_performance_stats()
+      .then(setStats)
+      .catch(() => setStats(null));
+  }, [is_manager]);
 
   const navItems = is_admin
     ? [{ to: "/admin", label: "Admin", icon: ShieldCheck, end: true }]
@@ -35,6 +53,22 @@ const Sidebar = () => {
           <span className="hidden sm:inline">{label}</span>
         </NavLink>
       ))}
+
+      {is_manager && stats && (
+        <div className="hidden md:flex flex-col gap-1.5 mt-auto pt-3 border-t border-white/20 text-xs">
+          <div className="opacity-70">Resolution Stats</div>
+          <div className="flex justify-between">
+            <span className="opacity-80">Resolved</span>
+            <span className="font-medium">{stats.percentage_resolved}%</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="opacity-80">Avg Time</span>
+            <span className="font-medium">
+              {format_time(stats.avg_resolution_seconds)}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
