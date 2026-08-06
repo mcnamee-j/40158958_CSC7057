@@ -9,6 +9,7 @@ import {
   type Organisation,
   type Organisation_Link,
   deactivate_organisation,
+  reactivate_organisation,
 } from "../../api/admin";
 import { format_label } from "../../utils/format";
 import { Api_Error } from "../../api/client";
@@ -230,6 +231,15 @@ const OrganisationsTab = () => {
     }
   };
 
+  const handle_reactivate = async (org: Organisation) => {
+    try {
+      await reactivate_organisation(org.id);
+      await get_orgs();
+    } catch {
+      setError("Could not reactivate organisation");
+    }
+  };
+
   return (
     <div className="flex flex-col gap-5">
       <form
@@ -324,12 +334,19 @@ const OrganisationsTab = () => {
                 >
                   {org.active ? format_label(org.type) : "Inactive"}
                 </span>
-                {org.active && (
+                {org.active ? (
                   <button
                     onClick={() => handle_deactivate(org)}
                     className="text-xs text-status-danger-text hover:underline cursor-pointer"
                   >
                     Deactivate
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handle_reactivate(org)}
+                    className="text-xs text-status-success-text hover:underline cursor-pointer"
+                  >
+                    Reactivate
                   </button>
                 )}
               </div>

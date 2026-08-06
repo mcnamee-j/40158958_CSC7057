@@ -160,6 +160,28 @@ const deactivate_organisation = async (organisation_id: number) => {
   );
 };
 
+const reactivate_organisation = async (organisation_id: number) => {
+  const org = await pool.query(
+    `SELECT id, type
+    FROM organisations
+    WHERE id = $1`,
+    [organisation_id],
+  );
+
+  if (org.rows.length === 0) {
+    throw new Error("Organisation not found");
+  }
+  if (org.rows[0].type === "system") {
+    throw new Error("Cannot reactivate the system organisation");
+  }
+  await pool.query(
+    `UPDATE organisations
+    SET active = true
+    WHERE id = $1`,
+    [organisation_id],
+  );
+};
+
 export default {
   get_admin_overview,
   create_organisation,
@@ -167,4 +189,5 @@ export default {
   list_organisation_links,
   create_organisation_link,
   deactivate_organisation,
+  reactivate_organisation,
 };

@@ -41,5 +41,11 @@ router.patch(
   authorise(["admin"]),
   admin_controller.deactivate_org,
 );
+router.patch(
+  "/organisations/:id/reactivate",
+  authenticate,
+  authorise(["admin"]),
+  admin_controller.reactivate_org,
+);
 
 export default router;

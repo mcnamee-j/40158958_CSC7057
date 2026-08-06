@@ -114,6 +114,32 @@ const deactivate_org = async (
   }
 };
 
+const reactivate_org = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const organisation_id = parseInt(req.params.id as string, 10);
+    if (!Number.isInteger(organisation_id)) {
+      res.status(400).json({ error: "Invalid organisation id" });
+      return;
+    }
+    await admin_services.reactivate_organisation(organisation_id);
+    res.status(200).json({ message: "Organisation reactivated" });
+  } catch (e: any) {
+    if (e.message === "Organisation not found") {
+      res.status(404).json({ error: e.message });
+      return;
+    }
+    if (e.message === "Cannot reactivate the system organisation") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    next(e);
+  }
+};
+
 export default {
   get_overview,
   create_org,
@@ -121,4 +147,5 @@ export default {
   list_links,
   create_link,
   deactivate_org,
+  reactivate_org,
 };

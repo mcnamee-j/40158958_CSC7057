@@ -154,3 +154,39 @@ describe("PATCH /api/admin/organisations/:id/deactivate", () => {
     expect(res.status).toBe(403);
   });
 });
+
+describe("PATCH /api/admin/organisations/:id/reactivate", () => {
+  it("reactivates a deactivated org", async () => {
+    const org = await pool.query(
+      `INSERT INTO organisations 
+      (name, type, active) 
+      VALUES ('Reactivate Test', 'gp_surgery', false) 
+      RETURNING id`,
+    );
+    const res = await request(app)
+      .patch(`/api/admin/organisations/${org.rows[0].id}/reactivate`)
+      .set("Authorization", `Bearer ${admin_token}`);
+    expect(res.status).toBe(200);
+
+    const check = await pool.query(
+      `SELECT active 
+      FROM organisations 
+      WHERE id = $1`,
+      [org.rows[0].id],
+    );
+    expect(check.rows[0].active).toBe(true);
+  });
+
+  it("returns 403 for a non-admin", async () => {
+    const org = await pool.query(
+      `INSERT INTO organisations 
+      (name, type) 
+      VALUES ('Test', 'gp_surgery') 
+      RETURNING id`,
+    );
+    const res = await request(app)
+      .patch(`/api/admin/organisations/${org.rows[0].id}/reactivate`)
+      .set("Authorization", `Bearer ${jane_token}`);
+    expect(res.status).toBe(403);
+  });
+});

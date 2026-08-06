@@ -76,3 +76,6 @@ export const create_organisation_link = async (
 
 export const deactivate_organisation = (id: number) =>
   api.patch(`/api/admin/organisations/${id}/deactivate`);
+
+export const reactivate_organisation = (id: number) =>
+  api.patch(`/api/admin/organisations/${id}/reactivate`);
