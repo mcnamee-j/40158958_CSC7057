@@ -390,8 +390,12 @@ const LinksTab = () => {
     get_data();
   }, []);
 
-  const pharmacies = orgs.filter((org) => org.type === "pharmacy");
-  const surgeries = orgs.filter((org) => org.type === "gp_surgery");
+  const pharmacies = orgs.filter(
+    (org) => org.type === "pharmacy" && org.active,
+  );
+  const surgeries = orgs.filter(
+    (org) => org.type === "gp_surgery" && org.active,
+  );
 
   const handle_submit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -486,16 +490,30 @@ const LinksTab = () => {
       {error && <p className="text-sm text-status-danger-text">{error}</p>}
       {!loading && !error && (
         <div className="flex flex-col gap-2">
-          {links.map((link) => (
-            <div
-              key={link.id}
-              className="flex items-center gap-2 bg-surface-light rounded-md px-4 py-2.5 text-sm"
-            >
-              <span className="font-medium">{link.pharmacy_name}</span>
-              <span aria-hidden="true">&harr;</span>
-              <span className="font-medium">{link.gp_surgery_name}</span>
-            </div>
-          ))}
+          {links.map((link) => {
+            const pharmacy_org = orgs.find((o) => o.id === link.pharmacy_id);
+            const gp_org = orgs.find((o) => o.id === link.gp_surgery_id);
+            return (
+              <div
+                key={link.id}
+                className="flex items-center gap-2 bg-surface-light rounded-md px-4 py-2.5 text-sm"
+              >
+                <span className="font-medium">
+                  {link.pharmacy_name}
+                  {pharmacy_org && !pharmacy_org.active && (
+                    <span className="text-status-danger-text"> (inactive)</span>
+                  )}
+                </span>
+                <span aria-hidden="true">&harr;</span>
+                <span className="font-medium">
+                  {link.gp_surgery_name}
+                  {gp_org && !gp_org.active && (
+                    <span className="text-status-danger-text"> (inactive)</span>
+                  )}
+                </span>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
