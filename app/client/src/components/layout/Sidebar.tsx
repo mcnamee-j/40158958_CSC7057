@@ -27,7 +27,10 @@ const Sidebar = () => {
   }, [is_manager]);
 
   const navItems = is_admin
-    ? [{ to: "/admin", label: "Admin", icon: ShieldCheck, end: true }]
+    ? [
+        { to: "/admin", label: "Admin", icon: ShieldCheck, end: true },
+        { to: "/staff", label: "Staff", icon: Users, end: false },
+      ]
     : [
         { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
         { to: "/queries", label: "Queries", icon: Inbox, end: false },

@@ -45,7 +45,6 @@ function App() {
                 <Route path="/queries" element={<QueriesPage />} />
                 <Route path="/queries/:id" element={<QueryThreadPage />} />
                 <Route path="/new-query" element={<NewQueryPage />} />
-                <Route path="/staff" element={<StaffPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
               </Route>
               <Route
@@ -54,6 +53,21 @@ function App() {
                 }
               >
                 <Route path="/admin" element={<AdminHomePage />} />
+              </Route>
+
+              <Route
+                element={
+                  <RoleCheckRoute
+                    allowed_roles={[
+                      "pharmacy_manager",
+                      "practice_manager",
+                      "admin",
+                    ]}
+                    redirect_to="/"
+                  />
+                }
+              >
+                <Route path="/staff" element={<StaffPage />} />
               </Route>
             </Route>
           </Route>
