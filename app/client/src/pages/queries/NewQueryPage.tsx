@@ -86,6 +86,14 @@ const NewQueryPage = () => {
       setPriority(template.priority);
       setSubject(template.subject);
       setBody(template.body);
+    } else {
+      setCategory("prescription");
+      setPriority("medium");
+      setSubject("");
+      setBody("");
+      setInitials("");
+      setDob("");
+      setHcn("");
     }
   };
 
