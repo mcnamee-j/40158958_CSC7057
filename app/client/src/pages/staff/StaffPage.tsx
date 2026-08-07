@@ -5,6 +5,7 @@ import {
   deactivate_staff,
   type Staff_Member,
   reset_staff_password,
+  reactivate_staff,
 } from "../../api/staff";
 import { list_organisations, type Organisation } from "../../api/admin";
 import { useAuth } from "../../hooks/useAuth";
@@ -134,6 +135,15 @@ const StaffPage = () => {
       setTimeout(() => setResetSentId(null), 3000);
     } catch {
       setError("Could not send a reset link at this time.");
+    }
+  };
+
+  const handle_reactivate = async (member: Staff_Member) => {
+    try {
+      await reactivate_staff(member.id, target_org_id);
+      await get_staff();
+    } catch {
+      setError("Could not reactivate staff member.");
     }
   };
 
@@ -292,6 +302,14 @@ const StaffPage = () => {
                           Deactivate
                         </button>
                       </div>
+                    )}
+                    {!member.active && (
+                      <button
+                        onClick={() => handle_reactivate(member)}
+                        className="text-xs text-status-success-text hover:underline cursor-pointer"
+                      >
+                        Reactivate
+                      </button>
                     )}
                   </div>
                 </div>

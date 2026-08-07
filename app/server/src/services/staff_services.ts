@@ -169,9 +169,33 @@ const reset_staff_password = async (
   );
 };
 
+const reactivate_staff = async (organisation_id: number, user_id: number) => {
+  const user = await pool.query(
+    `SELECT id, organisation_id
+    FROM users
+    WHERE id = $1`,
+    [user_id],
+  );
+
+  if (
+    user.rows.length === 0 ||
+    user.rows[0].organisation_id !== organisation_id
+  ) {
+    throw new Error("Staff member not found in this organisation");
+  }
+
+  await pool.query(
+    `UPDATE users
+    SET active = true
+    WHERE id = $1`,
+    [user_id],
+  );
+};
+
 export default {
   list_staff,
   create_staff,
   deactivate_staff,
   reset_staff_password,
+  reactivate_staff,
 };

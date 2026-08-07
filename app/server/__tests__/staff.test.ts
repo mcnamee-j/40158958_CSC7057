@@ -165,3 +165,31 @@ describe("POST /api/staff/:id/reset-password", () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe("PATCH /api/staff/:id/reactivate", () => {
+  it("reactivates a deactivated staff member", async () => {
+    const created = await request(app)
+      .post("/api/staff")
+      .set("Authorization", `Bearer ${mark_token}`)
+      .send({
+        first_name: "Reactivate",
+        last_name: "Test",
+        email: `react-${Date.now()}@pharmacy.com`,
+        role: "pharmacy_staff",
+      });
+
+    await request(app)
+      .patch(`/api/staff/${created.body.staff.id}/deactivate`)
+      .set("Authorization", `Bearer ${mark_token}`);
+
+    const res = await request(app)
+      .patch(`/api/staff/${created.body.staff.id}/reactivate`)
+      .set("Authorization", `Bearer ${mark_token}`);
+    expect(res.status).toBe(200);
+
+    const check = await pool.query(`SELECT active FROM users WHERE id = $1`, [
+      created.body.staff.id,
+    ]);
+    expect(check.rows[0].active).toBe(true);
+  });
+});

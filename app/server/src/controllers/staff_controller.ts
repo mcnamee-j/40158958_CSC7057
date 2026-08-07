@@ -140,4 +140,33 @@ const reset_password = async (
   }
 };
 
-export default { staff_list, create_new_staff, deactivate, reset_password };
+const reactivate = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const organisation_id = get_staff_org_id(req);
+    const user_id = parseInt(req.params.id as string, 10);
+    if (!Number.isInteger(user_id)) {
+      res.status(400).json({ error: "Invalid user id" });
+      return;
+    }
+    await staff_services.reactivate_staff(organisation_id, user_id);
+    res.status(200).json({ message: "Staff member reactivated" });
+  } catch (e: any) {
+    if (e.message === "organisation_id is required for admin") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "Staff member not found in this organisation") {
+      res.status(404).json({ error: e.message });
+      return;
+    }
+    next(e);
+  }
+};
+
+export default {
+  staff_list,
+  create_new_staff,
+  deactivate,
+  reset_password,
+  reactivate,
+};

@@ -37,5 +37,11 @@ router.post(
   authorise(MANAGER_ROLES),
   staff_controller.reset_password,
 );
+router.patch(
+  "/:id/reactivate",
+  authenticate,
+  authorise(MANAGER_ROLES),
+  staff_controller.reactivate,
+);
 
 export default router;
