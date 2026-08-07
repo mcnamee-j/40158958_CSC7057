@@ -80,20 +80,29 @@ const deactivate = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const organisation_id = get_staff_org_id(req);
     const user_id = parseInt(req.params.id as string, 10);
+    const current_user_id = (req as any).user.userId;
+
     if (!Number(user_id)) {
       res.status(400).json({ error: "Invalid user id" });
       return;
     }
-    await staff_services.deactivate_staff(organisation_id, user_id);
+    await staff_services.deactivate_staff(
+      organisation_id,
+      user_id,
+      current_user_id,
+    );
     res.status(200).json({ message: "Staff member deactivated" });
   } catch (e: any) {
     if (e.message === "organisation_id is required") {
       res.status(400).json({ error: e.message });
       return;
     }
-
+    if (e.message === "Cannot deactivate your own account") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
     if (e.message === "Staff member not found in this organisation") {
-      res.status(404).json({ erro: e.message });
+      res.status(404).json({ error: e.message });
       return;
     }
     next(e);

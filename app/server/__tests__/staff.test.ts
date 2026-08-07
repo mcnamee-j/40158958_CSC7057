@@ -116,6 +116,20 @@ describe("PATCH /api/staff/:id/deactivate", () => {
       .set("Authorization", `Bearer ${mark_token}`);
     expect(res.status).toBe(404);
   });
+
+  it("returns 400 when a manager tries to deactivate their own account", async () => {
+    const login = await request(app)
+      .post("/api/auth/login")
+      .send({ email: "mark@pharmacy.com", password: "Password123!" });
+    const mark_id = login.body.user.id;
+
+    const res = await request(app)
+      .patch(`/api/staff/${mark_id}/deactivate`)
+      .set("Authorization", `Bearer ${mark_token}`);
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("Cannot deactivate your own account");
+  });
 });
 
 describe("POST /api/staff/:id/reset-password", () => {

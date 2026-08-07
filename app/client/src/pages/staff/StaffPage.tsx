@@ -110,10 +110,14 @@ const StaffPage = () => {
     )
       return;
     try {
-      await deactivate_staff(member.id);
+      await deactivate_staff(member.id, target_org_id);
       await get_staff();
-    } catch {
-      setError("Could not deactivate staff member.");
+    } catch (e) {
+      setError(
+        e instanceof Api_Error
+          ? e.message
+          : "Could not deactivate staff member.",
+      );
     }
   };
 
@@ -267,7 +271,7 @@ const StaffPage = () => {
                     >
                       {member.active ? format_label(member.role) : "Inactive"}
                     </span>
-                    {member.active && (
+                    {member.active && member.id !== user?.user_id && (
                       <div className="flex items-center gap-3">
                         {resetSentId === member.id ? (
                           <span className="text-xs text-status-success-text">

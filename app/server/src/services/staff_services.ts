@@ -85,7 +85,15 @@ const create_staff = async (
   return new_user.rows[0];
 };
 
-const deactivate_staff = async (organisation_id: number, user_id: number) => {
+const deactivate_staff = async (
+  organisation_id: number,
+  user_id: number,
+  current_user_id: number,
+) => {
+  if (user_id === current_user_id) {
+    throw new Error("Cannot deactivate your own account");
+  }
+
   const user = await pool.query(
     `SELECT id, organisation_id
         FROM users
