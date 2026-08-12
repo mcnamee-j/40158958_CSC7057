@@ -430,6 +430,27 @@ describe("GET /api/queries", () => {
     expect(created).toBeDefined();
     expect(created.sender_org_name).toBe("City Pharmacy Belfast");
   });
+
+  it("filters by assigned staff member", async () => {
+    const created = await create_test_query();
+
+    await request(app)
+      .patch(`/api/queries/${created.id}/assign`)
+      .set("Authorization", `Bearer ${jane_token}`)
+      .send({ assigned_to: mark_id });
+
+    const res = await request(app)
+      .get(`/api/queries?assigned_to=${mark_id}`)
+      .set("Authorization", `Bearer ${jane_token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.queries.some((query: any) => query.id === created.id)).toBe(
+      true,
+    );
+    expect(
+      res.body.queries.every((query: any) => query.assigned_to === mark_id),
+    ).toBe(true);
+  });
 });
 
 //get query by id

@@ -70,7 +70,7 @@ const DashboardPage = () => {
         <h2 className="text-xl font-medium text-green-700">Dashboard</h2>
         <Link
           to="/new-query"
-          className="text-sm text-white border border-surface-mid bg-green-700 px-3 py-1 rounded-md hover:bg-green-50"
+          className="text-sm text-white border border-surface-mid bg-green-700 px-3 py-1 rounded-md hover:bg-green-300"
         >
           Add New Query
         </Link>
@@ -82,7 +82,7 @@ const DashboardPage = () => {
             <button
               key={key}
               onClick={() => setActiveFilter(key)}
-              className={`cursor-pointer px-3.5 py-1.5 rounded-md text-sm ${
+              className={`cursor-pointer px-3.5 py-1.5 rounded-md text-sm hover:bg-green-50 ${
                 activeFilter === key
                   ? "bg-green-500 text-white"
                   : "bg-surface-light text-green-700 border border-surface-mid"
@@ -95,7 +95,7 @@ const DashboardPage = () => {
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value as Sort)}
-          className="rounded-md border border-surface-mid px-2 py-1.5 text-sm"
+          className="rounded-md border border-surface-mid px-2 py-1.5 text-sm cursor-pointer"
         >
           <option value="date">Sort: Newest first</option>
           <option value="priority">Sort: Priority</option>

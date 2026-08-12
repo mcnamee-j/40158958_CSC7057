@@ -85,7 +85,7 @@ const create_query = async (
   );
 
   //notification created
-  await notification_services.create_notifcation(
+  await notification_services.create_notification(
     input.recipient_org_id,
     query.id,
     "query_reply",
@@ -110,6 +110,7 @@ const get_org_queries = async (
     date?: string | undefined;
     page?: number | undefined; //if i implement pagination of filtered results
     limit?: number | undefined;
+    assigned_to?: number | undefined;
   },
 ) => {
   //build sql statement uisng if statements and .push
@@ -165,6 +166,11 @@ const get_org_queries = async (
   if (filters.date) {
     params.push(filters.date);
     conditions.push(`queries.created_at::date = $${[params.length]}::date`);
+  }
+
+  if (filters.assigned_to) {
+    params.push(filters.assigned_to);
+    conditions.push(`queries.assigned_to = $${[params.length]}`);
   }
 
   //join all conditions together
@@ -361,11 +367,11 @@ const add_reply = async (
         ? query.recipient_org_id
         : query.sender_org_id;
 
-    await notification_services.create_notifcation(
+    await notification_services.create_notification(
       other_org_id,
       query_id,
       "query_reply",
-      `New reply on ${query.ref_number}`,
+      `New reply on ${query.ref_number}: ${query.subject}`,
     );
   }
   return reply_result.rows[0];
@@ -439,11 +445,11 @@ const update_status = async (
       ? query.recipient_org_id
       : query.sender_org_id;
 
-  await notification_services.create_notifcation(
+  await notification_services.create_notification(
     other_org_id,
     query_id,
     "query_updated",
-    `${query.ref_number} status changed to ${new_status}`,
+    `${query.ref_number}: ${query.subject} - status changed to ${new_status}`,
   );
 
   return updated.rows[0];
@@ -522,7 +528,7 @@ const assign_query = async (
     assigned_to,
     query_id,
     "query_assigned",
-    `You have been assigned to ${query.ref_number}`,
+    `You have been assigned to ${query.ref_number}: ${query.subject}`,
   );
   return update.rows[0];
 };

@@ -12,6 +12,7 @@ import type {
   QueryStatus,
 } from "../../types/query.types";
 import QueryCard from "../../components/ui/QueryCard";
+import { list_staff, type Staff_Member } from "../../api/staff";
 
 type Filter = "all" | QueryStatus;
 
@@ -30,6 +31,8 @@ const QueriesPage = () => {
   const [patientHcn, setPatientHcn] = useState("");
   const [orgId, setOrgId] = useState<number | "">("");
   const [date, setDate] = useState("");
+  const [assignedTo, setAssignedTo] = useState<number | "">("");
+  const [staffOptions, setStaffOptions] = useState<Staff_Member[]>([]);
 
   const [linkedOrgs, setLinkedOrgs] = useState<LinkedOrganisation[]>([]);
 
@@ -37,6 +40,12 @@ const QueriesPage = () => {
     get_linked_orgs()
       .then(setLinkedOrgs)
       .catch(() => setLinkedOrgs([]));
+  }, []);
+
+  useEffect(() => {
+    list_staff()
+      .then(setStaffOptions)
+      .catch(() => setStaffOptions([]));
   }, []);
 
   const find_queries = async () => {
@@ -54,6 +63,7 @@ const QueriesPage = () => {
         org_id: orgId || undefined,
         date: date || undefined,
         limit: 50,
+        assigned_to: assignedTo || undefined,
       });
       setQueries(result.queries);
       setTotal(result.total);
@@ -84,6 +94,7 @@ const QueriesPage = () => {
     setOrgId("");
     setDate("");
     setActiveFilter("all");
+    setAssignedTo("");
   };
 
   const filter_buttons: { key: Filter; label: string }[] = [
@@ -100,7 +111,7 @@ const QueriesPage = () => {
         <h2 className="text-xl font-medium text-green-700">Queries</h2>
         <Link
           to="/new-query"
-          className="text-sm text-white border border-surface-mid bg-green-700 px-3 py-1 rounded-md hover:bg-green-50"
+          className="text-sm text-white border border-surface-mid bg-green-700 px-3 py-1 rounded-md hover:bg-green-300"
         >
           Add New Query
         </Link>
@@ -123,7 +134,7 @@ const QueriesPage = () => {
             <label className="block text-sm text-green-700 mb-1">
               Patient - initials, DOB or HCN
             </label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3">
               <input
                 type="text"
                 value={patientInitials}
@@ -147,7 +158,7 @@ const QueriesPage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 mt-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
             <div>
               <label className="block text-sm text-green-700 mb-1">
                 Related Organisation
@@ -214,6 +225,25 @@ const QueriesPage = () => {
                 className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
               />
             </div>
+            <div>
+              <label className="block text-sm text-green-700 mb-1">
+                Assigned To
+              </label>
+              <select
+                value={assignedTo}
+                onChange={(e) =>
+                  setAssignedTo(e.target.value ? Number(e.target.value) : "")
+                }
+                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
+              >
+                <option value="">Any</option>
+                {staffOptions.map((member) => (
+                  <option key={member.id} value={member.id}>
+                    {member.first_name} {member.last_name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </details>
 
@@ -226,7 +256,7 @@ const QueriesPage = () => {
               className={`px-3.5 py-1.5 rounded-md text-sm ${
                 activeFilter === key
                   ? "bg-green-500 text-white"
-                  : "bg-surface-light text-green-700 border border-surface-mid cursor-pointer"
+                  : "bg-surface-light text-green-700 border border-surface-mid cursor-pointer hover:bg-green-50"
               }`}
             >
               {label}
@@ -237,13 +267,13 @@ const QueriesPage = () => {
           <button
             type="button"
             onClick={handle_clear}
-            className="px-4 py-1.5 bg-green-100 text-sm text-green-900 rounded-md border border-surface-mid cursor-pointer"
+            className="px-4 py-1.5 bg-green-100 text-sm text-green-900 rounded-md border border-surface-mid cursor-pointer hover:bg-green-50"
           >
             Clear
           </button>
           <button
             type="submit"
-            className="px-4 py-1.5 text-sm rounded-md bg-green-700 text-white font-medium cursor-pointer"
+            className="px-4 py-1.5 text-sm rounded-md bg-green-700 text-white font-medium cursor-pointer hover:bg-green-300"
           >
             Search
           </button>

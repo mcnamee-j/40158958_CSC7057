@@ -45,6 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           organisation_name: api_user.organisation_name,
           first_name: api_user.first_name,
           last_name: api_user.last_name,
+          email: api_user.email,
         });
       } catch {
         localStorage.removeItem("refresh_token"); //delete refresh - no longer valid
@@ -64,6 +65,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       organisation_id: api_user.organisation,
       first_name: api_user.first_name,
       last_name: api_user.last_name,
+      email: api_user.email,
       organisation_name: api_user.organisation_name,
     });
   };
@@ -73,8 +75,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   };
 
+  //updates user info otherwise header info would be stale
+  const refresh_user = async () => {
+    const result = await getUser();
+    const api_user = result.data.user;
+    setUser({
+      user_id: api_user.id,
+      role: api_user.role,
+      organisation_id: api_user.organisation,
+      first_name: api_user.first_name,
+      last_name: api_user.last_name,
+      email: api_user.email,
+      organisation_name: api_user.organisation_name,
+    });
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, login, logout, refresh_user }}
+    >
       {children}
     </AuthContext.Provider>
   );
