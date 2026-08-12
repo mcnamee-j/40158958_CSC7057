@@ -7,6 +7,7 @@ interface LoginResponse {
     id: number;
     first_name: string;
     last_name: string;
+    email: string;
     role: string;
     organisation: number;
     organisation_name: string;
@@ -41,3 +42,15 @@ export const reset_password = (token: string, new_password: string) =>
 
 export const getUser = () =>
   api.get<{ user: LoginResponse["user"] }>("/api/auth/get_user");
+
+export const update_profile = async (input: {
+  first_name: string;
+  last_name: string;
+  email: string;
+}) => {
+  const { data } = await api.patch<{ user: LoginResponse["user"] }>(
+    "/api/auth/update",
+    input,
+  );
+  return data.user;
+};

@@ -84,6 +84,7 @@ export interface QueryListFilters {
   date?: string;
   page?: number;
   limit?: number;
+  assigned_to?: number;
 }
 
 export interface QueryListResponse {

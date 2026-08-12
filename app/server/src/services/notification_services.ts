@@ -2,7 +2,7 @@ import pool from "../config/db.js";
 import type { NotificationType } from "../types/query_types.js";
 
 //create notification
-const create_notifcation = async (
+const create_notification = async (
   recipient_org_id: number,
   query_id: number,
   type: NotificationType,
@@ -57,4 +57,53 @@ const create_user_notification = async (
   );
 };
 
-export default { create_notifcation, create_user_notification };
+//list user notifications
+const get_notifications_user = async (user_id: number) => {
+  const response = await pool.query(
+    `SELECT id, query_id, type, message, is_read, created_at
+    FROM notifications
+    WHERE user_id = $1
+    ORDER BY created_at DESC
+    LIMIT 50`,
+    [user_id],
+  );
+  //returns whole object - return only arrat of notifcations
+  return response.rows;
+};
+
+//mark single notifaction as read - other users shouldnt be able to mark a users notifcation as read
+const mark_notification_read = async (
+  user_id: number,
+  notification_id: number,
+) => {
+  const response = await pool.query(
+    `UPDATE notifications
+    SET is_read = true
+    WHERE id = $1
+    AND user_id = $2
+    RETURNING id`,
+    [notification_id, user_id],
+  );
+  if (response.rows.length === 0) {
+    throw new Error("Notification not found");
+  }
+};
+
+//mark all read
+const mark_all_read = async (user_id: number) => {
+  await pool.query(
+    `UPDATE notifications
+    SET is_read = true
+    WHERE user_id = $1
+    AND is_read = false`,
+    [user_id],
+  );
+};
+
+export default {
+  create_notification,
+  create_user_notification,
+  get_notifications_user,
+  mark_notification_read,
+  mark_all_read,
+};

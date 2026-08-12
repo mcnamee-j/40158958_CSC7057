@@ -7,6 +7,7 @@ interface User {
   organisation_id: number;
   first_name?: string;
   last_name?: string;
+  email?: string;
   organisation_name?: string;
 }
 
@@ -16,6 +17,7 @@ interface AuthContextValue {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  refresh_user: () => Promise<void>;
 }
 
 //no provider to start - therefore gets undefined

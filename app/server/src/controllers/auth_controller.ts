@@ -1,5 +1,4 @@
 import type { Request, Response, NextFunction } from "express";
-import authServices from "../services/auth_services.js";
 import auth_services from "../services/auth_services.js";
 
 //login
@@ -12,7 +11,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
       return;
     }
 
-    const response = await authServices.login(email, password);
+    const response = await auth_services.login(email, password);
 
     res.status(200).json(response);
   } catch (e: any) {
@@ -32,7 +31,7 @@ const logout = async (req: Request, res: Response, next: NextFunction) => {
       res.status(400).json({ error: "Refresh token required" });
       return;
     }
-    await authServices.logout(refresh_token);
+    await auth_services.logout(refresh_token);
     res.status(200).json({ message: "Logged out successfully" });
   } catch (e) {
     next(e);
@@ -47,7 +46,7 @@ const refresh = async (req: Request, res: Response, next: NextFunction) => {
       res.status(400).json({ error: "Refresh token required" });
       return;
     }
-    const result = await authServices.refresh(refresh_token);
+    const result = await auth_services.refresh(refresh_token);
     res.status(200).json(result);
   } catch (e: any) {
     if (e.message === "Invalid refresh token") {
@@ -71,7 +70,7 @@ const forgot_password = async (
       return;
     }
 
-    await authServices.forgot_password(email);
+    await auth_services.forgot_password(email);
 
     res.status(200).json({
       message: "Reset link sent to email. You shall receive it shortly",
@@ -119,13 +118,14 @@ const reset_password = async (
 const get_user = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = (req as any).user.userId;
-    const user = await authServices.get_user(userId);
+    const user = await auth_services.get_user(userId);
 
     res.status(200).json({
       user: {
         id: user.id,
         first_name: user.first_name,
         last_name: user.last_name,
+        email: user.email,
         role: user.role,
         organisation: user.organisation_id,
         organisation_name: user.organisation_name,
@@ -140,6 +140,38 @@ const get_user = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const update_user = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user_id = (req as any).user.userId;
+    const { first_name, last_name, email } = req.body;
+
+    if (!first_name || !last_name || !email) {
+      res
+        .status(400)
+        .json({ error: "first_name, last_name, email are requried" });
+      return;
+    }
+
+    const updated = await auth_services.update_profile(
+      user_id,
+      first_name,
+      last_name,
+      email,
+    );
+    res.status(200).json({ user: updated });
+  } catch (e: any) {
+    if (e.message === "Email already in use") {
+      res.status(409).json({ error: e.message });
+      return;
+    }
+    if (e.message === "User not found") {
+      res.status(404).json({ error: e.message });
+      return;
+    }
+    next(e);
+  }
+};
+
 export default {
   login,
   logout,
@@ -147,4 +179,5 @@ export default {
   forgot_password,
   reset_password,
   get_user,
+  update_user,
 };

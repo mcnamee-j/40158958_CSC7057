@@ -12,6 +12,8 @@ import NewQueryPage from "./pages/queries/NewQueryPage";
 import UserLayout from "./components/layout/UserLayout";
 import RoleCheckRoute from "./components/auth/RoleCheckRoute";
 import AdminHomePage from "./pages/admin/AdminHomePage";
+import StaffPage from "./pages/staff/StaffPage";
+import ProfilePage from "./pages/staff/ProfilePage";
 
 const ALLOWED_ORG_ROLES = [
   "pharmacy_staff",
@@ -43,8 +45,30 @@ function App() {
                 <Route path="/queries" element={<QueriesPage />} />
                 <Route path="/queries/:id" element={<QueryThreadPage />} />
                 <Route path="/new-query" element={<NewQueryPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
               </Route>
-              <Route path="/admin" element={<AdminHomePage />} />
+              <Route
+                element={
+                  <RoleCheckRoute allowed_roles={["admin"]} redirect_to="/" />
+                }
+              >
+                <Route path="/admin" element={<AdminHomePage />} />
+              </Route>
+
+              <Route
+                element={
+                  <RoleCheckRoute
+                    allowed_roles={[
+                      "pharmacy_manager",
+                      "practice_manager",
+                      "admin",
+                    ]}
+                    redirect_to="/"
+                  />
+                }
+              >
+                <Route path="/staff" element={<StaffPage />} />
+              </Route>
             </Route>
           </Route>
         </Routes>

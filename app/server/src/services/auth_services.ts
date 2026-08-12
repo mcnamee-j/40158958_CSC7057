@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import type { User } from "../types/types.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-import { sendPasswordResetEmail } from "./mail_service.js";
+import { send_password_reset_email } from "./mail_service.js";
 
 //access token on validation
 const ACCESS_SECRET = process.env.ACCESS_SECRET;
@@ -99,6 +99,7 @@ const login = async (email: string, password: string) => {
       id: user.id,
       first_name: user.first_name,
       last_name: user.last_name,
+      email: user.email,
       role: user.role,
       organisation: user.organisation_id,
       organisation_name: user.organisation_name,
@@ -202,7 +203,7 @@ const forgot_password = async (email: string) => {
   );
 
   // send email and record in audit_log
-  await sendPasswordResetEmail(user.email, user.first_name, reset_token);
+  await send_password_reset_email(user.email, user.first_name, reset_token);
 
   await pool.query(
     `INSERT INTO audit_log
@@ -269,7 +270,7 @@ const reset_password = async (token: string, new_password: string) => {
 
 const get_user = async (userId: number) => {
   const response = await pool.query(
-    `SELECT users.id, users.first_name, users.last_name, users.role, users.organisation_id, organisations.name AS organisation_name
+    `SELECT users.id, users.first_name, users.last_name, users.email, users.role, users.organisation_id, organisations.name AS organisation_name
     FROM users
     JOIN organisations
     ON users.organisation_id = organisations.id
@@ -285,6 +286,38 @@ const get_user = async (userId: number) => {
   return user;
 };
 
+const update_profile = async (
+  user_id: number,
+  first_name: string,
+  last_name: string,
+  email: string,
+) => {
+  const existing_user = await pool.query(
+    `SELECT id
+    FROM users
+    WHERE email = $1
+    AND id != $2`,
+    [email, user_id],
+  );
+  if (existing_user.rows.length > 0) {
+    throw new Error("Email already in use");
+  }
+
+  const updated = await pool.query(
+    `UPDATE users
+    SET first_name = $1, last_name = $2, email = $3
+    WHERE id = $4
+    RETURNING id, first_name, last_name, email, role, organisation_id`,
+    [first_name, last_name, email, user_id],
+  );
+
+  if (updated.rows.length === 0) {
+    throw new Error("User not found");
+  }
+
+  return updated.rows[0];
+};
+
 export default {
   login,
   logout,
@@ -292,4 +325,5 @@ export default {
   forgot_password,
   reset_password,
   get_user,
+  update_profile,
 };
