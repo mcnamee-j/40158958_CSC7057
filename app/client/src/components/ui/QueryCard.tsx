@@ -9,6 +9,7 @@ import {
   is_old,
 } from "./BadgeHelper";
 import { AlertTriangle } from "lucide-react";
+import { time_elapsed_format } from "./formatElapsed";
 
 //formatting badges
 // - borders
@@ -16,22 +17,6 @@ const priority_border: Record<Query["priority"], string> = {
   high: "border-1-status-danger-text",
   medium: "border-1-status-warning-text",
   low: "border-1-status-success-text",
-};
-
-//-time indicator goes here (elapsed seconds) - needs formatted
-const time_elapsed_format = (seconds?: number): string => {
-  if (seconds === undefined) return "";
-
-  const mins = Math.floor(seconds / 60);
-  if (mins < 1) return `${Math.floor(seconds)}s ago`;
-
-  if (mins < 60) return `${mins}m ago`;
-
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
 };
 
 const QueryCard = ({ query }: { query: Query }) => {
