@@ -94,12 +94,19 @@ jobs:
         working-directory: app/server
         run: npm run build #runs package.json
 
+      # client side
+      - name: Install dependencies (client)
+        working-directory: app/client
+        run: npm ci
 
-      #client side - uncomment when i make it
-      # - name: Install dependencies (client)
-      #   working-directory: app/client
-      #   run: npm ci
+      - name: Type check (client)
+        working-directory: app/client
+        run: npx tsc --noEmit
 
-      # - name: Build (client)
-      #   working-directory: app/client
-      #   run: npm run build
+      - name: Run tests - Vitest (Client)
+        working-directory: app/clien
+        run: npm test
+
+      - name: Build (client)
+        working-directory: app/client
+        run: npm run build
