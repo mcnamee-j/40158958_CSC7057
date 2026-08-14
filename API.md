@@ -188,14 +188,93 @@ Manager roles only. Creates new staff account - emails new user's email with a l
 Body: { first_name, last_name, email, role, organisation_id?}
 Response: '201': {staff}
 Errors: '400': Invalid role for organisation type/missing org id (admin only) - '409': email already in use
+
+### 'PATCH /api/staff/:id/deactivate'
+
+Manager roles only. Deactivates a staff account and revokes its sessions. A manager cannot deactivate their own account.
+Response: '200': {message}
+Errors: '400': self-deactivation attempt/ org id required (admin) - '404': staff member not found in this organisation
+
+### 'PATCH /api/staff/:id/reactivate'
+
+Manager roles only. Reactivates a previously deactivated staff account.
+Response: '200': {message}
+Errors: '404': staff member not found in this organisation - '400': invalid user id/org id required (admin)
+
+### 'POST /api/staff/:id/reset-password'
+
+Manager roles only. Sends a password reset link to the staff member's registered email. The manager never sees the token or the resulting password.
+Response: '200': {message}
+Errors: '400': account is inactive/id required (admin) - '404': staff member not found in this organisation
+
 --
 
 ## Admin
 
+All routes require the 'admin' role
+
+### 'GET /api/admin/overview'
+
+System-wide counts for the admin dashboard.
+Response: '200': {organisations: [{type, count}], users: [{role, count}], queries: [{status, count}], organisation_links: number}`
+
+### 'GET /api/admin/organisations'
+
+Lists all pharmacy/GP surgery organisations (excludes the system organisation), including inactive ones.
+Response: '200': {organisations: [{ id, name, type, address, phone, email, active }]}
+
+### 'POST /api/admin/organisations'
+
+Creates a new organisation.
+Body: {name, type, address?, phone?, email?}
+— 'type' must be 'pharmacy' or 'gp_surgery'.
+Response '201': {organisation}
+Errors: '400': invalid/missing type, missing name
+
+### 'PATCH /api/admin/organisations/:id/deactivate'
+
+Deactivates an organisation, all of its user accounts, and revokes their sessions. Existing queries and replies remain in the system unchanged.
+Response: '200': {message}
+Errors: '400': attempting to deactivate the system organisation/invalid org id - '404': not found
+
+### 'PATCH /api/admin/organisations/:id/reactivate'
+
+Reactivates an organisation. Does not reactivate its associated staff accounts — each must be reactivated separately via staff management.
+Response: '200': {message}
+Errors: '400': attempting to reactivate the system organisation - '404': org not found
+
+### 'GET /api/admin/organisation-links'
+
+Lists all pharmacy - surgery links with both organisations' names.
+Response: '200': {links: [{id, pharmacy_id, pharmacy_name, gp_surgery_id, gp_surgery_name}]}`
+
+### 'POST /api/admin/organisation-links'
+
+Creates a link between a pharmacy and a GP surgery.
+Body: {pharmacy_id, gp_surgery_id}
+Response: '201': {link}
+Errors: '400' id does not refer to an organisation of the correct type/id missing - '409': orgs are already linked
 --
 
 ## Reports
 
+### 'GET /api/reports/resolution-stats'
+
+Manager roles only. Gets resolution performance for one organisation.
+Query Params (admin only): 'organisation_id'
+Response: '200': {total_queries, resolved_queries, percentage_resolved, avg_resolution_seconds}
+— 'avg_resolution_seconds' is 'null' if no queries have been resolved yet.
+Errors: '400' missing org id (admin)
+
 --
 
 ## Errors
+
+Every error response follows the same shape:
+
+{ "error": "Human-readable message" }
+
+'401' is returned by the 'authenticate' middleware for a missing, malformed,
+or invalid access token, before any route-specific logic runs.
+'403' is returned by the 'authorise' middleware for a valid but insufficiently
+privileged role, and is logged to the audit trail.
