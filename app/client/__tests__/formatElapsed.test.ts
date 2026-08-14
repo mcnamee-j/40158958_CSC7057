@@ -1,3 +1,4 @@
+// Unit tests for the time elapsed formatting function
 import { time_elapsed_format } from "../src/components/ui/formatElapsed";
 
 describe("formatElapsed", () => {

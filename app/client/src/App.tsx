@@ -15,6 +15,7 @@ import AdminHomePage from "./pages/admin/AdminHomePage";
 import StaffPage from "./pages/staff/StaffPage";
 import ProfilePage from "./pages/staff/ProfilePage";
 
+//regular org-facing routes (dashboard, queries, profile)
 const ALLOWED_ORG_ROLES = [
   "pharmacy_staff",
   "pharmacy_manager",
@@ -22,6 +23,10 @@ const ALLOWED_ORG_ROLES = [
   "practice_manager",
 ];
 
+// Route access model:
+// - RestrictedRoute: blocks all nested routes until authenticated
+// - RoleCheckRoute: further restricts by role, redirecting elsewhere if disallowed
+//   (org roles -> dashboard/queries/etc, admin -> /admin, managers + admin -> /staff)
 function App() {
   return (
     <AuthProvider>

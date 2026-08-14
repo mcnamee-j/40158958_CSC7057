@@ -1,3 +1,6 @@
+// Unit tests for Badge component
+// checks badge gets correct label and that the mappings work correctly
+
 import { render, screen } from "@testing-library/react";
 import Badge from "../src/components/ui/Badge";
 import {

@@ -1,3 +1,5 @@
+// Unit tests for format_label helper function
+
 import { format_label } from "../src/utils/format";
 
 describe("format_label", () => {

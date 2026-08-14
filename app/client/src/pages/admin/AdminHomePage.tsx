@@ -14,7 +14,7 @@ import {
 import { format_label } from "../../utils/format";
 import { Api_Error } from "../../api/client";
 
-//going to implement different tabs for new functionality (1 for overview, organisations and links)
+//admin dashboard is split into three tabs, each rendered as its own component below
 type Tabs = "overview" | "organisations" | "links";
 
 const AdminHomePage = () => {
@@ -79,6 +79,7 @@ const OverviewTab = () => {
     );
   }
 
+  // excludes the internal "system" organisation and its admin account from user-facing totals
   const total_orgs = overview.organisations
     .filter((org) => org.type !== "system")
     .reduce((sum, organisation) => sum + Number(organisation.count), 0);
@@ -390,6 +391,7 @@ const LinksTab = () => {
     get_data();
   }, []);
 
+  // only active orgs are selectable — prevents creating links to deactivated organisations
   const pharmacies = orgs.filter(
     (org) => org.type === "pharmacy" && org.active,
   );

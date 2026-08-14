@@ -37,7 +37,7 @@ const ResetPasswordPage = () => {
     try {
       await reset_password(token, newPassword);
       setSuccess(true);
-      setTimeout(() => navigate("/login"), 2000);
+      setTimeout(() => navigate("/login"), 2000); // brief delay so user sees the success message before redirect.
     } catch (e) {
       setError(
         e instanceof Api_Error

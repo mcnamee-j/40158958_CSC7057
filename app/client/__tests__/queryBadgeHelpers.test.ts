@@ -1,3 +1,7 @@
+// Unit tests for BadgeHelper's is_old threshold logic
+// is_old flags queries that have been open >24h without resolution,
+// used to visually highlight stale queries needing attention in the UI
+
 import { is_old } from "../src/components/ui/BadgeHelper";
 
 describe("is_old", () => {
@@ -10,7 +14,7 @@ describe("is_old", () => {
   });
 
   it("returns false exactly at the threshold boundary", () => {
-    expect(is_old("new", 24 * 60 * 60)).toBe(false); // exactly 24 hours - on boundary
+    expect(is_old("new", 24 * 60 * 60)).toBe(false); // exactly 24h is not yet old; must exceed 24h (boundary)
   });
 
   it("returns true for any non-resolved status over the threshold", () => {
@@ -20,6 +24,7 @@ describe("is_old", () => {
   });
 
   it("returns false for a resolved query, regardless of elapsed time", () => {
+    //once resolved, staleness no longer applies
     expect(is_old("resolved", 100 * 60 * 60)).toBe(false);
   });
 

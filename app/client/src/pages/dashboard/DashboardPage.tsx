@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 type Filter = "all" | QueryStatus;
 type Sort = "date" | "priority";
-const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
+const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 }; //highest priority first
 
 const DashboardPage = () => {
   const [queries, setQueries] = useState<Query[]>([]);
@@ -33,7 +33,7 @@ const DashboardPage = () => {
     fetch_queries();
   }, []);
 
-  //counts of each status
+  //counts of each status which feeds the filter button badges
   const counts = {
     all: queries.length,
     new: queries.filter((query) => query.status === "new").length,
@@ -103,7 +103,7 @@ const DashboardPage = () => {
       </div>
 
       {loading && (
-        <p className="text-sm text-placeholder-text">Loading queires...</p>
+        <p className="text-sm text-placeholder-text">Loading queries...</p>
       )}
 
       {error && <p className="text-sm text-status-danger-text">{error}</p>}

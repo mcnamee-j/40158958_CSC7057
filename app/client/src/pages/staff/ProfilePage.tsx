@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { update_profile } from "../../api/auth";
 import { Api_Error } from "../../api/client";
+import { format_label } from "../../utils/format";
 
 const ProfilePage = () => {
   const { user, refresh_user } = useAuth();
@@ -34,11 +35,13 @@ const ProfilePage = () => {
     }
   };
 
+  //disables the save button until something's actually changed
   const has_changes =
     firstName !== (user?.first_name ?? "") ||
     lastName !== (user?.last_name ?? "") ||
     email !== (user?.email ?? "");
 
+  // resets the success message whenever the user edits a field
   const handle_field_changes =
     (setter: (value: string) => void) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,7 +94,7 @@ const ProfilePage = () => {
           <label className="block text-xs text-green-700 mb-1">Role</label>
           <input
             type="text"
-            value={user?.role.replace("_", " ")}
+            value={user?.role ? format_label(user.role) : ""}
             disabled
             className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm bg-white text-placeholder-text capitalize"
           />
