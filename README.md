@@ -2,7 +2,9 @@
 
 # Loop - MSc Software Development Dissertation
 
-Loop is a web-based query management platform that supports two-way communication between community pharmacies and GP surgeries in NI. It acts as a replacement to telephone lines and emails with the ability to track status and resolution of routine queries across an entire organisation.
+Loop is a web-based query management platform that supports two-way communication between community pharmacies and GP
+surgeries in NI. It acts as a replacement to telephone lines and emails with the ability to track status and resolution
+of routine queries across an entire organisation.
 
 --
 
@@ -150,6 +152,12 @@ View sent emails at `http://localhost:8025`.
 
 --
 
+## API
+
+Refer to API.md for a fully documented overview of the system API.
+
+--
+
 ## Testing
 
 Backend Testing - Vitest & Supertest
@@ -197,6 +205,8 @@ suite, and builds the server.
   - a query reply
   - an audit log entry
   - a user or organsiation (can only be deactivated i.e., access blocked)
-    This is because traceability is key when patient safety is at stake. If incidents occur, the audit log shall show a complete history surrounding a query and who was involved. This cannot be edited or deleted for this reason.
+    This is because traceability is key when patient safety is at stake. If incidents occur,
+    the audit log shall show a complete history surrounding a query and who was involved.
+    This cannot be edited or deleted for this reason.
 - Admin accounts sit in their own dedicated "system" organisation in the database.
   This ensured they do not access pharmacy or GP practice workflows and are never included in reporting statistics.
