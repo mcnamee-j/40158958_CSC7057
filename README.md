@@ -52,6 +52,7 @@ app/
       types/        Frontend types - match backend
                      response
       utils/        Helper functions
+    __tests__       Vitest used on badge and helper functions
 ```
 
 --
