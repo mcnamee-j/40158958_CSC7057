@@ -104,7 +104,7 @@ jobs:
         run: npx tsc --noEmit
 
       - name: Run tests - Vitest (Client)
-        working-directory: app/clien
+        working-directory: app/client
         run: npm test
 
       - name: Build (client)

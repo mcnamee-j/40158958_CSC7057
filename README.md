@@ -179,6 +179,11 @@ Commands (in server directory):
 
 Test files are run sequentially (fileParallelism: false) - as they share a real database. Each test file truncates tables using - beforeall - so each test run starts from a clean starting point.
 
+Frontend Testing - Vitest
+
+Commands (in client directory)
+npm test
+
 --
 
 ## CI
