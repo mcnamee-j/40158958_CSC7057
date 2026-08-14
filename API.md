@@ -138,14 +138,56 @@ Errors: '400': invalid/missing assignee - '404': query not found
 
 ## Organisations
 
+### 'GET /api/organisations/linked'
+
+Authorised-only route. Returns organisations linked to caller's organisation. Used to populate recipient dropdown on query creation. Returns only active organisations.
+Response: '200': {organisations: [{id, name, type}]}
+
+### 'GET /api/organisations/staff'
+
+Authorised-only route. Returns active colleagues, excluding caller. Used to populate assignment dropdown on query thread page.
+Response: '200': {staff: [{id, first_name, last_name, role}]}
+
 --
 
 ## Notifications
+
+All routes require auth; Notifications are scoped to the requesting user.
+
+### 'GET /api/notifications/'
+
+Response: '200': {notifications: [{id, query_id, type, message, is_read, created_at}]} (most recent 50)
+
+### 'PATCH /api/notifications/:id/read'
+
+Marks a notification as read. A user can mark only their own notifications as read.
+Response: '200': {message}
+Errors: '404': not found
+
+### 'PATCH /api/notifications/read-all'
+
+Marks all the caller's notifications as read.
+Response: '200': {message}
 
 --
 
 ## Staff Management
 
+'GET' is open to all authenticated organisational roles (read access for filter dropdowns). Creating, deactivating, reactivating and requesting a password reset email are restricted to manager roles.
+
+Admin users must pass an organisation's id as a query param to specify which organisation they are managing on the staff page.
+
+### 'GET /api/staff/'
+
+Query Params (admin only): organisation_id
+Response: '200': {staff: [{id, first_name, last_name, email, role, active}]}
+
+### 'POST /api/staff/'
+
+Manager roles only. Creates new staff account - emails new user's email with a link to set password reusing the reset-password flow.
+Body: { first_name, last_name, email, role, organisation_id?}
+Response: '201': {staff}
+Errors: '400': Invalid role for organisation type/missing org id (admin only) - '409': email already in use
 --
 
 ## Admin
