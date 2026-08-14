@@ -71,7 +71,7 @@ jobs:
             -h localhost \
             -U test_user \
             -d loop_test \
-            -f src/config/40158958_project_1.sql
+            -f src/config/40158958_project.sql
 
       - name: Run seed data
         working-directory: app/server
