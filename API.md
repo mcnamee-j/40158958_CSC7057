@@ -76,6 +76,64 @@ Errors: '400': missing fields - '409': email already in use by another account -
 
 ## Queries
 
+All queries routes require auth and a scoped role:
+
+- 'pharmacy_staff'
+- 'pharmacy_manager'
+- 'practice_staff'
+- 'practice_manager'
+
+### 'POST /api/queries/'
+
+Creates a new query.
+Body - {recipient_org_id, category, priority?, patient?, subject, body}
+
+- patient (optional): {initials?, dob?, hcn?} - if provided. require 2 of 3 patient identifiers
+- priority defaults to medium
+
+Response: '201': {query}
+Errors: '400': missing fields or invalid patient identifiers - '403': organisations not linked
+
+### 'GET /api/queries/'
+
+Lists queries visible to the caller's organisation.
+Query Params (all optional): 'status', 'category', 'priority', 'search' (subject/ref. number), 'patient_initials', 'patient_dob', 'patient_hcn', 'org_id', 'date' (date raised, YYYY-MM-DD), 'assigned_to' (user_id), 'page', 'limit' (default 20)
+Response: '200': {queries: [...], total}
+
+### 'GET /api/queries/:id'
+
+Retrieves a specific query with its full query thread. Marks any unread non-internal replies from other organisation as read.
+Response: '200': {query, replies: [...]}
+Errors: '404': query not found - '400': invalid query id
+
+### 'POST /api/queries/:id/replies'
+
+Adds reply or internal note.
+Body: {body, is_internal?} (default 'false')
+Adding a reply (non-internal) on 'new' query, progresses status to 'in_progress'
+Response: '201': {reply}
+Errors: '400': empty/missing body - '404': query not found
+
+### 'PATCH /api/queries/:id/status'
+
+Body: {status, reoslution_note?}
+
+- status: 'new', 'in_progress', 'escalated', 'resolved'
+- resolution notes only stored when resolved using sidebar status dropdown method on UI
+
+Response: '200': {query}
+Errors: '400' invalid/missing status - '404': query not found
+
+### 'PATCH /api/queries/:id/assign'
+
+Body: {assigned_to, escalate?}
+
+- assigned_to: must be an active user in the caller's organsiation
+- escalate: if 'true', sets status to 'escalated'
+
+Response: '200': {query}
+Errors: '400': invalid/missing assignee - '404': query not found
+
 --
 
 ## Organisations
