@@ -1,8 +1,11 @@
+//Integration tests for authentication
+
 import { describe, it, expect, afterAll, beforeAll } from "vitest";
 import pool from "../src/config/db";
 import request from "supertest";
 import app from "../src/app";
 
+//wiping them avoids cross-test/cross-run interference while preserving seeded users/orgs
 beforeAll(async () => {
   await pool.query(
     `TRUNCATE refresh_tokens, password_reset_tokens, audit_log

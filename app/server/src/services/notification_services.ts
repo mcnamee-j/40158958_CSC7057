@@ -1,7 +1,7 @@
 import pool from "../config/db.js";
 import type { NotificationType } from "../types/query_types.js";
 
-//create notification
+//create org-wide notification
 const create_notification = async (
   recipient_org_id: number,
   query_id: number,
@@ -19,9 +19,8 @@ const create_notification = async (
 
   if (users.rows.length === 0) return; //no active users therefore no notification needed - returns
 
-  //genrate bulk insert sql statement (already have query_id, type and message and array of users)
-  //require our parameters and values - capture in two new and empty arrays - cycle through each user to fill remaining values
-  // there are 5 values per insert statement, therefore every index*5 = a new user
+  //generates single multi-row INSERT sql statement (already have query_id, type and message and array of users)
+  // to notify every active user in the org in one query, instead of N queries
   const values: string[] = [];
   const params: (number | string | boolean)[] = [];
 
@@ -67,11 +66,11 @@ const get_notifications_user = async (user_id: number) => {
     LIMIT 50`,
     [user_id],
   );
-  //returns whole object - return only arrat of notifcations
+  //returns whole object - return only array of notifications
   return response.rows;
 };
 
-//mark single notifaction as read - other users shouldnt be able to mark a users notifcation as read
+//mark single notification as read - other users shouldnt be able to mark a users notification as read
 const mark_notification_read = async (
   user_id: number,
   notification_id: number,

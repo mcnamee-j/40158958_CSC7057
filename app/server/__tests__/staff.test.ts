@@ -1,3 +1,5 @@
+//Integration tests for staff routes
+
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import pool from "../src/config/db";
 import request from "supertest";
@@ -50,7 +52,7 @@ describe("POST /api/staff", () => {
       .send({
         first_name: "New",
         last_name: "Staff",
-        email: `new-${Date.now()}@pharmacy.com`,
+        email: `new-${Date.now()}@pharmacy.com`, //unique email per run to avoid 409 conflicts with previous test runs' leftover data
         role: "pharmacy_staff",
       });
     expect(res.status).toBe(201);

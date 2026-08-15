@@ -1,4 +1,3 @@
-//enums
 export type OrganisationType = "pharmacy" | "gp_surgery";
 
 export type UserRole =
@@ -8,6 +7,7 @@ export type UserRole =
   | "pharmacy_staff"
   | "practice_staff";
 
+// AuthenticatedUser: shape of the decoded JWT payload (req.user)
 export interface AuthenticatedUser {
   userId: number;
   role: string;
@@ -27,6 +27,7 @@ export interface Organisation {
   created_at: Date;
 }
 
+// User: full database row, including hashed_password — never sent to the client directly
 export interface User {
   id: number;
   organisation_id: number;

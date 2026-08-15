@@ -31,6 +31,8 @@ app/
       controllers/  Request/response handling per
                      each group of routes
       services/     Business logic -> all DB queries
+      roles/        Extracted roles to avoid duplicated code and enhance
+                    maintainability
       routes/       Express routes
       middleware/    authenticate, authorise,
                      + error_handler

@@ -18,7 +18,7 @@ const validate_patient_refs = (patient?: PatientReferences): void => {
   if (ref_count === 0) return; //if empty then ok as this is optional
   if (ref_count === 1) {
     throw new Error(
-      "Invalid patient identifiers - require two patient identifers",
+      "Invalid patient identifiers - require two patient identifiers",
     );
   }
 };
@@ -30,7 +30,8 @@ const find_or_create_patient = async (patient?: PatientReferences) => {
     return null;
   }
 
-  //hcn is a unique identifier and so we should search by that to start
+  // HCN is unique when present, so it's the most reliable match
+  // falls back to initials+DOB only when HCN is absent
   if (patient.hcn) {
     const patient_record = await pool.query(
       `SELECT id

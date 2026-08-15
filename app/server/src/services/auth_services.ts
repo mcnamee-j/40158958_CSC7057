@@ -1,3 +1,7 @@
+// Handles login, session refresh, and password reset flows. Refresh and
+// password-reset tokens are stored server-side only as SHA-256 hashes
+// (never in plaintext)
+
 import pool from "../config/db.js";
 import jwt from "jsonwebtoken";
 import type { User } from "../types/types.js";
@@ -57,7 +61,8 @@ const login = async (email: string, password: string) => {
     { expiresIn: "15m" },
   );
 
-  // expiry/refresh token - saved in db
+  // only the hash is stored server-side whereas the raw token is sent to the user
+  // a DB leak alone can't be used to forge a session
   const refresh_token = crypto.randomUUID();
 
   const token_hash = crypto

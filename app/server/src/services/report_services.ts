@@ -2,6 +2,8 @@ import pool from "../config/db.js";
 
 const get_statistics = async (organisation_id: number) => {
   const result = await pool.query(
+    // FILTER: conditional aggregation within a single query,
+    // avoids two separate queries
     `SELECT 
         COUNT(*) FILTER (WHERE status = 'resolved') AS resolved_count,
         COUNT(*) AS total_count,

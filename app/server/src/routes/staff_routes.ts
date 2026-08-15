@@ -2,16 +2,9 @@ import express from "express";
 import staff_controller from "../controllers/staff_controller.js";
 import authenticate from "../middleware/authenticate.js";
 import authorise from "../middleware/authorise.js";
+import { MANAGER_ROLES, STAFF_ROLES } from "../roles/roles.js";
 
 const router = express.Router();
-const STAFF_ROLES = [
-  "pharmacy_staff",
-  "pharmacy_manager",
-  "practice_staff",
-  "practice_manager",
-  "admin",
-];
-const MANAGER_ROLES = ["pharmacy_manager", "practice_manager", "admin"];
 
 router.get(
   "/",
