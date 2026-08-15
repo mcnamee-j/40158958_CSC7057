@@ -289,10 +289,8 @@ Errors: '400' id does not refer to an organisation of the correct type/id missin
 ### 'GET /api/reports/resolution-stats'
 
 Manager roles only. Gets resolution performance for one organisation.
-Query Params (admin only): 'organisation_id'
 Response: '200': {total_queries, resolved_queries, percentage_resolved, avg_resolution_seconds}
 — 'avg_resolution_seconds' is 'null' if no queries have been resolved yet.
-Errors: '400' missing org id (admin)
 
 --
 

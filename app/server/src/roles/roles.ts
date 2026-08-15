@@ -13,6 +13,8 @@ export const ALLOWED_QUERY_ROLES = [
 ];
 
 //report routes - admin included — can view stats for any org via the organisation_id param
+export const MANAGER_ROLES_NO_ADMIN = ["pharmacy_manager", "practice_manager"];
+
 //staff routes - admin required for create/deactivate/reactivate/reset-password actions
 export const MANAGER_ROLES = ["pharmacy_manager", "practice_manager", "admin"];
 
