@@ -272,6 +272,7 @@ const QueryThreadPage = () => {
                     {reply.sender_first_name} {reply.sender_last_name} -{" "}
                     <span className="capitalize">
                       {reply.sender_role ? format_label(reply.sender_role) : ""}
+                      {" - "}
                     </span>
                     {reply.sender_org_display_name}
                   </div>
