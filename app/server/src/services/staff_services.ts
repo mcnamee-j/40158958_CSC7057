@@ -6,6 +6,8 @@ import {
   send_password_reset_email,
 } from "./mail_service.js";
 
+// mirrors ROLE_OPTIONS in the frontend's StaffPage
+// server-side enforcement of valid roles per org type
 const PHARMACY_ROLES = ["pharmacy_staff", "pharmacy_manager"];
 const GP_SURGERY_ROLES = ["practice_staff", "practice_manager"];
 
@@ -53,7 +55,8 @@ const create_staff = async (
     throw new Error("Email already in use");
   }
 
-  //set password for new user to a random string
+  // placeholder password
+  // account is inaccessible until the user sets their own via the invite link
   const random_password = crypto.randomUUID() + crypto.randomUUID();
   const hashed_password = await bcrypt.hash(random_password, 10);
 

@@ -42,6 +42,7 @@ const NewQueryPage = () => {
 
     setSubmitting(true);
 
+    // only send patient data if 2 fields are filled
     const patient =
       initials || dob || hcn
         ? {
@@ -87,6 +88,7 @@ const NewQueryPage = () => {
       setSubject(template.subject);
       setBody(template.body);
     } else {
+      // clears form back to defaults when template is deselected.
       setCategory("prescription");
       setPriority("medium");
       setSubject("");
@@ -180,7 +182,7 @@ const NewQueryPage = () => {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap 3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-sm text-green-900 mb-1">
               Recipient
@@ -274,7 +276,7 @@ const NewQueryPage = () => {
           ></textarea>
         </div>
 
-        {error && <p className="txt-sm text-status-danger-text">{error}</p>}
+        {error && <p className="text-sm text-status-danger-text">{error}</p>}
 
         <div className="flex justify-end">
           <button

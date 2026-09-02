@@ -43,10 +43,13 @@ const StaffPage = () => {
       .catch(() => setOrgs([]));
   }, [is_admin]);
 
+  // organisation type isn't stored on the auth user object, so it must be
+  // derived here: admins pick an org from the dropdown (org_type comes from
+  // that selection), while non-admin managers belong to exactly one org type,
+  // which is inferred from their own role prefix (e.g. "pharmacy_manager" -> pharmacy)
   const target_org_id = is_admin ? selectedOrgId || undefined : undefined;
   const selected_org = orgs.find((org) => org.id === selectedOrgId);
 
-  //organisation type not on auth user object - need to decide based on role
   const org_type = is_admin
     ? selected_org?.type
     : user?.role.startsWith("pharmacy")
@@ -132,6 +135,8 @@ const StaffPage = () => {
     try {
       await reset_staff_password(member.id);
       setResetSentId(member.id);
+      // auto-clears the "Link sent" confirmation after 3s so it doesn't
+      // linger indefinitely next to the staff member's row
       setTimeout(() => setResetSentId(null), 3000);
     } catch {
       setError("Could not send a reset link at this time.");
@@ -153,8 +158,9 @@ const StaffPage = () => {
 
       {is_admin && (
         <div>
-          <label htmlFor="">Organisation</label>
+          <label>Organisation</label>
           <select
+            id="organisation_select"
             value={selectedOrgId}
             onChange={(e) =>
               setSelectedOrgId(e.target.value ? Number(e.target.value) : "")

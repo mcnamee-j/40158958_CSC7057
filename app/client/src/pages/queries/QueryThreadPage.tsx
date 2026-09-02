@@ -62,6 +62,7 @@ const QueryThreadPage = () => {
   };
 
   useEffect(() => {
+    //guards against a malformed :id route param
     if (!Number.isInteger(query_id)) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     get_thread();
@@ -182,6 +183,8 @@ const QueryThreadPage = () => {
   }
 
   //for mapping
+  // "new" is only offered as a status option when the query is created
+  // — once progressed, it can't be moved back to "new" manually
   const SELECTABLE_STATUSES: QueryStatus[] = [
     "in_progress",
     "escalated",
@@ -249,6 +252,8 @@ const QueryThreadPage = () => {
 
         <div className="flex flex-col gap-2.5">
           {replies.map((reply) => {
+            // determines chat-bubble side/styling: messages from the viewer's own
+            // organisation are right-aligned, others are left-aligned
             const own_org_message =
               reply.sender_org_id === user?.organisation_id;
             const initials = `${reply.sender_first_name?.[0] ?? ""}${reply.sender_last_name?.[0] ?? ""}`;
@@ -266,7 +271,8 @@ const QueryThreadPage = () => {
                   >
                     {reply.sender_first_name} {reply.sender_last_name} -{" "}
                     <span className="capitalize">
-                      {reply.sender_role?.replace("_", " ")},{" "}
+                      {reply.sender_role ? format_label(reply.sender_role) : ""}
+                      {" - "}
                     </span>
                     {reply.sender_org_display_name}
                   </div>
@@ -290,6 +296,7 @@ const QueryThreadPage = () => {
                     className={`text-xs text-placeholder-text mt-0.5 ${own_org_message ? "text-right" : ""}`}
                   >
                     {new Date(reply.sent_at).toLocaleString()}
+                    {/* read receipts are only shown for the viewer's own messages */}
                     {own_org_message && reply.read_at && " - read"}
                   </div>
                 </div>
@@ -419,16 +426,14 @@ const QueryThreadPage = () => {
                 type="text"
                 value={resolutionNote}
                 onChange={(e) => setResolutionNote(e.target.value)}
-                className="w-ful rounded-md border border-surface-mid px-2 py-1.5 text-sm"
+                className="w-full rounded-md border border-surface-mid px-2 py-1.5 text-sm"
               />
             </div>
           )}
         </div>
 
         <div className="pt-2 border-t border-surface-mid">
-          <label className="block text-xs text-green-700 mb-1">
-            Asssign to
-          </label>
+          <label className="block text-xs text-green-700 mb-1">Assign to</label>
           <select
             value={assigneeId}
             onChange={(e) =>

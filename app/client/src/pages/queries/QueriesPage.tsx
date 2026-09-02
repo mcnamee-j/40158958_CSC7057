@@ -48,6 +48,7 @@ const QueriesPage = () => {
       .catch(() => setStaffOptions([]));
   }, []);
 
+  // shared by both the filter-button useEffect and the manual search form submit
   const find_queries = async () => {
     setLoading(true);
     setError(null);

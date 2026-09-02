@@ -3,6 +3,8 @@ import type { AuthenticatedUser } from "../types/types.js";
 
 const get_linked_organisations = async (user: AuthenticatedUser) => {
   const result = await pool.query(
+    // CASE WHEN...returns "the other side" of each link
+    // e.g. if caller is the pharmacy, return the linked GP surgery, and vice versa
     `SELECT organisations.id, organisations.name, organisations.type
      FROM organisation_links
      JOIN organisations

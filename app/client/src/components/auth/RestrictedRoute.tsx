@@ -1,3 +1,6 @@
+// Route guard: blocks access to nested routes until auth state resolves,
+// redirects to /login if no authenticated user is found
+
 import { useAuth } from "../../hooks/useAuth";
 import { Navigate, Outlet } from "react-router-dom";
 

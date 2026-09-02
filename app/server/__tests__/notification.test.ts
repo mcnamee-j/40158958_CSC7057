@@ -1,3 +1,5 @@
+//Integration tests for notifications routes
+
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import pool from "../src/config/db";
 import request from "supertest";

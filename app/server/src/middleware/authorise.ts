@@ -1,4 +1,7 @@
-//file checks users role is authorised for requested route
+// Restricts a route to specific roles.
+// Must run after authenticate().
+// Logs an audit entry for any denied access attempt before returning 403.
+
 import type { Request, Response, NextFunction } from "express";
 import pool from "../config/db.js";
 
@@ -11,6 +14,7 @@ const authorise = (allowedRoles: string[]) => {
       }
 
       if (!allowedRoles.includes((req as any).user.role)) {
+        // records denied access attempts for security auditing
         await pool.query(
           `INSERT INTO audit_log (user_id, action, performed_at)
         VALUES ($1, 'unauthorised_access_attempt', NOW())`,
@@ -22,6 +26,7 @@ const authorise = (allowedRoles: string[]) => {
 
       next();
     } catch {
+      // fallback for any unexpected errors
       return res.status(403).json({ error: "Something went wrong" });
     }
   };

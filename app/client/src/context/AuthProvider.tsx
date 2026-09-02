@@ -1,6 +1,9 @@
+// Provides authentication state to the whole app. On mount, attempts to
+// restore a session from a stored refresh token before rendering children.
+
 import { useState, useEffect, type ReactNode } from "react";
 import { login as api_login, logout as api_logout } from "../api/auth";
-import { set_on_auth_failure } from "../api/client";
+import { set_on_auth_failure, refresh_attempt } from "../api/client";
 import { AuthContext, type User } from "./AuthContext";
 import { getUser } from "../api/auth";
 
@@ -20,21 +23,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      //if resfresh token exists...
+      //if refresh token exists...
       try {
-        const res = await fetch(
-          `${import.meta.env.VITE_API_URL ?? "http://localhost:4000"}/api/auth/refresh`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ refresh_token }),
-          },
-        );
-        if (!res.ok) throw new Error("Refresh failed");
-        const data = await res.json();
-
-        const { set_access_token } = await import("../api/client"); //store new access token
-        set_access_token(data.access_token);
+        const refreshed = await refresh_attempt();
+        if (!refreshed) throw new Error("Refresh failed");
 
         const getUserRes = await getUser();
         const api_user = getUserRes.data.user;

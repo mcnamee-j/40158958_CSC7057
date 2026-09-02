@@ -1,3 +1,5 @@
+//Integration tests for query routes
+
 import { describe, it, expect, afterAll, beforeAll } from "vitest";
 import pool from "../src/config/db";
 import request from "supertest";
@@ -24,7 +26,8 @@ beforeAll(async () => {
      RESTART IDENTITY CASCADE`,
   );
 
-  //log all users in and store token and id
+  // logs in accounts across both linked orgs (pharmacy + GP surgery), an unlinked org (aoife),
+  // and admin — covers cross-org visibility, permission, and linkage checks used throughout this file
   const jane = await request(app)
     .post("/api/auth/login")
     .send({ email: "jane@pharmacy.com", password: "Password123!" });
@@ -213,7 +216,7 @@ describe("GET /api/queries", () => {
     expect(res.body).toHaveProperty("total");
     expect(res.body.queries.some((query: any) => query.id === created.id)).toBe(
       true,
-    ); //.some requires one query in array to match
+    ); // .some() confirms the created query appears somewhere in the returned list
   });
 
   it("returns the same query to the recipient org", async () => {
@@ -879,6 +882,7 @@ describe("audit log entries for query actions", () => {
     expect(result.rows.length).toBeGreaterThan(0);
   });
 
+  // escalating during assignment triggers both a query_assigned and a status_changed audit entry
   it("creates two audit log entries when assigning with escalation", async () => {
     const created = await create_test_query();
 

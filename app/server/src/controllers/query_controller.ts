@@ -1,3 +1,7 @@
+// Controllers validate request shape, delegate business logic to the
+// service layer, and map known service error messages to HTTP status
+// codes. Unexpected errors are passed to next(e) for centralised handling.
+
 import type { Request, Response, NextFunction } from "express";
 import query_services from "../services/query_services.js";
 
@@ -31,7 +35,6 @@ const create_query = async (
 
     res.status(201).json({ query });
   } catch (e: any) {
-    //capture each error
     if (e.message === "Organisations are not linked") {
       res.status(403).json({ error: "Organisations are not linked" });
       return;
@@ -39,7 +42,7 @@ const create_query = async (
 
     if (
       e.message ===
-      "Invalid patient identifiers - require two patient identifers"
+      "Invalid patient identifiers - require two patient identifiers"
     ) {
       res.status(400).json({
         error:
@@ -52,6 +55,8 @@ const create_query = async (
 };
 
 // get orgs list of queries - w/ filters
+// query params arrive as strings and therefore require casting
+//  to expected types before passing to the service layer.
 const list_queries = async (
   req: Request,
   res: Response,

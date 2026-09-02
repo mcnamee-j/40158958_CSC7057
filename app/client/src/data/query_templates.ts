@@ -1,3 +1,6 @@
+// [ENTER ... HERE] placeholders are intentional — itended for staff to replace these
+// manually before sending
+
 import type { QueryCategory, QueryPriority } from "../types/query.types";
 
 export interface Query_Template {
