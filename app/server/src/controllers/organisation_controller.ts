@@ -1,6 +1,9 @@
+// Controllers validate request shape, delegate business logic to the
+// service layer, and map known service error messages to HTTP status
+// codes. Unexpected errors are passed to next(e) for centralised handling.
+
 import type { Request, Response, NextFunction } from "express";
 import organisation_services from "../services/organisation_services.js";
-import { get } from "http";
 
 const get_linked_orgs = async (
   req: Request,

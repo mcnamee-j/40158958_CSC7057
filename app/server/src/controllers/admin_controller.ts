@@ -1,3 +1,7 @@
+// Controllers validate request shape, delegate business logic to the
+// service layer, and map known service error messages to HTTP status
+// codes. Unexpected errors are passed to next(e) for centralised handling.
+
 import type { Request, Response, NextFunction } from "express";
 import admin_services from "../services/admin_services.js";
 
@@ -64,7 +68,7 @@ const create_link = async (req: Request, res: Response, next: NextFunction) => {
     if (!pharmacy_id || !gp_surgery_id) {
       res
         .status(400)
-        .json({ error: "pharmacy_id and gp_surgery_id are requried" });
+        .json({ error: "pharmacy_id and gp_surgery_id are required" });
       return;
     }
     const link = await admin_services.create_organisation_link(
@@ -96,7 +100,7 @@ const deactivate_org = async (
   try {
     const organisation_id = parseInt(req.params.id as string, 10);
     if (!Number.isInteger(organisation_id)) {
-      res.status(400).json({ error: "Invalud organisation id" });
+      res.status(400).json({ error: "Invalid organisation id" });
       return;
     }
     await admin_services.deactivate_organisation(organisation_id);

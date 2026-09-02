@@ -1,4 +1,6 @@
 //file to create/pad out a human readable reference number for each query
+// produces refs like "Q-20260815-0472"
+// the 4-digit random suffix keeps collisions rare within a single day
 
 const generate_ref_number = (): string => {
   const date = new Date();

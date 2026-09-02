@@ -1,6 +1,13 @@
+// Controllers validate request shape, delegate business logic to the
+// service layer, and map known service error messages to HTTP status
+// codes. Unexpected errors are passed to next(e) for centralised handling.
+
 import type { Request, Response, NextFunction } from "express";
 import staff_services from "../services/staff_services.js";
 
+// Resolves which organisation's staff to operate on: admins must supply
+// an organisation_id, while managers are scoped to their own organisation.
+// Throws an error if an admin omits it.
 const get_staff_org_id = (req: Request) => {
   const user = (req as any).user;
   if (user.role === "admin") {
@@ -82,7 +89,7 @@ const deactivate = async (req: Request, res: Response, next: NextFunction) => {
     const user_id = parseInt(req.params.id as string, 10);
     const current_user_id = (req as any).user.userId;
 
-    if (!Number(user_id)) {
+    if (!Number.isInteger(user_id)) {
       res.status(400).json({ error: "Invalid user id" });
       return;
     }

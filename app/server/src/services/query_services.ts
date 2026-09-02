@@ -5,7 +5,7 @@ import type {
   QueryStatus,
 } from "../types/query_types.js";
 import type { AuthenticatedUser } from "../types/types.js";
-import generate_ref_number from "../utils/reference_number_genrator.js";
+import generate_ref_number from "../utils/reference_number_generator.js";
 import audit_services from "./audit_services.js";
 import notification_services from "./notification_services.js";
 import patient_services from "./patient_services.js";
@@ -36,6 +36,8 @@ const create_query = async (
   let ref_number = generate_ref_number();
   let query_data;
 
+  // retries once on ref_number collision (23505)
+  // a second collision (very unlikely to occur twice) is treated as a genuine error
   for (let insert_attempts = 0; insert_attempts < 2; insert_attempts++) {
     try {
       query_data = await pool.query(
@@ -95,7 +97,9 @@ const create_query = async (
   return query;
 };
 
-//get user organisation queries - include filters @ sql level
+// builds a parameterised WHERE clause dynamically
+// each optional filter appends both a SQL condition and its matching parameter
+// keeps user input safely parameterised throughout
 const get_org_queries = async (
   user: AuthenticatedUser,
   filters: {
@@ -251,7 +255,8 @@ const get_query_by_id = async (user: AuthenticatedUser, query_id: number) => {
     return null;
   }
 
-  //mark replies from other org as read
+  // side effect: viewing the thread marks the other
+  // org's unread replies as read
   await pool.query(
     `UPDATE query_replies
     SET read_at = NOW()
@@ -408,6 +413,8 @@ const update_status = async (
   const old_status = query.status;
   const is_resolving = new_status === "resolved"; //checks if status is resolved, if not it is false
 
+  // sql below is safe
+  // interpolated value is a fixed SQL literal, not user input
   const updated = await pool.query(
     `UPDATE queries
     SET status = $1,

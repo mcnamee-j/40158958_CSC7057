@@ -1,6 +1,10 @@
+// Shared PostgreSQL connection pool, configured from environment variables.
+// Imported across services/controllers/tests for all database access.
+
 import { Pool, types } from "pg";
 import dotenv from "dotenv";
 
+// must run before Pool is constructed so DB_* env vars are available
 dotenv.config();
 
 //stop postgres from converting dates into JS DATE objects (timezone issues shift the date)

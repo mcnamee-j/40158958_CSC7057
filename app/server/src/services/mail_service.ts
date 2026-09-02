@@ -33,7 +33,7 @@ export const send_password_reset_email = async (
     subject: "Loop - Password Reset Request",
     html: `
         <p>Hi ${first_name},</p>
-        <p>We have recieved a request to reset the password for your Loop account.</p>
+        <p>We have received a request to reset the password for your Loop account.</p>
         <p>To reset your password click the following link:</p>
         <a href="${reset_URL}">Click Here to reset your password</a>
         <p>If you did not request to reset your password, ignore this email</p>
@@ -41,6 +41,7 @@ export const send_password_reset_email = async (
   });
 };
 
+// reuses the reset-password flow/route since both cases are "set a new password via token"
 export const send_invitation_email = async (
   email: string,
   first_name: string,

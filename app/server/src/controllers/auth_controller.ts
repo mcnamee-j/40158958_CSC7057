@@ -1,3 +1,7 @@
+// Controllers validate request shape, delegate business logic to the
+// service layer, and map known service error messages to HTTP status
+// codes. Unexpected errors are passed to next(e) for centralised handling.
+
 import type { Request, Response, NextFunction } from "express";
 import auth_services from "../services/auth_services.js";
 
@@ -148,7 +152,7 @@ const update_user = async (req: Request, res: Response, next: NextFunction) => {
     if (!first_name || !last_name || !email) {
       res
         .status(400)
-        .json({ error: "first_name, last_name, email are requried" });
+        .json({ error: "first_name, last_name, email are required" });
       return;
     }
 

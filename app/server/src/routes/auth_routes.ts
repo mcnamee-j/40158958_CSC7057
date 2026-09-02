@@ -4,7 +4,7 @@ import authenticate from "../middleware/authenticate.js";
 
 const router = express.Router();
 
-//routes
+// login, refresh, forgot/reset password are public, others require a valid access token
 router.post("/login", auth_controller.login);
 router.post("/logout", authenticate, auth_controller.logout);
 router.post("/refresh", auth_controller.refresh);

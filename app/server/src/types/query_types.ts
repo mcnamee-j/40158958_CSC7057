@@ -5,6 +5,9 @@ export type QueryStatus =
   | "escalated"
   | "resolved";
 
+// runtime-checkable mirror of QueryStatus,
+// used for validating incoming string values
+// (types alone can't validate at runtime)
 export const QUERY_STATUSES: readonly QueryStatus[] = [
   "new",
   "in_progress",

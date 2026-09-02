@@ -1,3 +1,5 @@
+// Integration tests for admin-only endpoints (overview, org management, org linking) using seeded test data.
+
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import pool from "../src/config/db";
 import request from "supertest";
@@ -8,6 +10,7 @@ let jane_token: string;
 let mark_token: string;
 
 beforeAll(async () => {
+  //guards against leftover data from a previous failed test run polluting this one
   await pool.query(`DELETE FROM users WHERE email LIKE 'temp%@surgery.com'`);
 
   const admin = await request(app)

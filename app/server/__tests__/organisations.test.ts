@@ -1,3 +1,5 @@
+//Integration tests for organisation routes
+
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import pool from "../src/config/db";
 import request from "supertest";
@@ -46,7 +48,7 @@ describe("GET /api/organisations/linked", () => {
       .set("Authorization", `Bearer ${sarah_token}`);
 
     expect(res.status).toBe(200);
-    expect(res.body.organisations).toHaveLength(1);
+    expect(res.body.organisations).toHaveLength(1); //update if db.sql seed data changes
     expect(res.body.organisations[0].name).toBe("City Pharmacy Belfast");
     expect(res.body.organisations[0].type).toBe("pharmacy");
   });
